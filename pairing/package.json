@@ -1,0 +1,23 @@
+{
+    "name": "homekit.sh-pairing",
+    "version": "0.1",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "clean": "rm -R dist",
+        "build": "tsc",
+        "createSecrets": "ts-node -e \"import {createSecrets} from './createSecrets'; createSecrets()\"",
+        "pairSetup": "ts-node -e \"import {pairSetup} from './pairSetup'; pairSetup('$(cat ../config/pincode)', '$(cat ../config/username)', '$(echo $SESSION_STORE_PATH)')\"",
+        "pairVerify": "ts-node -e \"import {pairVerify} from './pairVerify'; pairVerify('$(cat ../config/username)', '$(echo $SESSION_STORE_PATH)')\""
+    },
+    "keywords": [],
+    "dependencies": {
+        "fast-srp-hap": "~2.0.4",
+        "futoin-hkdf": "~1.4.3",
+        "tweetnacl": "^1.0.3"
+    },
+    "devDependencies": {
+        "ts-node": "^10.7.0",
+        "typescript": "~4.9.3"
+    }
+}

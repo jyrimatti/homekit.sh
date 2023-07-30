@@ -1,0 +1,26 @@
+#! /nix/var/nix/profiles/default/bin/nix-shell
+#! nix-shell --pure -i python -I channel:nixos-23.05-small -p python3Packages.tlv8
+
+import sys
+import os
+import tlv8
+
+content = b''
+for o in os.listdir('./store/pairings'):
+    pairingID   = open("./store/pairings/" + o + "/iOSDevicePairingID","r").read()
+    ltpk        = open("./store/pairings/" + o + "/iOSDeviceLTPK","rb").read()
+    permissions = open("./store/pairings/" + o + "/iOSDevicePermissions","rb").read()
+
+    data = [
+        tlv8.Entry(6, 2),
+        tlv8.Entry(1, pairingID),
+        tlv8.Entry(3, ltpk),
+        tlv8.Entry(11, int.from_bytes(permissions, byteorder='little'))
+    ]
+
+    content += tlv8.encode(data)
+
+print('Content-Type: application/hap+json')
+print('Content-Length: ' + str(len(content)))
+print('')
+print(content)

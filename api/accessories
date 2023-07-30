@@ -1,0 +1,11 @@
+#! /usr/bin/env nix-shell
+#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p nix jq yq yajsv parallel findutils
+set -euo pipefail
+PS4='+ $(date "+%T.%3N ($LINENO) ")'
+
+accessories=$(find ./accessories -name '*.toml' -print0 |\
+              xargs -0 -I{} echo "./util/validate-toml.sh {} | jq -c '.services | .[]' | ./util/generate-service.sh | jq -s '{ aid: \$aid, services: map({type, iid, characteristics}) }' --argjson aid \$(./util/aid.sh {})" |\
+              parallel -k --jobs 0 |\
+              jq -s '{accessories: . }')
+
+./util/respond.sh 200 "$accessories"

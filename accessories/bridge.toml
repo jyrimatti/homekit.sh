@@ -1,0 +1,19 @@
+aid=1
+
+[[services]]
+type = "AccessoryInformation"
+
+[services.characteristics]
+Identify = {} # leave property completely out 'cos otherwise Homekit won't accept
+Manufacturer = "Jyri-Matti Lähteenmäki"
+Model = "Homekit.sh"
+Name = "Homekit.sh Bridge"
+SerialNumber = "037A2BABF19D"
+FirmwareRevision = "100.1.1"
+
+
+[[services]]
+type = "HAPProtocolInformation"
+
+[services.characteristics]
+Version = "1.1.0"

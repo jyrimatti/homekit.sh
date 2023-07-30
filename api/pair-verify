@@ -1,0 +1,6 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -I channel:nixos-23.05-small -p nodejs
+set -euo pipefail
+PS4='+ $(date "+%T.%3N ($LINENO) ")'
+
+(cd pairing && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairVerify --silent) | tee /tmp/homekit.sh_pair-verify

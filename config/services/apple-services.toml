@@ -1,0 +1,137 @@
+[AccessoryInformation]
+type = "3E"
+
+[HAPProtocolInformation]
+type = "A2"
+
+[Fan]
+type = "40"
+
+[GarageDoorOpener]
+type = "41"
+
+[LightBulb]
+type = "43"
+
+[LockManagement]
+type = "44"
+
+[LockMechanism]
+type = "45"
+
+[Outlet]
+type = "47"
+
+[Switch]
+type = "49"
+
+[Thermostat]
+type = "4A"
+
+[AirQualitySensor]
+type = "8D"
+
+[SecuritySystem]
+type = "7E"
+
+[CarbonMonoxideSensor]
+type = "7F"
+
+[ContactSensor]
+type = "80"
+
+[Door]
+type = "81"
+
+[HumiditySensor]
+type = "82"
+
+[LeakSensor]
+type = "83"
+
+[LightSensor]
+type = "84"
+
+[MotionSensor]
+type = "85"
+
+[OccupancySensor]
+type = "86"
+
+[SmokeSensor]
+type = "87"
+
+[StatelessProgrammableSwitch]
+type = "89"
+
+[TemperatureSensor]
+type = "8A"
+
+[Window]
+type = "8B"
+
+[WindowCovering]
+type = "8C"
+
+[BatteryService]
+type = "96"
+
+[CarbonDioxideSensor]
+type = "97"
+
+[CameraRTPStreamManagement]
+type = "110"
+
+[Microphone]
+type = "112"
+
+[Speaker]
+type = "113"
+
+[Doorbell]
+type = "121"
+
+[FanV2]
+type = "B7"
+
+[Slat]
+type = "B9"
+
+[FilterMaintenance]
+type = "BA"
+
+[AirPurifier]
+type = "BB"
+
+[HeaterCooler]
+type = "BC"
+
+[HumidifierDehumidifier]
+type = "BD"
+
+[ServiceLabel]
+type = "CC"
+
+[IrrigationSystem]
+type = "CF"
+
+[Valve]
+type = "D0"
+
+[Faucet]
+type = "D7"
+
+[TargetControlManagement]
+type = "122"
+
+[TargetControl]
+type = "125"
+
+[AudioStreamManagement]
+type = "127"
+
+[DataStreamTransportManagement]
+type = "129"
+
+[Siri]
+type = "133"

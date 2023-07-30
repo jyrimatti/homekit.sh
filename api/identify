@@ -1,0 +1,13 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -I channel:nixos-23.05-small -p nodejs
+set -euo pipefail
+PS4='+ $(date "+%T.%3N ($LINENO) ")'
+
+for p in store/pairings/*; do
+    if test -d "$p"; then
+        ./util/respond.sh 400 '{ "status": -70401 }'
+        exit 1
+    fi
+done
+
+./util/respond.sh 204

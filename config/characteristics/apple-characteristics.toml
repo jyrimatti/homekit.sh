@@ -1,0 +1,965 @@
+[AdministratorOnlyAccess]
+type = "1"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+
+[AudioFeedback]
+type = "5"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+
+[Brightness]
+type = "8"
+perms = ["pr", "pw", "ev"]
+format = "int"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[CoolingTresholdTemperature]
+type = "D"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 10
+maxValue = 35
+minStep = 0.1
+unit = "celsius"
+
+[CurrentDoorState]
+type = "E"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 4
+minStep = 1
+valid-values = [0, 1, 2, 3, 4]
+
+[CurrentHeatingCoolingState]
+type = "F"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[CurrentRelativeHumidity]
+type = "10"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[CurrentTemperature]
+type = "11"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 0.1
+unit = "celsius"
+
+[FirmwareRevision]
+type = "52"
+perms = ["pr"]
+format = "string"
+
+[HardwareRevision]
+type = "53"
+perms = ["pr"]
+format = "string"
+
+[HeatingThresholdTemperature]
+type = "12"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 10
+maxValue = 25
+minStep = 0.1
+unit = "celsius"
+
+[Hue]
+type = "13"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 0
+maxValue = 360
+minStep = 1
+unit = "arcdegrees"
+
+[Identify]
+type = "14"
+perms = ["pw"]
+format = "bool"
+#value = false # leave property completely out 'cos otherwise Homekit won't accept
+
+[LockControlPoint]
+type = "19"
+perms = ["pw"]
+format = "tlv8"
+
+[LockCurrentState]
+type = "1D"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+valid-values = [0, 1, 2, 3]
+
+[LockLastKnownAction]
+type = "1C"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 8
+minStep = 1
+valid-values = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+[LockManagementAutoSecurityTimeout]
+type = "1A"
+perms = ["pr", "pw", "ev"]
+format = "uint32"
+unit = "seconds"
+
+[LockTargetState]
+type = "1E"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[Logs]
+type = "1F"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[Manufacturer]
+type = "20"
+perms = ["pr"]
+format = "string"
+maxLen = 64
+
+[Model]
+type = "21"
+perms = ["pr"]
+format = "string"
+maxLen = 64
+
+[MotionDetected]
+type = "22"
+perms = ["pr", "ev"]
+format = "bool"
+
+[Name]
+type = "23"
+perms = ["pr"]
+format = "string"
+maxLen = 64
+
+[ObstructionDetected]
+type = "24"
+perms = ["pr", "ev"]
+format = "bool"
+
+[On]
+type = "25"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+
+[OutletInUse]
+type = "26"
+perms = ["pr", "ev"]
+format = "bool"
+
+[RotationDirection]
+type = "28"
+perms = ["pr", "pw", "ev"]
+format = "int"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[RotationSpeed]
+type = "29"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[Saturation]
+type = "2F"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[SerialNumber]
+type = "30"
+perms = ["pr"]
+format = "string"
+maxLen = 64
+
+[TargetDoorState]
+type = "32"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[TargetHeatingCoolingState]
+type = "33"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+valid-values = [0, 1, 2, 3]
+
+[TargetRelativeHumidity]
+type = "34"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[TargetTemperature]
+type = "35"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 10
+maxValue = 38
+minStep = 0.1
+unit = "celsius"
+
+[TemperatureDisplayUnits]
+type = "36"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[Version]
+type = "37"
+perms = ["pr"]
+format = "string"
+maxLen = 64
+
+[AirParticulateDensity]
+type = "64"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[AirParticulateSize]
+type = "65"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[SecuritySystemCurrentState]
+type = "66"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 4
+minStep = 1
+valid-values = [0, 1, 2, 3, 4]
+
+[SecuritySystemTargetState]
+type = "67"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+valid-values = [0, 1, 2, 3]
+
+[BatteryLevel]
+type = "68"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[CarbonMonoxideDetected]
+type = "69"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[ContactSensorState]
+type = "6A"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[CurrentAmbientLightLevel]
+type = "6B"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0.0001
+maxValue = 100000
+unit = "lux"
+
+
+[CurrentHorizontalTiltAngle]
+type = "6C"
+perms = ["pr", "ev"]
+format = "int"
+minValue = -90
+maxValue = 90
+minStep = 1
+unit = "arcdegrees"
+
+[CurrentPosition]
+type = "6D"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[CurrentVerticalTiltAngle]
+type = "6E"
+perms = ["pr", "ev"]
+format = "int"
+minValue = -90
+maxValue = 90
+minStep = 1
+unit = "arcdegrees"
+
+[HoldPosition]
+type = "6F"
+perms = ["pw"]
+format = "bool"
+
+[LeakDetected]
+type = "70"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[OccupancyDetected]
+type = "71"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[PositionState]
+type = "72"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[ProgrammableSwitchEvent]
+type = "73"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[StatusActive]
+type = "75"
+perms = ["pr", "ev"]
+format = "bool"
+
+[SmokeDetected]
+type = "76"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[StatusFault]
+type = "77"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[StatusJammed]
+type = "78"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[StatusLowBattery]
+type = "79"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[StatusTampered]
+type = "7A"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[TargetHorizontalTiltAngle]
+type = "7B"
+perms = ["pr", "pw", "ev"]
+format = "int"
+minValue = -90
+maxValue = 90
+minStep = 1
+unit = "arcdegrees"
+
+[TargetPosition]
+type = "7C"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[TargetVerticalTiltAngle]
+type = "7D"
+perms = ["pr", "pw", "ev"]
+format = "int"
+minValue = -90
+maxValue = 90
+minStep = 1
+unit = "arcdegrees"
+
+[SecuritySystemAlarmType]
+type = "8E"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+
+[ChargingState]
+type = "8F"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[CarbonMonoxideLevel]
+type = "90"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+
+[CarbonMonoxidePeakLevel]
+type = "91"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+
+[CarbonDioxideDetected]
+type = "92"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[CarbonDioxideLevel]
+type = "93"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100000
+
+[CarbonDioxidePeakLevel]
+type = "94"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100000
+
+[AirQuality]
+type = "95"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 5
+minStep = 1
+valid-values = [0, 1, 2, 3, 4, 5]
+
+[StreamingStatus]
+type = "120"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[SupportedVideoStreamConfiguration]
+type = "114"
+perms = ["pr"]
+format = "tlv8"
+
+[SupportedAudioStreamConfiguration]
+type = "115"
+perms = ["pr"]
+format = "tlv8"
+
+[SupportedRTPConfiguration]
+type = "116"
+perms = ["pr"]
+format = "tlv8"
+
+[SetupEndpoints]
+type = "118"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[SelectedRTPStreamConfiguration]
+type = "117"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[Volume]
+type = "119"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[Mute]
+type = "11A"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+valid-values = [0, 1]
+
+[NightVision]
+type = "11B"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+valid-values = [0, 1]
+
+[OpticalZoom]
+type = "11C"
+perms = ["pr", "pw", "ev"]
+format = "float"
+
+[DigitalZoom]
+type = "11D"
+perms = ["pr", "pw", "ev"]
+format = "float"
+
+[ImageRotation]
+type = "11E"
+perms = ["pr", "pw", "ev"]
+format = "float"
+valid-values = [0, 90, 180, 270]
+
+[ImageMirroring]
+type = "11F"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+valid-values = [0, 1]
+unit = "arcdegrees"
+
+[AccessoryFlags]
+type = "A6"
+perms = ["pr", "ev"]
+format = "uint32"
+valid-values = [1]
+
+[LockPhysicalControls]
+type = "A7"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[CurrentAirPurifierState]
+type = "A9"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[CurrentSlatState]
+type = "AA"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[SlatType]
+type = "C0"
+perms = ["pr"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[FilterLifeLevel]
+type = "AB"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+
+[FilterChangeIndication]
+type = "AC"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[ResetFilterIndication]
+type = "AD"
+perms = ["pw"]
+format = "uint8"
+minValue = 1
+maxValue = 1
+
+[TargetAirPurifierState]
+type = "A8"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[TargetFanState]
+type = "BF"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[CurrentFanState]
+type = "AF"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[Active]
+type = "B0"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[SwingMode]
+type = "B6"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[CurrentTiltAngle]
+type = "C1"
+perms = ["pr", "ev"]
+format = "int"
+minValue = -90
+maxValue = 90
+minStep = 1
+unit = "arcdegrees"
+
+[TargetTiltAngle]
+type = "C2"
+perms = ["pr", "pw", "ev"]
+format = "int"
+minValue = -90
+maxValue = 90
+minStep = 1
+unit = "arcdegrees"
+
+[OzoneDensity]
+type = "C3"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[NitrogenDioxideDensity]
+type = "C4"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[SulphurDioxideDensity]
+type = "C5"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[PM2.5Density]
+type = "C6"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[PM10Density]
+type = "C7"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[VOCDensity]
+type = "C8"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 1000
+
+[ServiceLabelIndex]
+type = "CB"
+perms = ["pr"]
+format = "uint8"
+minValue = 1
+minStep = 1
+
+[ServiceLabelNamespace]
+type = "CD"
+perms = ["pr"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[ColorTemperature]
+type = "CE"
+perms = ["pr", "pw", "ev"]
+format = "uint32"
+minValue = 50
+maxValue = 400
+minStep = 1
+
+[CurrentHeaterCoolerState]
+type = "B1"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+valid-values = [0, 1, 2, 3]
+
+[TargetHeaterCoolerState]
+type = "B2"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[CurrentHumidifierDehumidifierState]
+type = "B3"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+valid-values = [0, 1, 2, 3]
+
+[TargetHumidifierDehumidifierState]
+type = "B4"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[WaterLevel]
+type = "B5"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[RelativeHumidityDehumidifierThreshold]
+type = "C9"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[RelativeHumidityHumidifierThreshold]
+type = "CA"
+perms = ["pr", "pw", "ev"]
+format = "float"
+minValue = 0
+maxValue = 100
+minStep = 1
+unit = "percentage"
+
+[ProgramMode]
+type = "D1"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+valid-values = [0, 1, 2]
+
+[InUse]
+type = "D2"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[SetDuration]
+type = "D3"
+perms = ["pr", "pw", "ev"]
+format = "uint32"
+minValue = 0
+maxValue = 3600
+minStep = 1
+
+[RemainingDuration]
+type = "D4"
+perms = ["pr", "ev"]
+format = "uint32"
+minValue = 0
+maxValue = 3600
+minStep = 1
+
+[ValveType]
+type = "D5"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+valid-values = [0, 1, 2, 3]
+
+[IsConfigured]
+type = "D6"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+valid-values = [0, 1]
+
+[TargetControlSupportedConfiguration]
+type = "123"
+perms = ["pr"]
+format = "tlv8"
+
+[TargetControlList]
+type = "124"
+perms = ["pr", "pw", "wr"]
+format = "tlv8"
+
+[ButtonEvent]
+type = "126"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[ActiveIdentifier]
+type = "E7"
+perms = ["pr", "ev"]
+format = "uint32"
+
+[SelectedAudioStreamConfiguration]
+type = "128"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[SupportedDataStreamTransportConfiguration]
+type = "130"
+perms = ["pr"]
+format = "tlv8"
+
+[SetupDataStreamTransport]
+type = "131"
+perms = ["pr", "pw", "wr"]
+format = "tlv8"
+
+[SiriInputType]
+type = "132"
+perms = ["pr"]
+format = "uint8"
+valid-values = [0]

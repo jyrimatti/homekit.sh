@@ -1,0 +1,777 @@
+{
+    "$id": "http://github.com/jyrimatti/homekit.sh/accessory.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "description": "",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "aid": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 18446744073709551615
+        },
+        "services": {
+            "items": { "$ref": "#/$defs/service" }
+        }
+    },
+    "required": [ "services" ],
+
+    "$defs": {
+        "booleanlike": {
+            "anyOf": [
+                {},
+                { "type": "boolean" },
+                { "type": "integer", "minimum": 0, "maximum": 1 }
+            ]
+        },
+        "tlv8": {
+            "type": "string",
+            "contentEncoding": "base64"
+        },
+        "overrideInteger": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "iid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                },
+                "value":        { "type": "integer" },
+                "minValue":     { "type": "integer" },
+                "maxValue":     { "type": "integer" },
+                "minStep":      { "type": "integer" },
+                "valid-values": { "items": { "type": "integer" } }
+            }
+        },
+        "overrideNumber": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "iid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                },
+                "value":        { "type": "number" },
+                "minValue":     { "type": "number" },
+                "maxValue":     { "type": "number" },
+                "minStep":      { "type": "number" },
+                "valid-values": { "items": { "type": "number" } }
+            }
+        },
+        "overrideString": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "iid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                },
+                "value":    { "type": "string" },
+                "maxLen":   { "type": "integer" }
+            }
+        },
+        "service": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "iid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                },
+                "type": {
+                    "type": "string"
+                },
+                "cmd": {
+                    "type": "string"
+                },
+                "polling": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "timeout": {
+                    "type": "number",
+                    "minimum": 0.0
+                },
+                "characteristics": {
+                    "anyOf": [
+                        { "$ref": "#/$defs/AccesoryInformation" },
+                        { "$ref": "#/$defs/HapProtocolInformation" },
+                        { "$ref": "#/$defs/Fan" },
+                        { "$ref": "#/$defs/GarageDoorOpener" },
+                        { "$ref": "#/$defs/LightBulb" },
+                        { "$ref": "#/$defs/LockManagement" },
+                        { "$ref": "#/$defs/LockMechanism" },
+                        { "$ref": "#/$defs/Outlet" },
+                        { "$ref": "#/$defs/Switch" },
+                        { "$ref": "#/$defs/Thermostat" },
+                        { "$ref": "#/$defs/AirQualitySensor" },
+                        { "$ref": "#/$defs/SecuritySystem" },
+                        { "$ref": "#/$defs/CarbonMonoxideSensor" },
+                        { "$ref": "#/$defs/ContactSensor" },
+                        { "$ref": "#/$defs/Door" },
+                        { "$ref": "#/$defs/HumiditySensor" },
+                        { "$ref": "#/$defs/LeakSensor" },
+                        { "$ref": "#/$defs/LightSensor" },
+                        { "$ref": "#/$defs/MotionSensor" },
+                        { "$ref": "#/$defs/OccupancySensor" },
+                        { "$ref": "#/$defs/SmokeSensor" },
+                        { "$ref": "#/$defs/StatelessProgrammableSwitch" },
+                        { "$ref": "#/$defs/TemperatureSensor" },
+                        { "$ref": "#/$defs/Window" },
+                        { "$ref": "#/$defs/WindowCovering" },
+                        { "$ref": "#/$defs/BatteryService" },
+                        { "$ref": "#/$defs/CarbonDioxideSensor" },
+                        { "$ref": "#/$defs/CameraRTPStreamManagement" },
+                        { "$ref": "#/$defs/Microphone" },
+                        { "$ref": "#/$defs/Speaker" },
+                        { "$ref": "#/$defs/Doorbell" },
+                        { "$ref": "#/$defs/FanV2" },
+                        { "$ref": "#/$defs/Slat" },
+                        { "$ref": "#/$defs/FilterMaintenance" },
+                        { "$ref": "#/$defs/AirPurifier" },
+                        { "$ref": "#/$defs/HeaterCooler" },
+                        { "$ref": "#/$defs/HumidifierDehumidifier" },
+                        { "$ref": "#/$defs/ServiceLabel" },
+                        { "$ref": "#/$defs/IrrigationSystem" },
+                        { "$ref": "#/$defs/Valve" },
+                        { "$ref": "#/$defs/Faucet" },
+                        { "$ref": "#/$defs/TargetControlManagement" },
+                        { "$ref": "#/$defs/TargetControl" },
+                        { "$ref": "#/$defs/AudioStreamManagement" },
+                        { "$ref": "#/$defs/DataStreamTransportManagement" },
+                        { "$ref": "#/$defs/Siri" }
+                    ]
+                }
+            },
+            "required": [ "type", "characteristics" ]
+        },
+
+        "AccesoryInformation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Identify":         { "$ref": "#/$defs/booleanlike" },
+                "Manufacturer":     { "type": "string", "maxLength": 64 },
+                "Model":            { "type": "string", "maxLength": 64 },
+                "Name":             { "type": "string", "maxLength": 64 },
+                "SerialNumber":     { "type": "string", "maxLength": 64 },
+                "FirmwareRevision": { "type": "string" },
+                "HardwareRevision": { "type": "string" },
+                "AccessoryFlags":   { "type": "integer", "minimum": 1, "maximum": 2 }
+            },
+            "required": [ "Identify", "Manufacturer", "Model", "Name", "SerialNumber", "FirmwareRevision" ]
+        },
+        
+        "HapProtocolInformation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Version": { "type": "string" }
+            },
+            "required": [ "Version" ]
+        },
+        
+        "Fan": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "On":                { "$ref": "#/$defs/booleanlike" },
+                "RotationDirection": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 1 }] },
+                "RotationSpeed":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 100 }] },
+                "Name":              { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "On" ]
+        },
+
+        "GarageDoorOpener": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentDoorState":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 4 }] },
+                "TargetDoorState":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ObstructionDetected": { "$ref": "#/$defs/booleanlike" },
+                "LockCurrentState":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 3 }] },
+                "LockTargetState":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "CurrentDoorState", "TargetDoorState", "ObstructionDetected" ]
+        },
+
+        "LightBulb": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "On":               { "$ref": "#/$defs/booleanlike" },
+                "Brightness":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "Hue":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 360 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "Saturation":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "ColorTemperature": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 50, "maximum": 400 }] }
+            },
+            "required": [ "On" ]
+        },
+
+        "LockManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "LockControlPoint":                  { "$ref": "#/$defs/tlv8" },
+                "Version":                           { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "Logs":                              { "$ref": "#/$defs/tlv8" },
+                "AudioFeedback":                     { "$ref": "#/$defs/booleanlike" },
+                "LockManagementAutoSecurityTimeout": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "AdministratorOnlyAccess":           { "$ref": "#/$defs/booleanlike" },
+                "LockLastKnownAction":               { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 8 }] },
+                "CurrentDoorState":                  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 4 }] },
+                "MotionDetected":                    { "$ref": "#/$defs/booleanlike" }
+            },
+            "required": [ "LockControlPoint", "Version" ]
+        },
+
+        "LockMechanism": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "LockCurrentState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "LockTargetState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "LockCurrentState", "LockTargetState" ]
+        },
+
+        "Outlet": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "On":          { "$ref": "#/$defs/booleanlike" },
+                "OutletInUse": { "$ref": "#/$defs/booleanlike" },
+                "Name":        { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "On", "OutletInUse" ]
+        },
+
+        "Switch": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "On":   { "$ref": "#/$defs/booleanlike" },
+                "Name": { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "On" ]
+        },
+
+        "Thermostat": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentHeatingCoolingState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "TargetHeatingCoolingState":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "CurrentTemperature":          { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "TargetTemperature":           { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 38 }] },
+                "TemperatureDisplayUnits":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CoolingTresholdTemperature":  { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 10, "maximum": 35 }] },
+                "CurrentRelativeHumidity":     { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "HeatingThresholdTemperature": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 10, "maximum": 25 }] },
+                "Name":                        { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "TargetRelativeHumidity":      { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] }
+            },
+            "required": [ "CurrentHeatingCoolingState", "TargetHeatingCoolingState", "CurrentTemperature", "TargetTemperature", "TemperatureDisplayUnits" ]
+        },
+
+        "AirQualitySensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "AirQuality":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 5 }] },
+                "Name":                   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "OzoneDensity":           { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 1000 }] },
+                "NitrogenDioxideDensity": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 1000 }] },
+                "SulphurDioxideDensity":  { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 1000 }] },
+                "PM2.5Density":           { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 1000 }] },
+                "PM10Density":            { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 1000 }] },
+                "VOCDensity":             { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 1000 }] },
+                "StatusActive":           { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "AirQuality" ]
+        },
+
+        "SecuritySystem": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SecuritySystemCurrentState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 4 }] },
+                "SecuritySystemTargetState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "Name":                       { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "SecuritySystemAlarmType":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusFault":                { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "SecuritySystemCurrentState", "SecuritySystemTargetState" ]
+        },
+
+        "CarbonMonoxideSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CarbonMonoxideDetected":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":            { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CarbonMonoxideLevel":     { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "CarbonMonoxidePeakLevel": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] }
+            },
+            "required": [ "CarbonMonoxideDetected" ]
+        },
+
+        "ContactSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ContactSensorState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":               { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":       { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "ContactSensorState" ]
+        },
+
+        "Door": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentPosition":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "TargetPosition":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "PositionState":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "HoldPosition":        { "$ref": "#/$defs/booleanlike" },
+                "ObstructionDetected": { "$ref": "#/$defs/booleanlike" }
+            },
+            "required": [ "CurrentPosition", "TargetPosition", "PositionState" ]
+        },
+
+        "HumiditySensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentRelativeHumidity": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":            { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "CurrentRelativeHumidity" ]
+        },
+
+        "LeakSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "LeakDetected":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":     { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "LeakDetected" ]
+        },
+
+        "LightSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentAmbientLightLevel": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0.0001, "maximum": 100000 }] },
+                "Name":                     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":             { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":           { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "CurrentAmbientLightLevel" ]
+        },
+
+        "MotionSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "MotionDetected":   { "$ref": "#/$defs/booleanlike" },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":     { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "MotionDetected" ]
+        },
+
+        "OccupancySensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "OccupancyDetected": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusActive":      { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "OccupancyDetected" ]
+        },
+
+        "SmokeSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SmokeDetected":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":     { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "SmokeDetected" ]
+        },
+
+        "StatelessProgrammableSwitch": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ProgrammableSwitchEvent": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ServiceLabelIndex":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 1 }] }
+            },
+            "required": [ "ProgrammableSwitchEvent" ]
+        },
+
+        "TemperatureSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentTemperature": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "Name":               { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":       { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "CurrentTemperature" ]
+        },
+
+        "Window": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentPosition":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "TargetPosition":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "PositionState":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "HoldPosition":        { "$ref": "#/$defs/booleanlike" },
+                "ObstructionDetected": { "$ref": "#/$defs/booleanlike" }
+            },
+            "required": [ "CurrentPosition", "TargetPosition", "PositionState" ]
+        },
+
+        "WindowCovering": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "TargetPosition":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "CurrentPosition":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "PositionState":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                       { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "HoldPosition":               { "$ref": "#/$defs/booleanlike" },
+                "CurrentHorizontalTiltAngle": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": -90, "maximum": 90 }] },
+                "TargetHorizontalTiltAngle":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": -90, "maximum": 90 }] },
+                "CurrentVerticalTiltAngle":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": -90, "maximum": 90 }] },
+                "TargetVerticalTiltAngle":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": -90, "maximum": 90 }] },
+                "ObstructionDetected":        { "$ref": "#/$defs/booleanlike" }
+            },
+            "required": [ "TargetPosition", "CurrentPosition", "PositionState" ]
+        },
+
+        "BatteryService": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "BatteryLevel":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "ChargingState":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "StatusLowBattery": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "BatteryLevel", "ChargingState", "StatusLowBattery" ]
+        },
+
+        "CarbonDioxideSensor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CarbonDioxideDetected":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusActive":           { "$ref": "#/$defs/booleanlike" },
+                "StatusFault":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusTampered":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusLowBattery":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CarbonDioxideLevel":     { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100000 }] },
+                "CarbonDioxidePeakLevel": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100000 }] }
+            },
+            "required": [ "CarbonDioxideDetected" ]
+        },
+
+        "CameraRTPStreamManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "StreamingStatus":                   { "$ref": "#/$defs/tlv8" },
+                "SupportedVideoStreamConfiguration": { "$ref": "#/$defs/tlv8" },
+                "SupportedAudioStreamConfiguration": { "$ref": "#/$defs/tlv8" },
+                "SupporedRTPConfiguration":          { "$ref": "#/$defs/tlv8" },
+                "SetupEndpoints":                    { "$ref": "#/$defs/tlv8" },
+                "SelectedRTPStreamConfiguration":    { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "StreamingStatus", "SupportedVideoStreamConfiguration", "SupportedAudioStreamConfiguration", "SupporedRTPConfiguration", "SetupEndpoints", "SelectedRTPStreamConfiguration" ]
+        },
+
+        "Microphone": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Mute":   { "$ref": "#/$defs/booleanlike" },
+                "Name":   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "Volume": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] }
+            },
+            "required": [ "Mute" ]
+        },
+
+        "Speaker": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Mute":   { "$ref": "#/$defs/booleanlike" },
+                "Name":   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "Volume": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] }
+            },
+            "required": [ "Mute" ]
+        },
+
+        "Doorbell": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ProgrammableSwitchEvent": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "Volume":                  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "Brightness":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] }
+            },
+            "required": [ "ProgrammableSwitchEvent" ]
+        },
+
+        "FanV2": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":               { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                 { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "CurrentFanState":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "TargetFanState":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "RotationDirection":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "RotationSpeed":        { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "SwingMode":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "LockPhysicalControls": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Active" ]
+        },
+
+        "Slat": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentSlatState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "SlatType":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "SwingMode":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CurrentTiltAngle": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": -90, "maximum": 90 }] },
+                "TargetTiltAngle":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": -90, "maximum": 90 }] }
+            },
+            "required": [ "CurrentSlatState", "SlatType" ]
+        },
+
+        "FilterMaintenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "FilterChangeIndication": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "FilterLifeLevel":        { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "ResetFilterIndication":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 1, "maximum": 1 }] }
+            },
+            "required": [ "FilterChangeIndication" ]
+        },
+
+        "AirPurifier": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":                  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CurrentAirPurifierState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "TargetAirPurifierState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "RotationSpeed":           { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "SwingMode":               { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "LockPhysicalControls":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Active", "CurrentAirPurifierState", "TargetAirPurifierState" ]
+        },
+
+        "HeaterCooler": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":                      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CurrentTemperature":          { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "CurrentHeaterCoolerState":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "TargetHeaterCoolerState":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                        { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "RotationSpeed":               { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "TemperatureDisplayUnits":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "SwingMode":                   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CoolingTresholdTemperature":  { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 10, "maximum": 35 }] },
+                "HeatingThresholdTemperature": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 10, "maximum": 25 }] },
+                "LockPhysicalControls":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Active", "CurrentTemperature", "CurrentHeaterCoolerState", "TargetHeaterCoolerState" ]
+        },
+
+        "HumidifierDehumidifier": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":                                { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CurrentRelativeHumidity":               { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "CurrentHumidifierDehumidifierState":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "TargetHumidifierDehumidifierState":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":                                  { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "RelativeHumidityDehumidifierThreshold": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "RelativeHumidityHumidifierThreshold":   { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "RotationSpeed":                         { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "SwingMode":                             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "WaterLevel":                            { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
+                "LockPhysicalControls":                  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Active", "CurrentRelativeHumidity", "CurrentHumidifierDehumidifierState", "TargetHumidifierDehumidifierState" ]
+        },
+
+        "ServiceLabel": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ServiceLabelNamespace": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "ServiceLabelNamespace" ]
+        },
+
+        "IrrigationSystem": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ProgramMode":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "InUse":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "RemainingDuration": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3600 }] },
+                "Name":              { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "StatusFault":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Active", "ProgramMode", "InUse" ]
+        },
+
+        "Valve": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "InUse":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ValveType":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "SetDuration":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3600 }] },
+                "RemainingDuration": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3600 }] },
+                "IsConfigured":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ServiceLabelIndex": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 1 }] },
+                "StatusFault":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":              { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "Active", "InUse", "ValveType" ]
+        },
+
+        "Faucet": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "StatusFault": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":        { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "Active" ]
+        },
+
+        "TargetControlManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "TargetControlSupportedConfiguration": { "$ref": "#/$defs/tlv8" },
+                "TargetControlList":                   { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "TargetControlSupportedConfiguration", "TargetControlList" ]
+        },
+
+        "TargetControl": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ActiveIdentifier": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "Active":           { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ButtonEvent":      { "$ref": "#/$defs/tlv8" },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "ActiveIdentifier", "Active", "ButtonEvent" ]
+        },
+
+        "AudioStreamManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SupportedAudioStreamConfiguration": { "$ref": "#/$defs/tlv8" },
+                "SelectedAudioStreamConfiguration":  { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "SupportedAudioStreamConfiguration", "SelectedAudioStreamConfiguration" ]
+        },
+
+        "DataStreamTransportManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SupportedDataStreamTransportConfiguration": { "$ref": "#/$defs/tlv8" },
+                "SetupDataStreamTransport":                  { "$ref": "#/$defs/tlv8" },
+                "Version":                                   { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "SupportedDataStreamTransportConfiguration", "SetupDataStreamTransport", "Version" ]
+        },
+
+        "Siri": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SiriInputType": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 0 }] }
+            },
+            "required": [ "SiriInputType" ]
+        }
+    }
+  }

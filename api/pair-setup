@@ -1,0 +1,18 @@
+#! /usr/bin/env nix-shell
+#! nix-shell -i bash -I channel:nixos-23.05-small -p nodejs
+set -uo pipefail
+PS4='+ $(date "+%T.%3N ($LINENO) ")'
+
+tmpfile=$(mktemp /tmp/homekit.sh_pair-setup.XXXXXX)
+
+(cd pairing && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairSetup --silent > "$tmpfile")
+
+if [ $? -eq 42 ]; then
+    # remove "pairing" flag
+    sed -i 's/sf=1//' store/dns-txt
+    sed -i 's/c#=1/c#=2/' store/dns-txt
+    # wait for dns entry to update
+    sleep 5
+fi
+echo "Sending response..." >&2
+cat "$tmpfile"
