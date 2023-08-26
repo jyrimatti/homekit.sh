@@ -17,9 +17,12 @@ cmd=$(echo "$service_with_characteristic" | jq -re '.characteristics[0].cmd // .
 timeout=$(echo "$service_with_characteristic" | jq -r '.characteristics[0].timeout // .timeout // $default' --arg default "$(cat ./config/default-timeout)")
 logger_debug "Using timeout $timeout"
 
+serv="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
+char="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+
 start=$(date +%s)
 set +e
-timeout -v --kill-after=3 "$timeout" "./accessories/$cmd" Set "$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)" "$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+(cd ./accessories/; timeout -v --kill-after=3 "$timeout" $cmd Set "$serv" "$char")
 responseValue=$?
 set -e
 if [ $responseValue -eq 124 ]; then

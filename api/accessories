@@ -9,8 +9,17 @@ logger_trace 'api/accessories'
 
 . ./util/cache_set.sh
 
+# Ugh, don't want this...
+if [ -e ./store/cache/accessories.json ]; then
+    logger_debug 'Using cached accessories'
+    ./util/respond.sh 200 "$(cat ./store/cache/accessories.json)"
+    exit 0
+fi
+
 accessories=$(find ./accessories -name '*.toml' |\
               parallel --jobs 0${PROFILING:+1} "./util/tomlq-cached.sh -c '.services | group_by(.type) | .[]' {} | parallel --jobs 0${PROFILING:+1} ./util/generate_service.sh | jq -cs '{ aid: \$aid, services: map({type, iid, characteristics}) }' --argjson aid \$(./util/aid.sh {})" |\
               jq -cs '{accessories: .}')
+
+echo "$accessories" > ./store/cache/accessories.json
 
 ./util/respond.sh 200 "$accessories"
