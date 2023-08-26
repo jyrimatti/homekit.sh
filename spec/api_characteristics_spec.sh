@@ -77,7 +77,7 @@ EOF
       When run ./api/characteristics
       The output should include "$(result1)"
       The output should include "$(result2)"
-      The error should include "No value from cmd -> take the constant defined in configuration"
+      The error should include '"cmd" not set in characteristic/service properties -> take the constant defined in configuration'
     End
   End
 
@@ -148,7 +148,7 @@ EOF
       }
       When run ./api/characteristics
       The output should eq "$(result)"
-      The error should include '"cmd" not set in service properties!'
+      The error should include '"cmd" not set in characteristic/service properties'
     End
   End
 

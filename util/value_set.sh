@@ -19,7 +19,7 @@ logger_debug "Using timeout $timeout"
 
 start=$(date +%s)
 set +e
-timeout -v --kill-after=3 "$timeout" "./accessories/$cmd" Set $(echo "$service_with_characteristic" | jq -r '[.iid, .characteristics[0].iid] | @sh') "$value"
+timeout -v --kill-after=3 "$timeout" "./accessories/$cmd" Set "$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)" "$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
 responseValue=$?
 set -e
 if [ $responseValue -eq 124 ]; then

@@ -63,6 +63,11 @@ if [ "$ev" = 'true' ]; then
     mv "$tmpfile" "$session_store/events/${aid}.${iid}.json"
     echo "$value" > "$subscription"
     logger_debug "Subscribed $subscription"
+
+    echo "$service_with_characteristic" | jq -re '.characteristics[0].polling // .polling' || {
+        logger_warn "No 'polling' defined for $aid.$iid. Will not be able to produce events!"
+    }
+
 elif [ "$ev" = 'false' ]; then
     logger_info 'Unsubscribing from events'
     subscription="$session_store/subscriptions/${aid}.${iid}"

@@ -9,5 +9,5 @@ logger_trace 'util/type_to_string.sh'
 
 type="$1"
 
-./util/tomlq-cached.sh -ce "$type" ./config/services/*.toml ./config/characteristics/*.toml
+./util/tomlq-cached.sh -re "to_entries | map(select(.value.type == \"$type\")) | .[].key" ./config/services/*.toml ./config/characteristics/*.toml
 

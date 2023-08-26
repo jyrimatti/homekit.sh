@@ -1,0 +1,12 @@
+[submodule "accessories/stiebel"]
+	path = accessories/stiebel
+	url = git@github.com:jyrimatti/stiebel.git
+[submodule "accessories/ouman"]
+	path = accessories/ouman
+	url = git@github.com:jyrimatti/ouman.git
+[submodule "accessories/skoda"]
+	path = accessories/skoda
+	url = git@github.com:jyrimatti/skoda.git
+[submodule "accessories/spot"]
+	path = accessories/spot
+	url = git@github.com:jyrimatti/spot.git
