@@ -37,6 +37,17 @@
                     "minimum": 1,
                     "maximum": 18446744073709551615
                 },
+                "cmd": {
+                    "type": "string"
+                },
+                "polling": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "timeout": {
+                    "type": "number",
+                    "minimum": 0.0
+                },
                 "value":        { "type": "integer" },
                 "minValue":     { "type": "integer" },
                 "maxValue":     { "type": "integer" },
@@ -53,6 +64,17 @@
                     "minimum": 1,
                     "maximum": 18446744073709551615
                 },
+                "cmd": {
+                    "type": "string"
+                },
+                "polling": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "timeout": {
+                    "type": "number",
+                    "minimum": 0.0
+                },
                 "value":        { "type": "number" },
                 "minValue":     { "type": "number" },
                 "maxValue":     { "type": "number" },
@@ -68,6 +90,17 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 18446744073709551615
+                },
+                "cmd": {
+                    "type": "string"
+                },
+                "polling": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "timeout": {
+                    "type": "number",
+                    "minimum": 0.0
                 },
                 "value":    { "type": "string" },
                 "maxLen":   { "type": "integer" }

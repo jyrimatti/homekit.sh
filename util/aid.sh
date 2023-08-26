@@ -1,10 +1,14 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p nix yq
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash yq jq
+. ./logging
+. ./profiling
+
+set -eu
 
 # use Accessory Instance ID from toml file if provided, or hash the file path
 
-tomlfile=$1
+logger_trace 'util/aid.sh'
 
-tomlq -e '.aid // empty' "$tomlfile" || echo "$tomlfile" | ./util/hash.sh
+tomlfile="$1"
+
+./util/tomlq-cached.sh -ce '.aid // empty' "$tomlfile" || { echo "$tomlfile" | ./util/hash.sh; }

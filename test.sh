@@ -1,9 +1,9 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -I channel:nixos-23.05-small -p nix shellspec jq yq nodejs yajsv parallel coreutils
+#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nix shellspec jq yq nodejs yajsv parallel coreutils
+. ./logging
+. ./profiling
 set -eu
 
-prefix=${1:-}
+prefix="${1:-}"
 
-export PATH="~/.local/nix-override:$PATH"
-
-shellspec --format documentation spec/$prefix*
+shellspec --shell dash --fail-fast --format documentation -e PATH="~/.local/nix-override:$PATH" spec/$prefix*

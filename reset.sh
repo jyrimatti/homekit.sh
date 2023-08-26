@@ -1,5 +1,7 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p nodejs
+#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nodejs
+. ./logging
+. ./profiling
 set -eu
 
 rm -fR store/*

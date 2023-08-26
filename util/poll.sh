@@ -1,31 +1,43 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p nix jq
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq
+. ./logging
+. ./profiling
+set -eu
 
-for f in ./store/sessions/*; do
-    for s in "$f"/subscriptions/*; do
-        if test -f "$s"; then
-            aid=$(basename "$s" | sed 's/\([^.]*\).*/\1/')
-            iid=$(basename "$s" | sed 's/[^.]*[.]\(.*\)/\1/')
+logger_trace 'util/poll.sh'
 
-            service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid")
-            polling=$(echo "$service_with_characteristic" | jq -r '.polling // empty')
+session="$1"
+subscription="$2"
 
-            age=$(($(date +%s) - $(date +%s -r "$s")))
-            if [ "$polling" != "" ] && [ "$age" -gt "$polling" ]; then
-                value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
-                responseValue=$?
-                if [ $responseValue != 0 ]; then
-                    echo "Error $responseValue polling $s" >&2
-                else
-                    previous_value=$(cat "$s")
-                    if [ "$value" != "$previous_value" ]; then
-                        echo "$value" > "$s"
-                        ./util/event_create.sh "$aid" "$iid" "$value" > "$f/events/$aid.$iid.json"
-                    fi
-                fi
+subscription_path="./store/sessions/$session/subscriptions/$subscription"
+if test -f "$subscription_path"; then
+    logger_debug "Polling $subscription_path"
+
+    age=$(($(date +%s) - $(date +%s -r "$subscription_path")))
+    previous_value=$(cat "$subscription_path")
+
+    logger_debug "Got age $age"
+
+    aid=$(echo "$subscription" | cut -d . -f 1)
+    iid=$(echo "$subscription" | cut -d . -f 2)
+
+    service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid")
+    polling=$(echo "$service_with_characteristic" | jq -r '.characteristics[0].polling // .polling // empty')
+
+    if [ "$previous_value" = '' ] || { [ "$polling" != '' ] && [ "$age" -gt "$polling" ]; }; then
+        logger_debug 'Reading new value'
+        value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
+        responseValue=$?
+        if [ $responseValue != 0 ]; then
+            logger_error "Got response $responseValue polling $subscription_path"
+        else
+            if [ "$value" != "$previous_value" ] && test -f "$subscription_path"; then
+                logger_debug "Creating event for $aid $iid"
+                echo "$value" > "$subscription_path"
+                tmpfile=$(mktemp /tmp/homekit.sh_poll.XXXXXX)
+                ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
+                mv "$tmpfile" "./store/sessions/$session/events/$subscription.json"
             fi
         fi
-    done
-done
+    fi
+fi

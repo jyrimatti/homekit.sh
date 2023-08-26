@@ -1,33 +1,33 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p coreutils nix jq yq bc
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash coreutils jq yq bc
+. ./logging
+. ./profiling
+set -eu
 
-while IFS=$'\n' read -r service_with_characteristic; do
-    characteristic=$(echo "$service_with_characteristic" | jq -c '.characteristics[0]')
-    cmd=$(echo "$service_with_characteristic" | jq -r '.cmd // empty')
-    if [ "$cmd" == "" ]; then
-        echo "'cmd' not set in service properties!" >&2
-        exit 154
-    fi
+logger_trace 'util/value_get.sh'
 
-    timeout=$(echo "$service_with_characteristic" | jq -r '.timeout // $default' --arg default "$(cat ./config/default-timeout)")
+service_with_characteristic="$(cat)"
+cmd=$(echo "$service_with_characteristic" | jq -re '.characteristics[0].cmd // .cmd') || {
+    logger_debug 'Cannot get value, "cmd" not set in characteristic/service properties'
+    exit 154
+}
 
-    start=$(date +%s.%N)
-    set +e
-    ret=$(timeout -v --kill-after=3 "$timeout" "./accessories/$cmd" Get "$(echo "$service_with_characteristic" | jq -r '.iid')" "$(echo "$characteristic" | jq -r '.iid')")
-    responseValue=$?
-    set -e
-    if [ $responseValue -eq 124 ]; then
-        echo "Command '$cmd Get' timed out" >&2
-        exit 158
-    elif [ $responseValue -ne 0 ]; then
-        echo "Command '$cmd Get' failed" >&2
-        exit $responseValue
-    fi
-    end=$(date +%s.%N)
+timeout=$(echo "$service_with_characteristic" | jq -r '.characteristics[0].timeout // .timeout // $default' --arg default "$(cat ./config/default-timeout)")
+logger_debug "Using timeout $timeout"
 
-    runtime=$(echo "$end - $start" | bc -l)
-    echo "$cmd Get in ${runtime}s returned: $ret" >&2
-    echo "$ret"
-done
+start=$(date +%s)
+set +e
+ret=$(timeout -v --kill-after=3 "$timeout" "./accessories/$cmd" Get $(echo "$service_with_characteristic" | jq -r '[.type, .characteristics[0].type] | @sh'))
+responseValue=$?
+set -e
+if [ $responseValue -eq 124 ]; then
+    logger_error "Command '$cmd Get' timed out"
+    exit 158
+elif [ $responseValue -ne 0 ]; then
+    logger_error "Command '$cmd Get' failed"
+    exit $responseValue
+fi
+end=$(date +%s)
+
+logger_info "$cmd Get in $((end - start))s returned: $ret"
+echo "$ret"

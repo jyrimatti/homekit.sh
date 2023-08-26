@@ -5,6 +5,8 @@
 
 set -eu
 
-logger_trace 'util/hash.sh'
+logger_debug 'util/cache_mkkey.sh'
 
-cksum -a crc | cut -d' ' -f1
+tomlfile="$1"
+
+echo "$tomlfile" | tr -c '[:alnum:]\n' '_'

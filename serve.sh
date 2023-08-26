@@ -1,10 +1,13 @@
 #! /usr/bin/env python3
 
+from socket import error as SocketError
+import errno
 import socketserver
 import http.server
 import struct
 import os
 import io
+import sys
 import time
 import shutil
 import tempfile
@@ -48,6 +51,17 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
     def __init__(self, request, client_address, server, *, directory = None):
         super().__init__(request, client_address, server, directory = os.fspath('api'))
 
+    def log_date_time_string(self):
+        year, month, day, hh, mm, ss, x, y, z = time.localtime(time.time())
+        return "%04d-%02d-%02d %02d:%02d:%02d" % (year, month, day, hh, mm, ss)
+
+    def log_message(self, format, *args):
+        message = format % args
+        sys.stderr.write("%s INFO  [%s] - %s\n" %
+            (self.log_date_time_string(),
+            self.address_string(),
+            message.translate(self._control_char_table)))
+    
     def do_PUT(self):
         self.do_POST()
 
@@ -81,13 +95,19 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             shutil.rmtree(self.get_session_store(), ignore_errors=True)
 
     def handle_one_request(self):
-        self.log_message("Waiting for a request...")
-
-        if len(self.rfile.peek(1)[:1]) == 0:
-            # no data available -> send pending events and retry
-            self.handle_events()
-            time.sleep(1)
-            return
+        try:
+            if len(self.rfile.peek(1)[:1]) == 0:
+                # no data available -> send pending events and retry
+                self.handle_events()
+                time.sleep(1)
+                return
+        except SocketError as e:
+            if e.errno == errno.ECONNRESET:
+                self.log_message("Connection closed by the other end")
+                self.close_connection = True
+                return
+            else:
+                raise
 
         startBytes = self.rfile.read(2)[:2]
         start = str(startBytes, 'iso-8859-1')
@@ -140,23 +160,11 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             return ret
     
     def handle_events(self):
-        process_out = tempfile.NamedTemporaryFile()
-        subprocess.call(['sh', './util/events_send.sh'], stdout = process_out)
-        f = open(process_out.name, "rb")
-        b = io.BytesIO()
-        for line in f:
-            if str(line, 'iso-8859-1').startswith('EVENT/1.0'):
-                self.send_if_not_empty(b)
-                b = io.BytesIO()
-            b.write(line)
-        self.send_if_not_empty(b)
-    
-    def send_if_not_empty(self, b):
-        if len(b.getbuffer()) > 0:
-            raw = b.getvalue()
-            encoded = self.encodeToBlocks(raw).getvalue()
-            self.log_message("Sending event with total encoded response length %s: %a", str(len(encoded)), str(raw, 'utf-8'))
-            self.wfile.write(encoded)
+        stdout=subprocess.run(['sh', './util/events_send.sh'], capture_output=True).stdout
+        if len(stdout) > 0:
+            bytes = self.encodeToBlocks(stdout).getvalue()
+            self.log_message("Sending event with total encoded response length %s: %a", str(len(bytes)), str(stdout, 'utf-8'))
+            self.wfile.write(bytes)
             self.wfile.flush()
 
     def decodeFromBlocks(self, datalength, data):
@@ -177,7 +185,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 ret += c2a.decrypt_and_verify(ciphertext, tag)
             
             datalength = data.read(2)
-            if datalength is None:
+            if datalength is None or len(datalength) == 0:
                 datalengthInt = 0
             else: 
                 datalengthInt = struct.unpack("H", datalength[:2])[0]

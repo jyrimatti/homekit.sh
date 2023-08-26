@@ -53,7 +53,8 @@ export function readFromStore(name: string): Buffer {
 }
 
 export function log(msg: string): void {
-    stderr.write(msg + "\n");
+    const time = new Date(new Date().getTime() - new Date().getTimezoneOffset()*60000).toISOString().replace('T',' ').slice(0, 19);
+    stderr.write(time + " INFO  [:] javascript - " + msg + "\n");
 }
 
 export function respondTLV(status: number, tlv: Buffer): void {

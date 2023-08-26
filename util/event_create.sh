@@ -1,10 +1,13 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p bash jq
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell -i dash -I channel:nixos-23.05-small -p dash jq
+. ./logging
+. ./profiling
+set -eu
 
-aid=$1
-iid=$2
-value=$3
+logger_trace 'util/event_create.sh'
 
-jq -n "{ characteristics: [{ aid: $aid, iid: $iid, value: \$value }] }" --argjson value "$value"
+aid="$1"
+iid="$2"
+value="$3"
+
+jq -cn "{ characteristics: [{ aid: $aid, iid: $iid, value: \$value }] }" --argjson value "$value"

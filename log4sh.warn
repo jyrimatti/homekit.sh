@@ -1,0 +1,6 @@
+logger_trace() { return 0; }
+logger_debug() { return 0; }
+logger_info() { return 0; }
+logger_warn() { echo "$1" >&2; }
+logger_error() { echo "$1" >&2; }
+logger_fatal() { echo "$1" >&2; }

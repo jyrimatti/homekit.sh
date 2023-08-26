@@ -1,14 +1,18 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -I channel:nixos-23.05-small -p bash
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell -i dash -I channel:nixos-23.05-small -p dash
+. ./logging
+. ./profiling
+set -eu
 
-status=$1
-content=${2:-___no_content___}
+logger_trace 'util/respond.sh'
+
+status="$1"
+content="${2:-___no_content___}"
 
 contentType='Content-Type: application/hap+json'
 
-if [ "${REQUEST_TYPE:-}" == "encrypted" ]; then
+if [ "${REQUEST_TYPE:-}" = 'encrypted' ]; then
+    logger_debug 'Encrypted request -> outputtin HTTP status header'
     if [ "$status" = 200 ]; then
         echo 'HTTP/1.1 200 OK'
     elif [ "$status" = 204 ]; then
@@ -18,15 +22,15 @@ if [ "${REQUEST_TYPE:-}" == "encrypted" ]; then
     elif [ "$status" = 400 ]; then
         echo 'HTTP/1.1 400 Bad Request'
     fi
-fi;
+fi
 
-echo "Responding with $status: $content" >&2
+logger_debug "Responding with ${REQUEST_TYPE:-?} $status"
 
 if [ "$content" = '___no_content___' ]; then
     echo ''
 else
     echo "$contentType"
-    echo "Content-Length: $(echo "$content" | wc -c)"
+    echo "Content-Length: $(echo -n "$content" | wc -c)"
     echo ''
-    echo "$content"
+    echo -n "$content"
 fi

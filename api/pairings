@@ -1,5 +1,5 @@
 #! /nix/var/nix/profiles/default/bin/nix-shell
-#! nix-shell --pure -i python -I channel:nixos-23.05-small -p python3Packages.tlv8
+#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING -i python -I channel:nixos-23.05-small -p python3Packages.tlv8
 
 import sys
 import os

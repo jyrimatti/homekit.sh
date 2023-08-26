@@ -1,0 +1,10 @@
+logger_trace() {
+    started="$(($(date +%s) * 1000 + $(date +%3N | sed 's/^0*//')))"
+    echo "Entering: $1" >&2
+    trap "finished=\$((\$(date +%s) * 1000 + \$(date +%3N | sed 's/^0*//'))); ms=\$(( (\$finished - \$started)%1000 )); echo \"Finished: $1 in \$(( (\$finished - \$started)/1000 )).\$(printf %03d \$ms)s\" >&2" EXIT;
+}
+logger_debug() { echo "$1" >&2; }
+logger_info() { echo "$1" >&2; }
+logger_warn() { echo "$1" >&2; }
+logger_error() { echo "$1" >&2; }
+logger_fatal() { echo "$1" >&2; }

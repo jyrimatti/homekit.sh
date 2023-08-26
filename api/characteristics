@@ -1,85 +1,43 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep REQUEST_METHOD --keep QUERY_STRING --keep REMOTE_ADDR --keep REMOTE_PORT -i bash -I channel:nixos-23.05-small -p nix jq yq nodejs parallel findutils
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING --keep REQUEST_METHOD --keep QUERY_STRING --keep REMOTE_ADDR --keep REMOTE_PORT -i dash -I channel:nixos-23.05-small -p dash nix jq yq parallel findutils
+. ./logging
+. ./profiling
+set -eu
 
-resource_does_not_exist=-70409
-unable_to_communicate_with_requested_service=-70402
-cannot_write_to_read_only_characteristic=-70404
-accessory_received_an_invalid_value_in_a_write_request=-70410
-notification_is_not_supported_for_characteristic=-70406
-operation_timed_out=-70408
+logger_info 'Invoked api/characteristics'
+logger_trace 'api/characteristics'
 
-characteristics=$(mktemp /tmp/homekit.sh_characteristics.XXXXXX.json)
+. ./util/cache_set.sh
 
-if [ "$REQUEST_METHOD" == "GET" ]; then
-    source ./util/cgi_helpers.sh
+if [ "$REQUEST_METHOD" = "GET" ]; then
+    logger_debug 'Request is a GET'
+    . ./util/cgi_helpers.sh
 
-    meta=${query_params[meta]:-0}
-    perms=${query_params[perms]:-0}
-    type=${query_params[type]:-0}
-    ev=${query_params[ev]:-0}
+    meta="${qs_meta_:-0}"
+    perms="${qs_perms:-0}"
+    type="${qs_type:-0}"
+    ev="${qs_ev:-0}"
 
-    echo "${query_params[id]}" | tr ',' '\n' |\
-                                 xargs -n1 echo ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev" |\
-                                 parallel -k --jobs 0 > "$characteristics"
+    characteristics=$(echo "${qs_id}" |\
+                      tr ',' '\n' |\
+                      parallel --jobs 0${PROFILING:+1} ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")
 fi
 
-if [ "$REQUEST_METHOD" == "PUT" ]; then
-    session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
-    body=$(cat)
-
-    # for each requested characteristic...
-    while IFS= read -r charac; do
-        aid=$(echo "$charac" | jq -r '.aid')
-        iid=$(echo "$charac" | jq -r '.iid')
-        value=$(echo "$charac" | jq -r '.value // empty')
-        ev=$(echo "$charac" | jq -r '.ev // empty')
-        authData=$(echo "$charac" | jq -r '.authData // empty')
-        remote=$(echo "$charac" | jq -r '.remote // false')
-        response=$(echo "$charac" | jq -r '.r // false')
-
-        ret=$(jq -n "{ aid: $aid, iid: $iid }")
-        service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid" || echo "")
-        if [ "$service_with_characteristic" == "" ]; then
-            ret=$(echo "$ret" | jq ". + {status: $resource_does_not_exist}")
-        fi
-
-        if [ "$value" != "" ]; then
-            set +e
-            echo "$service_with_characteristic" | ./util/value_set.sh "$value"
-            responsevalue=$?
-            set -e
-            if [ $responsevalue = 154 ]; then
-                ret=$(echo "$ret" | jq ". + { status: $cannot_write_to_read_only_characteristic }")
-            elif [ $responsevalue = 158 ]; then
-                ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
-            elif [ $responsevalue != 0 ]; then
-                ret=$(echo "$ret" | jq ". + { status: $accessory_received_an_invalid_value_in_a_write_request }")
-            elif [ "$response" == "true" ]; then
-                ret=$(echo "$ret" | jq '. + { value: $value }' --argjson value "$value")
-            fi
-        elif [ "$ev" == "true" ]; then
-            mkdir -p "$session_store/subscriptions"
-            subscription="$session_store/subscriptions/${aid}.${iid}"
-            touch "$subscription"
-            echo "Subscribed $subscription" >&2
-        elif [ "$ev" == "false" ]; then
-            subscription="$session_store/subscriptions/${aid}.${iid}"
-            rm -f "$subscription"
-            echo "Unsubscribed $subscription" >&2
-        fi
-        echo "$ret" | jq 'with_entries(if .value == null then empty else . end)' >> "$characteristics"
-    done < <(echo "$body" | jq -c '.characteristics | .[]')
+if [ "$REQUEST_METHOD" = 'PUT' ]; then
+    logger_debug 'Request is a PUT'
+    characteristics=$(cat |\
+                      jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' |\
+                      parallel --jobs 0${PROFILING:+1} ./util/characteristics_put.sh '{= uq =}')
 fi
 
-has_errors=$(jq -r 'select(.status // 0 != 0) | .status' "$characteristics")
+has_errors=$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')
 if [ "$has_errors" != "" ]; then
-    content=$(jq -s '{ characteristics: map(.status = (.status // 0)) }' "$characteristics")
+    logger_debug 'There were errors'
+    content=$(echo "$characteristics" | jq -s '{ characteristics: map(.status = (.status // 0)) }')
     ./util/respond.sh 207 "$content"
-elif [ "$REQUEST_METHOD" == "GET" ]; then
-    content=$(jq -s '{ characteristics: . }' "$characteristics")
+elif [ "$REQUEST_METHOD" = 'GET' ]; then
+    content=$(echo "$characteristics" | jq -s '{ characteristics: . }')
     ./util/respond.sh 200 "$content"
-elif [ "$REQUEST_METHOD" == "PUT" ]; then
+elif [ "$REQUEST_METHOD" = 'PUT' ]; then
     ./util/respond.sh 204
 fi

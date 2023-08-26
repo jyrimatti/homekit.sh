@@ -1,6 +1,10 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i bash -I channel:nixos-23.05-small -p nodejs
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nodejs
+. ./logging
+. ./profiling
+set -eu
+
+logger_info 'Invoked api/secure-message'
+logger_trace 'api/secure-message'
 
 # TODO

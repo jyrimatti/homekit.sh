@@ -1,0 +1,7 @@
+#!/usr/bin/env dash
+
+if [ -n "${PROFILING+x}" ]; then
+  PS4="$PROFILING"'`date "+%T.%3N"` `basename "$0"`:${LINENO} '
+  export PROFILING="$PROFILING   "
+  set -x
+fi

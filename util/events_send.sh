@@ -1,7 +1,10 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep REMOTE_ADDR --keep REMOTE_PORT -i bash -I channel:nixos-23.05-small -p jq
-set -euo pipefail
-PS4='+ $(date "+%T.%3N ($LINENO) ")'
+#! nix-shell -i dash -I channel:nixos-23.05-small -p dash jq
+. ./logging
+. ./profiling
+set -eu
+
+logger_trace 'util/events_send.sh'
 
 session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
@@ -14,13 +17,13 @@ for f in "$session_store"/events/*.json; do
 done
 
 if test -s "$events"; then
-    content=$(cat "$events" | jq '.characteristics' | jq -s 'add | {characteristics: .}')
+    content=$(jq '.characteristics' "$events" | jq -cs 'add | {characteristics: .}')
 
-    echo "Sending events $content" >&2
+    logger_info "Sending events $content"
 
     echo 'EVENT/1.0 200 OK'
     echo 'Content-Type: application/hap+json'
-    echo "Content-Length: $(echo "$content" | wc -c)"
+    echo "Content-Length: $(echo -n "$content" | wc -c)"
     echo ''
-    echo "$content"
+    echo -n "$content"
 fi
