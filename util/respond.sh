@@ -7,7 +7,7 @@ set -eu
 logger_trace 'util/respond.sh'
 
 status="$1"
-content="${2:-___no_content___}"
+content="${2:-}"
 
 contentType='Content-Type: application/hap+json'
 
@@ -26,11 +26,11 @@ fi
 
 logger_debug "Responding with ${REQUEST_TYPE:-?} $status"
 
-if [ "$content" = '___no_content___' ]; then
+if [ -z "${2+x}" ]; then
     echo ''
 else
     echo "$contentType"
-    echo "Content-Length: $(echo -n "$content" | wc -c)"
+    echo "Content-Length: ${#content}"
     echo ''
     echo -n "$content"
 fi

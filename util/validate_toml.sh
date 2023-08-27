@@ -20,6 +20,10 @@ case "$tomlfile" in
     cat "$tmpfile"
     ;;
   *)
-    tomlq -c '.' "$tomlfile"
+    if [ -n "${BETA:-}" ]; then
+      tomlq -cj 'to_entries[] | {(.key):.value}' "$tomlfile"
+    else
+      tomlq -c '.' "$tomlfile"
+    fi
     ;;
 esac

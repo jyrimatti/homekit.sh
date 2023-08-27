@@ -22,7 +22,7 @@ char="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' |
 
 start=$(date +%s)
 set +e
-(cd ./accessories/; timeout -v --kill-after=3 "$timeout" $cmd Set "$serv" "$char")
+timeout -v --kill-after=3 "$timeout" dash -c "cd ./accessories; $cmd Set '$serv' '$char'"
 responseValue=$?
 set -e
 if [ $responseValue -eq 124 ]; then

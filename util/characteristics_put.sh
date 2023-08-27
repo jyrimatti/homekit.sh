@@ -54,19 +54,33 @@ fi
 if [ "$ev" = 'true' ]; then
     logger_info 'Subscribing to events'
     mkdir -p "$session_store/subscriptions"
-
     logger_debug "Creating event for $aid $iid"
-    value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
-    tmpfile=$(mktemp /tmp/homekit.sh_characteristics_put.XXXXXX)
-    ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
-    subscription="$session_store/subscriptions/${aid}.${iid}"
-    mv "$tmpfile" "$session_store/events/${aid}.${iid}.json"
-    echo "$value" > "$subscription"
-    logger_debug "Subscribed $subscription"
 
-    echo "$service_with_characteristic" | jq -re '.characteristics[0].polling // .polling' || {
-        logger_warn "No 'polling' defined for $aid.$iid. Will not be able to produce events!"
-    }
+    set +e
+    value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
+    responsevalue=$?
+    set -e
+    if [ $responsevalue = 154 ]; then
+        logger_debug '"cmd" not set in characteristic/service properties'
+        ret=$(echo "$ret" | jq ". + { status: $notification_is_not_supported_for_characteristic }")
+    elif [ $responsevalue = 158 ]; then
+        logger_error "Got responsecode $responsevalue while reading value"
+        ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
+    elif [ $responsevalue != 0 ]; then
+        logger_error "Got responsecode $responsevalue while reading value"
+        ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
+    else
+        tmpfile=$(mktemp /tmp/homekit.sh_characteristics_put.XXXXXX)
+        ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
+        subscription="$session_store/subscriptions/${aid}.${iid}"
+        mv "$tmpfile" "$session_store/events/${aid}.${iid}.json"
+        echo "$value" > "$subscription"
+        logger_debug "Subscribed $subscription"
+
+        echo "$service_with_characteristic" | jq -re '.characteristics[0].polling // .polling' || {
+            logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events!"
+        }
+    fi
 
 elif [ "$ev" = 'false' ]; then
     logger_info 'Unsubscribing from events'

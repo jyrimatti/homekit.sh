@@ -1,7 +1,6 @@
 logger_trace() {
-    started="$(($(date +%s) * 1000 + $(date +%3N | sed 's/^0*//')))"
     echo "Entering: $1" >&2
-    trap "finished=\$((\$(date +%s) * 1000 + \$(date +%3N | sed 's/^0*//'))); ms=\$(( (\$finished - \$started)%1000 )); echo \"Finished (\$?): $1 in \$(( (\$finished - \$started)/1000 )).\$(printf %03d \$ms)s\" >&2" EXIT;
+    trap "ret=\$?; started=\"$(date +%s%3N)\"; finished=\$(date +%s%3N); echo \"Finished (\$ret): $1 in \$((\$finished - \$started))ms\" >&2" EXIT;
 }
 logger_debug() { echo "$1" >&2; }
 logger_info() { echo "$1" >&2; }

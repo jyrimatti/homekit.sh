@@ -23,7 +23,7 @@ if test -s "$events"; then
 
     echo 'EVENT/1.0 200 OK'
     echo 'Content-Type: application/hap+json'
-    echo "Content-Length: $(echo -n "$content" | wc -c)"
+    echo "Content-Length: ${#content}"
     echo ''
     echo -n "$content"
 fi

@@ -5,7 +5,7 @@
 
 set -eu
 
-logger_debug 'util/cache_mkkey.sh'
+logger_trace 'util/cache_mkkey.sh'
 
 tomlfile="$1"
 

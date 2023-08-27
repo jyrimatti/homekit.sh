@@ -7,7 +7,9 @@ set -eu
 
 logger_trace 'util/characteristic.sh'
 
-name="$1"
-
-./util/tomlq-cached.sh -ce "$name" ./config/characteristics/*.toml
-
+IFS=,
+if [ -n "${BETA:-}" ]; then
+    ./util/tomlq-cached.sh -cen "limit($#; inputs | $*)" ./config/characteristics/*.toml
+else
+    ./util/tomlq-cached.sh -ce "$*" ./config/characteristics/*.toml
+fi

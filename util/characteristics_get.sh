@@ -14,10 +14,10 @@ type="$3"
 ev="$4"
 id="$5"
 
-aid=$(echo "$id" | cut -d . -f 1)
-iid=$(echo "$id" | cut -d . -f 2)
+aid="$(echo "$id" | cut -d . -f 1)"
+iid="$(echo "$id" | cut -d . -f 2)"
 
-ret=$(jq -n "{ aid: $aid, iid: $iid }")
+ret="{\"aid\": $aid, \"iid\": $iid}"
 
 service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid") || {
     logger_error "Resource $aid.$iid not found!"

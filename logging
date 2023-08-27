@@ -1,14 +1,5 @@
 #!/usr/bin/env dash
 
-if [ -z "${_logging_applied+x}" ]; then
-    _logging_applied=true
-    if [ -n "${LOGGING_LEVEL+x}" ]; then
-        . ./log4sh.$LOGGING_LEVEL
-    else
-        #. ./log4sh
-        #. ./log4sh.warn
-        #. ./log4sh.info
-        #. ./log4sh.debug
-        . ./log4sh.all
-    fi
+if [ -z "${logger_trace+x}" ]; then
+    . "./log4sh.${LOGGING_LEVEL:-all}"
 fi

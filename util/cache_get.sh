@@ -11,10 +11,4 @@ logger_trace 'util/cache_get.sh'
 
 tomlfile="$1"
 
-envVarName="HOMEKIT_SH_$(./util/cache_mkkey.sh "$tomlfile")"
-eval "found=\${$envVarName+x}"
-if [ -z "$found" ]; then
-    exit 1
-fi
-
-eval "echo \"\${$envVarName}\""
+eval "echo \"\$HOMEKIT_SH_$(./util/cache_mkkey.sh "$tomlfile")\""

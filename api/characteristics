@@ -7,7 +7,7 @@ set -eu
 logger_info 'Invoked api/characteristics'
 logger_trace 'api/characteristics'
 
-. ./util/cache_set.sh
+. ./util/cache_toml.sh
 
 if [ "$REQUEST_METHOD" = "GET" ]; then
     logger_debug 'Request is a GET'
