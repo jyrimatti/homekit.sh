@@ -1,12 +1,22 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq yq
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq yq ncurses
 . ./logging
 . ./profiling
 set -eu
 
 logger_trace 'util/characteristics_get.sh'
 
+request_denied_due_to_insufficient_privileges=-70401
+unable_to_communicate_with_requested_service=-70402
+resource_is_busy_try_again_=-70403
+cannot_write_to_read_only_characteristic=-70404
+cannot_read_from_a_write_only_characteristic=-70405
+notification_is_not_supported_for_characteristic=-70406
+out_of_resources_to_process_request=-70407
+operation_timed_out=-70408
 resource_does_not_exist=-70409
+accessory_received_an_invalid_value_in_a_write_request=-70410
+insufficient_authorization=-70411
 
 meta="$1"
 perms="$2"
@@ -25,6 +35,8 @@ service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid
     exit 0
 }
 
+servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
+characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
 characteristic="$(echo "$service_with_characteristic" | jq -c '.characteristics[0]')"
 
 if [ "$meta" = '1' ]; then
@@ -53,8 +65,14 @@ value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
 responsevalue=$?
 set -e
 if [ $responsevalue = 154 ]; then
-    logger_debug '"cmd" not set in characteristic/service properties -> take the constant defined in configuration'
+    logger_debug "\"cmd\" not set in characteristic/service properties for $characteristicname@$servicename -> take the constant defined in configuration"
     value=$(echo "$characteristic" | jq '.value')
+elif [ $responsevalue = 158 ]; then
+    ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
+elif [ $responsevalue = 152 ]; then
+    ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
+elif [ $responsevalue != 0 ]; then
+    ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
 elif [ "$(echo "$characteristic" | jq '.format')" = 'string' ]; then
     logger_debug 'Value is a string -> wrap it in quotes if not already'
     value=$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')

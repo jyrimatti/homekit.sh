@@ -1,17 +1,22 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq ncurses
 . ./logging
 . ./profiling
 set -eu
 
 logger_trace 'util/characteristics_put.sh'
 
-resource_does_not_exist=-70409
+request_denied_due_to_insufficient_privileges=-70401
 unable_to_communicate_with_requested_service=-70402
+resource_is_busy_try_again_=-70403
 cannot_write_to_read_only_characteristic=-70404
-accessory_received_an_invalid_value_in_a_write_request=-70410
+cannot_read_from_a_write_only_characteristic=-70405
 notification_is_not_supported_for_characteristic=-70406
+out_of_resources_to_process_request=-70407
 operation_timed_out=-70408
+resource_does_not_exist=-70409
+accessory_received_an_invalid_value_in_a_write_request=-70410
+insufficient_authorization=-70411
 
 aid="$1"
 iid="$2"
@@ -30,6 +35,9 @@ service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid
     exit 0
 }
 
+servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
+characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
     set +e
@@ -37,13 +45,13 @@ if [ "$value" != 'null' ]; then
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
-        logger_error "Got responsecode $responsevalue while writing value"
+        logger_error "Got responsecode $responsevalue while writing value for $characteristicname@$servicename"
         ret=$(echo "$ret" | jq ". + { status: $cannot_write_to_read_only_characteristic }")
     elif [ $responsevalue = 158 ]; then
-        logger_error "Got responsecode $responsevalue while writing value"
+        logger_error "Got timeout while writing value for $characteristicname@$servicename"
         ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
     elif [ $responsevalue != 0 ]; then
-        logger_error "Got responsecode $responsevalue while writing value"
+        logger_error "Got errorcode $responsevalue while writing value for $characteristicname@$servicename"
         ret=$(echo "$ret" | jq ". + { status: $accessory_received_an_invalid_value_in_a_write_request }")
     elif [ "$response" = 'true' ]; then
         logger_debug 'Requested for "value"'
@@ -52,7 +60,7 @@ if [ "$value" != 'null' ]; then
 fi
 
 if [ "$ev" = 'true' ]; then
-    logger_info 'Subscribing to events'
+    logger_info "Subscribing to events for $characteristicname@$servicename"
     mkdir -p "$session_store/subscriptions"
     logger_debug "Creating event for $aid $iid"
 
@@ -64,26 +72,27 @@ if [ "$ev" = 'true' ]; then
         logger_debug '"cmd" not set in characteristic/service properties'
         ret=$(echo "$ret" | jq ". + { status: $notification_is_not_supported_for_characteristic }")
     elif [ $responsevalue = 158 ]; then
-        logger_error "Got responsecode $responsevalue while reading value"
         ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
+    elif [ $responsevalue = 152 ]; then
+        ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
     elif [ $responsevalue != 0 ]; then
-        logger_error "Got responsecode $responsevalue while reading value"
         ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
     else
         tmpfile=$(mktemp /tmp/homekit.sh_characteristics_put.XXXXXX)
         ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
         subscription="$session_store/subscriptions/${aid}.${iid}"
+        mkdir -p "$session_store/events"
         mv "$tmpfile" "$session_store/events/${aid}.${iid}.json"
         echo "$value" > "$subscription"
         logger_debug "Subscribed $subscription"
 
-        echo "$service_with_characteristic" | jq -re '.characteristics[0].polling // .polling' || {
-            logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events!"
+        { echo "$service_with_characteristic" | jq -re '.characteristics[0].polling // .polling' >/dev/null; } || {
+            logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events for $characteristicname@$servicename"
         }
     fi
 
 elif [ "$ev" = 'false' ]; then
-    logger_info 'Unsubscribing from events'
+    logger_info "Unsubscribing from events for $characteristicname@$servicename"
     subscription="$session_store/subscriptions/${aid}.${iid}"
     rm -f "$subscription"
     logger_debug "Unsubscribed $subscription"

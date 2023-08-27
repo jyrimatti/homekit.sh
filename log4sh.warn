@@ -1,6 +1,6 @@
 logger_trace() { return 0; }
 logger_debug() { return 0; }
 logger_info() { return 0; }
-logger_warn() { echo "$1" >&2; }
-logger_error() { echo "$1" >&2; }
-logger_fatal() { echo "$1" >&2; }
+logger_warn() { printf '%s%s%s\n' $COLOR_YELLOW "$1" $COLOR_RESET >&2; }
+logger_error() { printf '%s%s%s\n' $COLOR_RED "$1" $COLOR_RESET >&2; }
+logger_fatal() { printf '%s%s%s\n' $COLOR_PURPLE "$1" $COLOR_RESET >&2; }

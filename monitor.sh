@@ -13,6 +13,7 @@ do
     fi
     rm -R ./store/cache
     mkdir -p ./store/cache
+    ./api/accessories.sh
     current=$(sed 's/c#=\([^ ]*\) .*/\1/' ./store/dns-txt)
     newval=$((current+1))
     logger_info "Updated configuration number $current -> $newval"

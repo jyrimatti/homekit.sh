@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq ncurses
 . ./logging
 . ./profiling
 set -eu
@@ -26,11 +26,27 @@ if test -f "$subscription_path"; then
 
     if [ "$previous_value" = '' ] || { [ "$polling" != '' ] && [ "$age" -gt "$polling" ]; }; then
         logger_debug 'Reading new value'
+        set +e
         value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
-        responseValue=$?
-        if [ $responseValue != 0 ]; then
-            logger_error "Got response $responseValue polling $subscription_path"
+        responsevalue=$?
+        set -e
+        if [ $responsevalue = 158 ]; then
+            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
+            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+            logger_error "Got timeout while reading value for $characteristicname@$servicename"
+        elif [ $responsevalue = 152 ]; then
+            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
+            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+            logger_error "Got empty response while reading value for $characteristicname@$servicename"
+        elif [ $responsevalue != 0 ]; then
+            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
+            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+            logger_error "Got errorcode $responsevalue while reading value for $characteristicname@$servicename"
         else
+            if [ "$(echo "$service_with_characteristic" | jq -c '.characteristics[0].format')" = 'string' ]; then
+                logger_debug 'Value is a string -> wrap it in quotes if not already'
+                value=$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')
+            fi
             if [ "$value" != "$previous_value" ] && test -f "$subscription_path"; then
                 logger_debug "Creating event for $aid $iid"
                 echo "$value" > "$subscription_path"

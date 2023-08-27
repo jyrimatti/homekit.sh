@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nodejs
+#! nix-shell --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nodejs ncurses
 . ./logging
 . ./profiling
 set -u

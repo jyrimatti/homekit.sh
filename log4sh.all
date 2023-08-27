@@ -1,9 +1,10 @@
+
 logger_trace() {
-    echo "Entering: $1" >&2
-    trap "ret=\$?; started=\"$(date +%s%3N)\"; finished=\$(date +%s%3N); echo \"Finished (\$ret): $1 in \$((\$finished - \$started))ms\" >&2" EXIT;
+    printf '%s%s%s\n' $COLOR_LIGHTGREY "Entering: $1" $COLOR_RESET >&2;
+    trap "_LOGGING_ret=\$?; _LOGGING_started=\"$(date +%s%3N)\"; _LOGGING_finished=\$(date +%s%3N); printf '%s%s%s\\n' $COLOR_LIGHTGREY \"Finished (\$_LOGGING_ret): $1 in \$((\$_LOGGING_finished - \$_LOGGING_started))ms $COLOR_RESET\" >&2" EXIT;
 }
-logger_debug() { echo "$1" >&2; }
-logger_info() { echo "$1" >&2; }
-logger_warn() { echo "$1" >&2; }
-logger_error() { echo "$1" >&2; }
-logger_fatal() { echo "$1" >&2; }
+logger_debug() { printf '%s%s%s\n' $COLOR_GREY "$1" $COLOR_RESET >&2; }
+logger_info() { printf '%s%s%s\n' $COLOR_GREEN "$1" $COLOR_RESET >&2; }
+logger_warn() { printf '%s%s%s\n' $COLOR_YELLOW "$1" $COLOR_RESET >&2; }
+logger_error() { printf '%s%s%s\n' $COLOR_RED "$1" $COLOR_RESET >&2; }
+logger_fatal() { printf '%s%s%s\n' $COLOR_PURPLE "$1" $COLOR_RESET >&2; }

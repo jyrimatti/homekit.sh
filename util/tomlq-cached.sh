@@ -1,5 +1,5 @@
 #! /usr/bin/env dash
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash yq jq
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash yq jq ncurses
 . ./logging
 . ./profiling
 

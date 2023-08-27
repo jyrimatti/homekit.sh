@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nix shellspec jq yq nodejs yajsv parallel coreutils bc
+#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nix shellspec jq yq nodejs yajsv parallel coreutils bc ncurses
 . ./logging
 . ./profiling
 set -eu
