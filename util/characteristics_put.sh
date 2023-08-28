@@ -28,34 +28,34 @@ response="$7"
 
 session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
-ret=$(jq -n "{ aid: $aid, iid: $iid }")
-service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid") || {
+ret="$(jq -n "{ aid: $aid, iid: $iid }")"
+service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")" || {
     logger_error "Resource $aid.$iid not found!"
     echo "$ret" | jq ". + {status: $resource_does_not_exist}"
     exit 0
 }
 
-servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
-characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
 
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
     set +e
-    echo "$service_with_characteristic" | ./util/value_set.sh "$value"
+    echo "$service_with_characteristic" | dash ./util/value_set.sh "$value"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
         logger_error "Got responsecode $responsevalue while writing value for $characteristicname@$servicename"
-        ret=$(echo "$ret" | jq ". + { status: $cannot_write_to_read_only_characteristic }")
+        ret="$(echo "$ret" | jq ". + { status: $cannot_write_to_read_only_characteristic }")"
     elif [ $responsevalue = 158 ]; then
         logger_error "Got timeout while writing value for $characteristicname@$servicename"
-        ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
+        ret="$(echo "$ret" | jq ". + { status: $operation_timed_out }")"
     elif [ $responsevalue != 0 ]; then
         logger_error "Got errorcode $responsevalue while writing value for $characteristicname@$servicename"
-        ret=$(echo "$ret" | jq ". + { status: $accessory_received_an_invalid_value_in_a_write_request }")
+        ret="$(echo "$ret" | jq ". + { status: $accessory_received_an_invalid_value_in_a_write_request }")"
     elif [ "$response" = 'true' ]; then
         logger_debug 'Requested for "value"'
-        ret=$(echo "$ret" | jq '. + { value: $value }' --argjson value "$value")
+        ret="$(echo "$ret" | jq '. + { value: $value }' --argjson value "$value")"
     fi
 fi
 
@@ -65,21 +65,21 @@ if [ "$ev" = 'true' ]; then
     logger_debug "Creating event for $aid $iid"
 
     set +e
-    value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
+    value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh)"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
         logger_debug '"cmd" not set in characteristic/service properties'
-        ret=$(echo "$ret" | jq ". + { status: $notification_is_not_supported_for_characteristic }")
+        ret="$(echo "$ret" | jq ". + { status: $notification_is_not_supported_for_characteristic }")"
     elif [ $responsevalue = 158 ]; then
-        ret=$(echo "$ret" | jq ". + { status: $operation_timed_out }")
+        ret="$(echo "$ret" | jq ". + { status: $operation_timed_out }")"
     elif [ $responsevalue = 152 ]; then
-        ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
+        ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
     elif [ $responsevalue != 0 ]; then
-        ret=$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")
+        ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
     else
-        tmpfile=$(mktemp /tmp/homekit.sh_characteristics_put.XXXXXX)
-        ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
+        tmpfile="$(mktemp /tmp/homekit.sh_characteristics_put.XXXXXX)"
+        dash ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
         subscription="$session_store/subscriptions/${aid}.${iid}"
         mkdir -p "$session_store/events"
         mv "$tmpfile" "$session_store/events/${aid}.${iid}.json"

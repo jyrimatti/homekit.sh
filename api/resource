@@ -9,4 +9,4 @@ logger_trace 'api/resource'
 
 # TODO
 
-./tlv.sh >&2
+dash ./tlv.sh >&2

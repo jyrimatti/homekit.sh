@@ -9,18 +9,18 @@ logger_trace 'api/accessories'
 
 if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ] && [ -e ./store/cache/accessories.json ]; then
     logger_debug 'Using cached accessories'
-    ./util/respond.sh 200 "$(cat ./store/cache/accessories.json)"
+    dash ./util/respond.sh 200 "$(cat ./store/cache/accessories.json)"
     exit 0
 fi
 
 . ./util/cache_toml.sh
 
-accessories=$(find ./accessories -name '*.toml' |\
-              parallel --jobs 0${PROFILING:+1} "./util/tomlq-cached.sh -c '.services | group_by(.type) | .[]' {} | parallel --jobs 0${PROFILING:+1} ./util/generate_service.sh | jq -cs \"{ aid: \$(./util/aid.sh {}), services: map({type, iid, characteristics}) }\"" |\
-              jq -cs '{accessories: .}')
+accessories="$(find ./accessories -name '*.toml' |\
+               parallel --jobs 0${PROFILING:+1} "dash ./util/tomlq-cached.sh -c '.services | group_by(.type) | .[]' {} | parallel --jobs 0${PROFILING:+1} dash ./util/generate_service.sh | jq -cs \"{ aid: \$(dash ./util/aid.sh {}), services: map({type, iid, characteristics}) }\"" |\
+               jq -cs '{accessories: .}')"
 
 if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ]; then
     echo "$accessories" > ./store/cache/accessories.json
 fi
 
-./util/respond.sh 200 "$accessories"
+dash ./util/respond.sh 200 "$accessories"

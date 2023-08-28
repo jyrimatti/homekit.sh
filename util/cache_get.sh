@@ -11,4 +11,4 @@ logger_trace 'util/cache_get.sh'
 
 tomlfile="$1"
 
-eval "echo \"\$HOMEKIT_SH_$(./util/cache_mkkey.sh "$tomlfile")\""
+eval "echo \"\$HOMEKIT_SH_$(dash ./util/cache_mkkey.sh "$tomlfile")\""

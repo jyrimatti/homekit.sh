@@ -9,19 +9,15 @@ logger_trace 'util/generate_service_internal.sh'
 index="$1"
 service="$(cat)"
 
-typecode=$(echo "$service" | jq -r '.type' | xargs ./util/typecode_service.sh)
-service_iid=$(./util/iid_service.sh "$service" "$typecode" "$index")
+typecode="$(echo "$service" | jq -r '.type' | xargs dash ./util/typecode_service.sh)"
+service_iid="$(dash ./util/iid_service.sh "$service" "$typecode" "$index")"
 
-if [ -n "${BETA:-}" ]; then
-    query='first(select(.[\"\($k)\"]))'
-else
-    query='.'
-fi
+query='first(select(.[\"\($k)\"]))'
 
 {
     echo "$service" |\
     jq -cr ".characteristics | keys_unsorted[] as \$k | \"$query"'[\"\($k)\"] + \(.[$k]|objects // {value:.})" | @sh' |\
-    xargs ./util/characteristic.sh |\
+    xargs dash ./util/characteristic.sh |\
     # as Characteristic InstanceID, use its typecode converted to decimal and added to the Service InstanceID
     jq -c "include \"util\"; . + {iid: (.iid // $service_iid + (.type | to_i(16)))}" |\
     jq -cs "\$service + {type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"

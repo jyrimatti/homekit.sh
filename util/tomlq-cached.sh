@@ -1,4 +1,4 @@
-#! /usr/bin/env dash
+#! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash yq jq ncurses
 . ./logging
 . ./profiling
@@ -14,13 +14,14 @@ shift 2
 if [ -n "${HOMEKIT_SH_CACHE_TOML:-}" ]; then
     for tomlfile in $*; do
         logger_debug "Using memory cached JSON for $tomlfile"
-        ./util/cache_get.sh "$tomlfile" | jq $params "$query"
-    done
+        dash ./util/cache_get.sh "$tomlfile"
+    done | jq $params "$query"
 elif [ -n "${HOMEKIT_SH_CACHE_TOML_DISK:-}" ]; then
-    for tomlfile in $*; do
-        logger_debug "Using disk cached JSON for $tomlfile"
-        jq $params "$query" "/tmp/HOMEKIT_SH_$(./util/cache_mkkey.sh "$tomlfile")"
-    done
+    files=$(for tomlfile in $*; do
+                logger_debug "Using disk cached JSON for $tomlfile"
+                echo -n "/tmp/HOMEKIT_SH_$(dash ./util/cache_mkkey.sh "$tomlfile") "
+            done)
+    jq $params "$query" $files
 else
     logger_debug "Using tomlq for $*"
     tomlq $params "$query" $*

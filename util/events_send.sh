@@ -8,7 +8,7 @@ logger_trace 'util/events_send.sh'
 
 session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
-events=$(mktemp /tmp/homekit.sh_events_send.XXXXXX)
+events="$(mktemp /tmp/homekit.sh_events_send.XXXXXX)"
 for f in "$session_store"/events/*.json; do
     if test -f "$f"; then
         cat "$f" >> "$events"
@@ -17,7 +17,7 @@ for f in "$session_store"/events/*.json; do
 done
 
 if test -s "$events"; then
-    content=$(jq '.characteristics' "$events" | jq -cs 'add | {characteristics: .}')
+    content="$(jq '.characteristics' "$events" | jq -cs 'add | {characteristics: .}')"
 
     logger_info "Sending events $content"
 

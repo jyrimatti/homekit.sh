@@ -9,17 +9,17 @@ logger_trace 'util/value_set.sh'
 value="$1"
 
 service_with_characteristic="$(cat)"
-servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
-characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
-cmd=$(echo "$service_with_characteristic" | jq -re '.characteristics[0].cmd // .cmd') || {
+servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
+cmd="$(echo "$service_with_characteristic" | jq -re '.characteristics[0].cmd // .cmd')" || {
     logger_error "Cannot set value, \"cmd\" not set in characteristic/service properties for $characteristicname@$servicename"
     exit 154
 }
 
-timeout=$(echo "$service_with_characteristic" | jq -r '.characteristics[0].timeout // .timeout // $default' --arg default "$(cat ./config/default-timeout)")
+timeout="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].timeout // .timeout // $default' --arg default "$(cat ./config/default-timeout)")"
 logger_debug "Using timeout $timeout"
 
-start=$(date +%s)
+start="$(date +%s)"
 set +e
 timeout -v --kill-after=3 "$timeout" dash -c "cd ./accessories; $cmd Set '$servicename' '$characteristicname' '$value'"
 responseValue=$?
@@ -31,6 +31,6 @@ elif [ $responseValue -ne 0 ]; then
     logger_error "Command '$cmd Set' failed for $characteristicname@$servicename"
     exit $responseValue
 fi
-end=$(date +%s)
+end="$(date +%s)"
 
 logger_info "$cmd Set: $((end - start))s for $characteristicname@$servicename"

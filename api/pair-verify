@@ -7,7 +7,7 @@ set -eu
 logger_info 'Invoked api/pair-verify'
 logger_trace 'api/pair-verify'
 
-tmpfile=$(mktemp /tmp/homekit.sh_pair-verify.XXXXXX)
+tmpfile="$(mktemp /tmp/homekit.sh_pair-verify.XXXXXX)"
 
 (cd pairing && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairVerify --silent > "$tmpfile")
 

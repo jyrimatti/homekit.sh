@@ -9,8 +9,4 @@ logger_trace 'util/typecode_service.sh'
 
 type="$1"
 
-if [ -n "${BETA:-}" ]; then
-    ./util/tomlq-cached.sh -ren "first(inputs | select(.$type)).$type.type" ./config/services/*.toml
-else
-    ./util/tomlq-cached.sh -re ".$type.type" ./config/services/*.toml
-fi
+dash ./util/tomlq-cached.sh -ren "first(inputs | select(.$type)).$type.type" ./config/services/*.toml

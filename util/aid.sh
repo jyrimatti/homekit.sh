@@ -11,4 +11,4 @@ logger_trace 'util/aid.sh'
 
 tomlfile="$1"
 
-./util/tomlq-cached.sh -ce '.aid // empty' "$tomlfile" || { echo "$tomlfile" | ./util/hash.sh; }
+dash ./util/tomlq-cached.sh -ce '.aid // empty' "$tomlfile" || { echo "$tomlfile" | dash ./util/hash.sh; }

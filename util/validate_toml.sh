@@ -11,7 +11,7 @@ tomlfile="$1"
 
 case "$tomlfile" in
   './accessories/'*)
-    tmpfile=$(mktemp /tmp/homekit.sh_validate_toml.XXXXXX.json)
+    tmpfile="$(mktemp /tmp/homekit.sh_validate_toml.XXXXXX.json)"
     tomlq -c < "$tomlfile" > "$tmpfile"
 
     logger_debug "Validating toml file $tomlfile"
@@ -20,10 +20,6 @@ case "$tomlfile" in
     cat "$tmpfile"
     ;;
   *)
-    if [ -n "${BETA:-}" ]; then
-      tomlq -cj 'to_entries[] | {(.key):.value}' "$tomlfile"
-    else
-      tomlq -c '.' "$tomlfile"
-    fi
+    tomlq -cj 'to_entries[] | {(.key):.value}' "$tomlfile"
     ;;
 esac

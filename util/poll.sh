@@ -13,45 +13,45 @@ subscription_path="./store/sessions/$session/subscriptions/$subscription"
 if test -f "$subscription_path"; then
     logger_debug "Polling $subscription_path"
 
-    age=$(($(date +%s) - $(date +%s -r "$subscription_path")))
-    previous_value=$(cat "$subscription_path")
+    age="$(($(date +%s) - $(date +%s -r "$subscription_path")))"
+    previous_value="$(cat "$subscription_path")"
 
     logger_debug "Got age $age"
 
-    aid=$(echo "$subscription" | cut -d . -f 1)
-    iid=$(echo "$subscription" | cut -d . -f 2)
+    aid="$(echo "$subscription" | cut -d . -f 1)"
+    iid="$(echo "$subscription" | cut -d . -f 2)"
 
-    service_with_characteristic=$(./util/service_with_characteristic.sh "$aid" "$iid")
-    polling=$(echo "$service_with_characteristic" | jq -r '.characteristics[0].polling // .polling // empty')
+    service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")"
+    polling="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].polling // .polling // empty')"
 
     if [ "$previous_value" = '' ] || { [ "$polling" != '' ] && [ "$age" -gt "$polling" ]; }; then
         logger_debug 'Reading new value'
         set +e
-        value=$(echo "$service_with_characteristic" | ./util/value_get.sh)
+        value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh)"
         responsevalue=$?
         set -e
         if [ $responsevalue = 158 ]; then
-            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
-            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
             logger_error "Got timeout while reading value for $characteristicname@$servicename"
         elif [ $responsevalue = 152 ]; then
-            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
-            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
             logger_error "Got empty response while reading value for $characteristicname@$servicename"
         elif [ $responsevalue != 0 ]; then
-            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs ./util/type_to_string.sh)"
-            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs ./util/type_to_string.sh)"
+            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
             logger_error "Got errorcode $responsevalue while reading value for $characteristicname@$servicename"
         else
             if [ "$(echo "$service_with_characteristic" | jq -c '.characteristics[0].format')" = 'string' ]; then
                 logger_debug 'Value is a string -> wrap it in quotes if not already'
-                value=$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')
+                value="$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')"
             fi
             if [ "$value" != "$previous_value" ] && test -f "$subscription_path"; then
                 logger_debug "Creating event for $aid $iid"
                 echo "$value" > "$subscription_path"
-                tmpfile=$(mktemp /tmp/homekit.sh_poll.XXXXXX)
-                ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
+                tmpfile="$(mktemp /tmp/homekit.sh_poll.XXXXXX)"
+                dash ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
                 mv "$tmpfile" "./store/sessions/$session/events/$subscription.json"
             fi
         fi

@@ -18,26 +18,25 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     type="${qs_type:-0}"
     ev="${qs_ev:-0}"
 
-    characteristics=$(echo "${qs_id}" |\
-                      tr ',' '\n' |\
-                      parallel --jobs 0${PROFILING:+1} ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")
+    characteristics="$(echo "${qs_id}" |\
+                       parallel --delimiter ',' --jobs 0${PROFILING:+1} dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
 fi
 
 if [ "$REQUEST_METHOD" = 'PUT' ]; then
     logger_debug 'Request is a PUT'
-    characteristics=$(cat |\
-                      jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' |\
-                      parallel --jobs 0${PROFILING:+1} ./util/characteristics_put.sh '{= uq =}')
+    characteristics="$(cat |\
+                       jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' |\
+                       parallel --jobs 0${PROFILING:+1} dash ./util/characteristics_put.sh '{= uq =}')"
 fi
 
-has_errors=$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')
+has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"
 if [ "$has_errors" != "" ]; then
     logger_debug 'There were errors'
-    content=$(echo "$characteristics" | jq -s '{ characteristics: map(.status = (.status // 0)) }')
-    ./util/respond.sh 207 "$content"
+    content="$(echo "$characteristics" | jq -s '{ characteristics: map(.status = (.status // 0)) }')"
+    dash ./util/respond.sh 207 "$content"
 elif [ "$REQUEST_METHOD" = 'GET' ]; then
-    content=$(echo "$characteristics" | jq -s '{ characteristics: . }')
-    ./util/respond.sh 200 "$content"
+    content="$(echo "$characteristics" | jq -s '{ characteristics: . }')"
+    dash ./util/respond.sh 200 "$content"
 elif [ "$REQUEST_METHOD" = 'PUT' ]; then
-    ./util/respond.sh 204
+    dash ./util/respond.sh 204
 fi

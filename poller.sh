@@ -11,7 +11,7 @@ do
         grep subscriptions |\
         cut -d / -f 4,6 |\
         tr '/' ' ' |\
-        xargs -r -L1 ./util/poll.sh |\
+        xargs -r -L1 dash ./util/poll.sh |\
         parallel -k --jobs 0${PROFILING:+1} || true
     
     sleep 1
