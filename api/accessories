@@ -8,8 +8,8 @@ logger_info 'Invoked: api/accessories'
 logger_trace 'api/accessories'
 
 if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ] && [ -e ./store/cache/accessories.json ]; then
-    logger_debug 'Using cached accessories'
     dash ./util/respond.sh 200 "$(cat ./store/cache/accessories.json)"
+    logger_debug "Accessories retrived from cache"
     exit 0
 fi
 
@@ -17,7 +17,7 @@ fi
 
 accessories="$(find ./accessories -name '*.toml' |\
                parallel --jobs 0${PROFILING:+1} "dash ./util/tomlq-cached.sh -c '.services | group_by(.type) | .[]' {} | parallel --jobs 0${PROFILING:+1} dash ./util/generate_service.sh | jq -cs \"{ aid: \$(dash ./util/aid.sh {}), services: map({type, iid, characteristics}) }\"" |\
-               jq -cs '{accessories: .}')"
+               jq -cs '{accessories: map(.services |= map(del(.cmd, .polling) | .characteristics |= map(del(.cmd, .polling))))}')"
 
 if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ]; then
     echo "$accessories" > ./store/cache/accessories.json

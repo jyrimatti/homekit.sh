@@ -103,7 +103,7 @@
                     "minimum": 0.0
                 },
                 "value":    { "type": "string" },
-                "maxLen":   { "type": "integer" }
+                "maxLen":   { "type": "integer", "minimum": 1, "maximum": 256 }
             }
         },
         "service": {
@@ -188,13 +188,13 @@
             "additionalProperties": false,
             "properties": {
                 "Identify":         { "$ref": "#/$defs/booleanlike" },
-                "Manufacturer":     { "type": "string", "maxLength": 64 },
-                "Model":            { "type": "string", "maxLength": 64 },
-                "Name":             { "type": "string", "maxLength": 64 },
-                "SerialNumber":     { "type": "string", "maxLength": 64 },
-                "FirmwareRevision": { "type": "string" },
-                "HardwareRevision": { "type": "string" },
-                "AccessoryFlags":   { "type": "integer", "minimum": 1, "maximum": 2 }
+                "Manufacturer":     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "Model":            { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "SerialNumber":     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "FirmwareRevision": { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] },
+                "HardwareRevision": { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] },
+                "AccessoryFlags":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, {"type": "integer", "minimum": 0, "maximum": 2 }] }
             },
             "required": [ "Identify", "Manufacturer", "Model", "Name", "SerialNumber", "FirmwareRevision" ]
         },

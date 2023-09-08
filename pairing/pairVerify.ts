@@ -3,7 +3,7 @@ import tweetnacl from "tweetnacl";
 import * as hapCrypto from "./hapCrypto";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
-import { TLVValues, PairingStates, log, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore } from './common';
+import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore } from './common';
 
 export function pairVerify(AccessoryPairingID: string, sessionStorePath: string): void {
     const data = Buffer.alloc(parseInt(env.CONTENT_LENGTH!));
@@ -12,14 +12,14 @@ export function pairVerify(AccessoryPairingID: string, sessionStorePath: string)
     const tlvData = tlv.decode(data);
     const sequence = tlvData[TLVValues.STATE][0]; // value is single byte with sequence number
 
-    log("pairVerify with sequence: " + sequence + " and data length: " + data.length);
+    log_debug("pairVerify with sequence: " + sequence + " and data length: " + data.length);
 
     if (sequence === PairingStates.M1) {
         pairVerifyM1(tlvData, Buffer.from(AccessoryPairingID), sessionStorePath);
     } else if (sequence === PairingStates.M3) {
         pairVerifyM3(tlvData, sessionStorePath);
     } else {
-        log("Invalid state/sequence number");
+        log_error("Invalid state/sequence number");
 
         respondTLV(400, tlv.encode(TLVValues.STATE, sequence + 1,
                                    TLVValues.ERROR, TLVErrorCode.UNKNOWN));
@@ -27,7 +27,7 @@ export function pairVerify(AccessoryPairingID: string, sessionStorePath: string)
 }
 
 function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, sessionStorePath: string): void {
-    log("M2: Verify Start Response");
+    log_debug("M2: Verify Start Response");
 
     // Generate new, random Curve25519 keypair.
     const keyPair = tweetnacl.box.keyPair();
@@ -64,11 +64,11 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
                                TLVValues.PUBLIC_KEY, AccessoryPublicKey,
                                TLVValues.ENCRYPTED_DATA, Buffer.concat([ciphertext, authTag])));
     
-    log("M2 responded")
+    log_debug("M2 responded")
 }
 
 function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string): void {
-    log("M4: Verify Finish Response");
+    log_debug("M4: Verify Finish Response");
 
     const {messageData, authTagData} = extractMessageAndAuthTag(tlvData[TLVValues.ENCRYPTED_DATA]);
 
@@ -89,7 +89,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string)
         // Decrypt the sub-TLV in encryptedData.
         subTLV = hapCrypto.chacha20_poly1305_decryptAndVerify(SessionKey, Buffer.from("PV-Msg03"), null, messageData, authTagData);
     } catch (error) {
-        log("Failed to decrypt and/or verify");
+        log_error("Failed to decrypt and/or verify");
         // If verification/decryption fails, the accessory must respond with the following TLV items:
         respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4,
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
@@ -105,7 +105,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string)
     try {
         readFromStore('pairings/' + iOSDevicePairingID + '/iOSDevicePairingID');
     } catch (err) {
-        log("Client iOSDevicePairingID " + iOSDevicePairingID + " not found -> not paired");
+        log_info("Client iOSDevicePairingID " + iOSDevicePairingID + " not found -> not paired");
         // If not found, the accessory must respond with the following TLV items:
         respondTLV(400, tlv.encode(TLVValues.STATE, PairingStates.M4,
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
@@ -116,7 +116,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string)
     
     // Use Ed25519 to verify iOSDeviceSignature using iOSDeviceLTPK against iOSDeviceInfo contained in the decrypted sub-TLV
     if (!tweetnacl.sign.detached.verify(iOSDeviceInfo, iOSDeviceSignature, iOSDeviceLTPK)) {
-        log("Client provided an invalid signature");
+        log_error("Client provided an invalid signature");
         // If decryption fails, the accessory must respond with the following TLV items:
         respondTLV(400, tlv.encode(TLVValues.STATE, PairingStates.M4,
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
@@ -129,5 +129,5 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string)
     // Send the response to the iOS device with the following TLV items:
     respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4));
 
-    log("Pair-verify done!")
+    log_info("Pair-verify done!")
 }

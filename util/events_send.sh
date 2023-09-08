@@ -9,21 +9,23 @@ logger_trace 'util/events_send.sh'
 session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
 events="$(mktemp /tmp/homekit.sh_events_send.XXXXXX)"
+sent="$(date -u +%Y-%m-%dT%H:%M:%S)"
 for f in "$session_store"/events/*.json; do
     if test -f "$f"; then
         cat "$f" >> "$events"
-        rm "$f"
+        mv "$f" "./store/sent_events/$(basename "$f")_$sent"
     fi
 done
 
 if test -s "$events"; then
-    content="$(jq '.characteristics' "$events" | jq -cs 'add | {characteristics: .}')"
+    content="$(jq '.characteristics' "$events" | jq -jcs 'add | {characteristics: .}')"
 
     logger_info "Sending events $content"
 
-    echo 'EVENT/1.0 200 OK'
-    echo 'Content-Type: application/hap+json'
-    echo "Content-Length: ${#content}"
-    echo ''
-    echo -n "$content"
+    printf "EVENT/1.0 200 OK\r\n"
+    printf "Content-Type: application/hap+json\r\n"
+    printf "Connection: keep-alive\r\n"
+    printf "Content-Length: %i\r\n" "${#content}"
+    printf "\r\n"
+    printf "%s" "$content"
 fi

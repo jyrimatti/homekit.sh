@@ -32,10 +32,10 @@ fi
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"
 if [ "$has_errors" != "" ]; then
     logger_debug 'There were errors'
-    content="$(echo "$characteristics" | jq -s '{ characteristics: map(.status = (.status // 0)) }')"
+    content="$(echo "$characteristics" | jq -sc '{ characteristics: map(.status = (.status // 0)) }')"
     dash ./util/respond.sh 207 "$content"
 elif [ "$REQUEST_METHOD" = 'GET' ]; then
-    content="$(echo "$characteristics" | jq -s '{ characteristics: . }')"
+    content="$(echo "$characteristics" | jq -sc '{ characteristics: . }')"
     dash ./util/respond.sh 200 "$content"
 elif [ "$REQUEST_METHOD" = 'PUT' ]; then
     dash ./util/respond.sh 204

@@ -57,19 +57,20 @@ if [ "$ev" = '1' ]; then
 fi
 
 set +e
-value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh)"
+value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "$iid" "$servicename" "$characteristicname")"
 responsevalue=$?
 set -e
-if [ $responsevalue = 154 ]; then
-    logger_debug "\"cmd\" not set in characteristic/service properties for $characteristicname@$servicename -> take the constant defined in configuration"
-    value="$(echo "$characteristic" | jq '.value')"
-elif [ $responsevalue = 158 ]; then
+if [ $responsevalue = 158 ]; then
     ret="$(echo "$ret" | jq ". + { status: $operation_timed_out }")"
 elif [ $responsevalue = 152 ]; then
     ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
-elif [ $responsevalue != 0 ]; then
+elif [ $responsevalue != 0 ] && [ $responsevalue != 154 ]; then
     ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
 else
+    if [ $responsevalue = 154 ]; then
+        logger_debug "\"cmd\" not set in characteristic/service properties for $characteristicname@$servicename -> take the constant defined in configuration"
+        value="$(echo "$characteristic" | jq '.value')"
+    fi
     if [ "$(echo "$characteristic" | jq '.format')" = 'string' ]; then
         logger_debug 'Value is a string -> wrap it in quotes if not already'
         value="$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')"
@@ -77,4 +78,4 @@ else
     ret="$(echo "$ret" | jq '. + { value: $value }' --argjson value "$value")"
 fi
 
-echo "$ret" | jq -c 'with_entries(if .value == null then empty else . end)'
+echo "$ret" | jq -jc 'if .value then del(.status) else . end'

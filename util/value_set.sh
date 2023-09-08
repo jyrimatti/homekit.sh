@@ -6,7 +6,13 @@ set -eu
 
 logger_trace 'util/value_set.sh'
 
-value="$1"
+aid="$1"
+iid="$2"
+value="$3"
+
+if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
+    rm -f "./store/cache/values/$aid.$iid"
+fi
 
 service_with_characteristic="$(cat)"
 servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"

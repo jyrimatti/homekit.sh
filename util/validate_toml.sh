@@ -10,7 +10,7 @@ logger_trace 'util/validate_toml.sh'
 tomlfile="$1"
 
 case "$tomlfile" in
-  './accessories/'*)
+  *'accessories/'*)
     tmpfile="$(mktemp /tmp/homekit.sh_validate_toml.XXXXXX.json)"
     tomlq -c < "$tomlfile" > "$tmpfile"
 

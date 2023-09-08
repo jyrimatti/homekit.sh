@@ -25,9 +25,12 @@ if test -f "$subscription_path"; then
     polling="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].polling // .polling // empty')"
 
     if [ "$previous_value" = '' ] || { [ "$polling" != '' ] && [ "$age" -gt "$polling" ]; }; then
+        touch "$subscription_path"
+        servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+        characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
         logger_debug 'Reading new value'
         set +e
-        value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh)"
+        value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "$iid" "$servicename" "$characteristicname")"
         responsevalue=$?
         set -e
         if [ $responsevalue = 158 ]; then

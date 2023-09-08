@@ -1,6 +1,13 @@
-import { stdout, stderr } from "process";
+import { stdout, stderr, env} from "process";
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
+
+export const enum Colors {
+    RED   = "\x1b[91m",
+    GREEN = "\x1b[92m",
+    GRAY  = "\x1b[97m",
+    RESET = "\x1b[0m"
+}
 
 export const enum TLVValues {
     METHOD         = 0x00, // Method to use for pairing.
@@ -52,18 +59,28 @@ export function readFromStore(name: string): Buffer {
     return readFileSync(join(__dirname + "/../store", name));
 }
 
-export function log(msg: string): void {
+export function log_debug(msg: string): void {
+    log("DEBUG", Colors.GRAY, msg);
+}
+export function log_info(msg: string): void {
+    log("INFO ", Colors.GREEN, msg);
+}
+export function log_error(msg: string): void {
+    log("ERROR", Colors.RED, msg);
+}
+function log(level: "DEBUG" | "INFO " | "ERROR", color: Colors, msg: string): void {
     const time = new Date(new Date().getTime() - new Date().getTimezoneOffset()*60000).toISOString().replace('T',' ').slice(0, 19);
-    stderr.write(time + " INFO  [:] javascript - " + msg + "\n");
+    stderr.write(color + time + " " + level + " [" + (env.REMOTE_ADDR || '') + ":" + (env.REMOTE_PORT || '') + "] javascript - " + msg + "\n" + Colors.RESET);
 }
 
 export function respondTLV(status: number, tlv: Buffer): void {
-    stdout.write("Content-Type: application/pairing+tlv8\n");
-    stdout.write("Content-Length: " + tlv.byteLength + "\n");
-    stdout.write("\n");
+    stdout.write("Content-Type: application/pairing+tlv8\r\n");
+    stdout.write("Connection: keep-alive\r\n");
+    stdout.write("Content-Length: " + tlv.byteLength + "\r\n");
+    stdout.write("\r\n");
     stdout.end(tlv);
     if (status != 200) {
-        process.exit(status);
+        process.exit(0);
     }
 }
 

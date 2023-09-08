@@ -28,69 +28,54 @@ response="$7"
 
 session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
-ret="$(jq -n "{ aid: $aid, iid: $iid }")"
 service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")" || {
     logger_error "Resource $aid.$iid not found!"
-    echo "$ret" | jq ". + {status: $resource_does_not_exist}"
+    echo "{\"aid\": $aid, \"iid\": $iid, \"status\": $resource_does_not_exist}"
     exit 0
 }
 
 servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
 characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
 
+ret="{\"aid\": $aid, \"iid\": $iid}"
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
     set +e
-    echo "$service_with_characteristic" | dash ./util/value_set.sh "$value"
+    echo "$service_with_characteristic" | dash ./util/value_set.sh "$aid" "$iid" "$value"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
         logger_error "Got responsecode $responsevalue while writing value for $characteristicname@$servicename"
-        ret="$(echo "$ret" | jq ". + { status: $cannot_write_to_read_only_characteristic }")"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $cannot_write_to_read_only_characteristic}"
     elif [ $responsevalue = 158 ]; then
         logger_error "Got timeout while writing value for $characteristicname@$servicename"
-        ret="$(echo "$ret" | jq ". + { status: $operation_timed_out }")"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $operation_timed_out}"
     elif [ $responsevalue != 0 ]; then
         logger_error "Got errorcode $responsevalue while writing value for $characteristicname@$servicename"
-        ret="$(echo "$ret" | jq ". + { status: $accessory_received_an_invalid_value_in_a_write_request }")"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $accessory_received_an_invalid_value_in_a_write_request}"
     elif [ "$response" = 'true' ]; then
         logger_debug 'Requested for "value"'
-        ret="$(echo "$ret" | jq '. + { value: $value }' --argjson value "$value")"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"value\": $value}"
     fi
 fi
 
 if [ "$ev" = 'true' ]; then
     logger_info "Subscribing to events for $characteristicname@$servicename"
-    mkdir -p "$session_store/subscriptions"
-    logger_debug "Creating event for $aid $iid"
-
-    set +e
-    value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh)"
-    responsevalue=$?
-    set -e
-    if [ $responsevalue = 154 ]; then
-        logger_debug '"cmd" not set in characteristic/service properties'
-        ret="$(echo "$ret" | jq ". + { status: $notification_is_not_supported_for_characteristic }")"
-    elif [ $responsevalue = 158 ]; then
-        ret="$(echo "$ret" | jq ". + { status: $operation_timed_out }")"
-    elif [ $responsevalue = 152 ]; then
-        ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
-    elif [ $responsevalue != 0 ]; then
-        ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
+    polling="$(echo "$service_with_characteristic" | jq -r '.polling // .characteristics[0].polling // empty')"
+    cmd="$(echo "$service_with_characteristic" | jq -r '.cmd // .characteristics[0].cmd // empty')"
+    if [ "$polling" = '' ]; then
+        logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events for $characteristicname@$servicename"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+    elif [ "$cmd" = '' ]; then
+        logger_warn "No 'cmd' defined for $aid.$iid. Will not be able to automatically produce events for $characteristicname@$servicename"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
     else
-        tmpfile="$(mktemp /tmp/homekit.sh_characteristics_put.XXXXXX)"
-        dash ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
+        mkdir -p "$session_store/subscriptions"
         subscription="$session_store/subscriptions/${aid}.${iid}"
         mkdir -p "$session_store/events"
-        mv "$tmpfile" "$session_store/events/${aid}.${iid}.json"
-        echo "$value" > "$subscription"
+        echo '' > "$subscription"
         logger_debug "Subscribed $subscription"
-
-        { echo "$service_with_characteristic" | jq -re '.characteristics[0].polling // .polling' >/dev/null; } || {
-            logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events for $characteristicname@$servicename"
-        }
     fi
-
 elif [ "$ev" = 'false' ]; then
     logger_info "Unsubscribing from events for $characteristicname@$servicename"
     subscription="$session_store/subscriptions/${aid}.${iid}"
@@ -98,4 +83,4 @@ elif [ "$ev" = 'false' ]; then
     logger_debug "Unsubscribed $subscription"
 fi
 
-echo "$ret" | jq -c 'with_entries(if .value == null then empty else . end)'
+echo "$ret"

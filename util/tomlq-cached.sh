@@ -17,11 +17,8 @@ if [ -n "${HOMEKIT_SH_CACHE_TOML:-}" ]; then
         dash ./util/cache_get.sh "$tomlfile"
     done | jq $params "$query"
 elif [ -n "${HOMEKIT_SH_CACHE_TOML_DISK:-}" ]; then
-    files=$(for tomlfile in $*; do
-                logger_debug "Using disk cached JSON for $tomlfile"
-                echo -n "/tmp/HOMEKIT_SH_$(dash ./util/cache_mkkey.sh "$tomlfile") "
-            done)
-    jq $params "$query" $files
+    logger_debug "Using disk cached JSON for $*"
+    (cd ./store/cache; jq $params "$query" $*)
 else
     logger_debug "Using tomlq for $*"
     tomlq $params "$query" $*

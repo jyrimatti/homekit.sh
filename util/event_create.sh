@@ -10,4 +10,4 @@ aid="$1"
 iid="$2"
 value="$3"
 
-jq -cn "{ characteristics: [{ aid: $aid, iid: $iid, value: \$value }] }" --argjson value "$value"
+jq -jcn "{ characteristics: [{ aid: $aid, iid: $iid, value: \$value }] }" --argjson value "$value"

@@ -5,7 +5,7 @@ import tweetnacl from "tweetnacl";
 import * as hapCrypto from "./hapCrypto";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
-import { TLVValues, PairingStates, log, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore, mkStorePath } from './common';
+import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore, mkStorePath } from './common';
 
 export function pairSetup(setupCode: string, AccessoryPairingID: string, sessionStorePath: string): void {
     const data = Buffer.alloc(parseInt(env.CONTENT_LENGTH!));
@@ -13,25 +13,30 @@ export function pairSetup(setupCode: string, AccessoryPairingID: string, session
 
     const tlvData = tlv.decode(data);
     const sequence = tlvData[TLVValues.STATE][0]; // value is single byte with sequence number
-    log("pairSetup with sequence: " + sequence + " and data length: " + data.length);
+    log_debug("pairSetup with sequence: " + sequence + " and data length: " + data.length);
 
-    if (sequence === PairingStates.M1) {
-        pairSetupM1(setupCode, sessionStorePath);
-    } else if (sequence === PairingStates.M3) {
-        pairSetupM3(setupCode, tlvData, sessionStorePath);
-    } else if (sequence === PairingStates.M5) {
-        pairSetupM5(setupCode, tlvData, Buffer.from(AccessoryPairingID), sessionStorePath);
-    } else {
-        log("Invalid state/sequence number");
+    try {
+        if (sequence === PairingStates.M1) {
+            pairSetupM1(setupCode, sessionStorePath);
+        } else if (sequence === PairingStates.M3) {
+            pairSetupM3(setupCode, tlvData, sessionStorePath);
+        } else if (sequence === PairingStates.M5) {
+            pairSetupM5(setupCode, tlvData, Buffer.from(AccessoryPairingID), sessionStorePath);
+        } else {
+            log_error("Invalid state/sequence number");
 
-        respondTLV(400, tlv.encode(TLVValues.STATE, sequence + 1,
-                                   TLVValues.ERROR, TLVErrorCode.UNKNOWN));
+            respondTLV(400, tlv.encode(TLVValues.STATE, sequence + 1,
+                                    TLVValues.ERROR, TLVErrorCode.UNKNOWN));
+        }
+    } catch (error) {
+        log_error("WTF? " + error);
+        process.exit(1);
     }
 }
 
 
 function pairSetupM1(setupCode: string, sessionStorePath: string): void {
-    log("M2: SRP Start Response");
+    log_debug("M2: SRP Start Response");
 
     /*try {
         readFromStore('iOSDevicePairingID');
@@ -69,7 +74,7 @@ function pairSetupM1(setupCode: string, sessionStorePath: string): void {
 }
 
 function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, sessionStorePath: string): void {
-    log("M4: SRP Verify Response");
+    log_debug("M4: SRP Verify Response");
 
     const srpServer = new SrpServer(SRP.params.hap,
                                     readFromStore(sessionStorePath + '/salt'),
@@ -89,7 +94,7 @@ function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, session
         // Verify the iOS device's SRP proof 
         srpServer.checkM1(iOSDeviceSRPProof);
     } catch (err) {
-        log("Invalid iOSDeviceSRPProof");
+        log_error("Invalid iOSDeviceSRPProof");
 
         // If verification fails, the accessory must respond with the following TLV items
         respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4,
@@ -102,10 +107,12 @@ function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, session
 
     respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4,
                                TLVValues.PROOF, accessorySideSRPProof));
+                               
+    log_debug("M4: Responded");
 }
 
 function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, sessionStorePath: string): void {
-    log("<M5> Verification");
+    log_debug("<M5> Verification");
 
     const srpServer = new SrpServer(SRP.params.hap,
                                     readFromStore(sessionStorePath + '/salt'),
@@ -131,7 +138,7 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
         // Decrypt the sub-TLV in encryptedData.
         plaintext = hapCrypto.chacha20_poly1305_decryptAndVerify(sessionKey, Buffer.from("PS-Msg05"), null, messageData, authTagData);
     } catch (error) {
-        log("Error while decrypting and verifying M5 subTlv");
+        log_error("Error while decrypting and verifying M5 subTlv");
         // If verification/decryption fails, the accessory must respond with the following TLV items:
         respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4,
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
@@ -156,7 +163,7 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
 
     // Use Ed25519 to verify the signature of the constructed iOSDeviceInfo with thei OSDeviceLTPK from the decrypted sub-TLV
     if (!tweetnacl.sign.detached.verify(iOSDeviceInfo, iOSDeviceSignature, iOSDeviceLTPK)) {
-        log("Invalid iOSDeviceSignature");
+        log_error("Invalid iOSDeviceSignature");
         // If signature verification fails, the accessory must respond with the following TLV items:
         respondTLV(400, tlv.encode(TLVValues.STATE, PairingStates.M6,
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
@@ -169,7 +176,7 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     writeToStore('pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK',        iOSDeviceLTPK);
     writeToStore('pairings/' + iOSDevicePairingID + '/iOSDevicePermissions', Buffer.from([1])); // Admin. TODO: implement proper permissions
 
-    log('<M6> Response Generation');
+    log_debug('<M6> Response Generation');
 
     // Derive AccessoryX from the SRP shared secret by using HKDF-SHA-512 with the following parameters:
     const AccessoryX = hapCrypto.HKDF("sha512",
@@ -199,6 +206,6 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M6,
                                TLVValues.ENCRYPTED_DATA, Buffer.concat([ciphertext, authTag])));
 
-    log("Pair-setup done!")
+    log_info("Pair-setup done!")
     process.exit(42);
 }

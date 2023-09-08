@@ -10,5 +10,6 @@ if [ -z "${logger_trace+x}" ]; then
     COLOR_CYAN()      { tput setaf 6; }
     COLOR_GREY()      { tput setaf 7; }
     COLOR_LIGHTGREY() { tput setaf 8; }
-    . "./log4sh.${LOGGING_LEVEL:-all}"
+    logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S)" "$1" "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
+    . "./log4sh.${LOGGING_LEVEL:-info}"
 fi

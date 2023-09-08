@@ -11,9 +11,15 @@ do
     if [ "$ret" = "" ]; then
         exit 1
     fi
+    
     rm -R ./store/cache
-    mkdir -p ./store/cache
-    dash ./api/accessories.sh
+    mkdir -p ./store/cache/accessories
+    mkdir -p ./store/cache/characteristics
+    mkdir -p ./store/cache/config
+    mkdir -p ./store/cache/values
+    . ./preferences.sh
+    dash ./util/cache_toml.sh
+
     current="$(sed 's/c#=\([^ ]*\) .*/\1/' ./store/dns-txt)"
     newval="$((current+1))"
     logger_info "Updated configuration number $current -> $newval"
