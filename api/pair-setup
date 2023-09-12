@@ -11,7 +11,7 @@ logger_trace 'api/pair-setup'
 
 tmpfile="$(mktemp /tmp/homekit.sh_pair-setup.XXXXXX)"
 
-(cd pairing && npm install && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairSetup --silent > "$tmpfile")
+(cd pairing && npm install --silent && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairSetup --silent > "$tmpfile")
 
 if [ $? -eq 42 ]; then
     logger_info 'Removing flag and changing configuration number in dns-txt'
