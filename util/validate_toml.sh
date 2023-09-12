@@ -18,6 +18,7 @@ case "$tomlfile" in
     yajsv -q -s ./accessory.schema.json "$tmpfile" | sed "s#$tmpfile#$tomlfile#" >&2
 
     cat "$tmpfile"
+    rm "$tmpfile"
     ;;
   *)
     tomlq -cj 'to_entries[] | {(.key):.value}' "$tomlfile"

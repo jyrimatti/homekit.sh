@@ -1,0 +1,14 @@
+#! /usr/bin/env nix-shell
+#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv parallel findutils ncurses
+. ./logging
+. ./profiling
+set -eu
+
+logger_info 'Invoked: api/ui/accessories'
+logger_trace 'api/ui/accessories'
+
+. ./util/cgi_helpers.sh
+
+ret=$(tomlq ". + {file: \"$qs_file\", aid: (.aid // $(./util/aid.sh $qs_file))}" $qs_file)
+
+./util/respond.sh 200 "$ret"

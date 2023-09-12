@@ -4,6 +4,8 @@
 . ./profiling
 set -eu
 
+. ./preferences.sh
+
 logger_info 'Invoked: api/accessories'
 logger_trace 'api/accessories'
 
@@ -16,10 +18,11 @@ fi
 . ./util/cache_toml.sh
 
 accessories="$(find ./accessories -name '*.toml' |\
-               parallel --jobs 0${PROFILING:+1} "dash ./util/tomlq-cached.sh -c '.services | group_by(.type) | .[]' {} | parallel --jobs 0${PROFILING:+1} dash ./util/generate_service.sh | jq -cs \"{ aid: \$(dash ./util/aid.sh {}), services: map({type, iid, characteristics}) }\"" |\
+               parallel --jobs 0${PROFILING:+1} "aid=\$(dash ./util/aid.sh {}); dash ./util/services_grouped_by_type.sh {} | parallel --jobs 0${PROFILING:+1} dash ./util/generate_service.sh 1 \$aid | jq -cs \"{ aid: \$aid, services: map({type, iid, characteristics}) }\"" |\
                jq -cs '{accessories: map(.services |= map(del(.cmd, .polling) | .characteristics |= map(del(.cmd, .polling))))}')"
 
 if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ]; then
+    test -e "./store/cache" || mkdir -p ./store/cache
     echo "$accessories" > ./store/cache/accessories.json
 fi
 

@@ -5,24 +5,9 @@ Describe 'api/characteristics GET'
 
   Describe 'non-existent'
     It 'returns failure status when characteristic does not exist'
-      result() { cat << EOF
-Content-Type: application/hap+json
-Content-Length: 98
-
-{
-  "characteristics": [
-    {
-      "aid": -1,
-      "iid": 0,
-      "status": -70409
-    }
-  ]
-}
-EOF
-      }
       BeforeRun "export QUERY_STRING='id=-1.0'"
       When run ./api/characteristics
-      The output should eq "$(result)"
+      The output should end with '{"characteristics":[{"aid":-1,"iid":0,"status":-70409}]}'
       The error should include "Characteristic 0 from accessory -1 not found!"
     End
   End
@@ -31,25 +16,10 @@ EOF
 
   Describe 'existing'
     It 'returns characteristic'
-      result() { cat << EOF
-Content-Type: application/hap+json
-Content-Length: 103
-
-{
-  "characteristics": [
-    {
-      "aid": 1,
-      "iid": 34,
-      "value": "Homekit.sh"
-    }
-  ]
-}
-EOF
-      }
       BeforeRun "export QUERY_STRING='id=1.34'"
       When run ./api/characteristics
-      The output should eq "$(result)"
-      The error should end with "Responding with ? 200"
+      The output should end with '{"characteristics":[{"aid":1,"iid":34,"value":"Homekit.sh"}]}'
+      The error should include "Responding with ? 200"
     End
   End
 
@@ -57,27 +27,11 @@ EOF
 
   Describe 'multiple'
     It 'returns multiple characteristics'
-      result1() { cat << EOF
-    {
-      "aid": 1,
-      "iid": 2741055,
-      "value": "1.1.0"
-    }
-EOF
-      }
-      result2() { cat << EOF
-    {
-      "aid": 1,
-      "iid": 34,
-      "value": "Homekit.sh"
-    }
-EOF
-      }
-      BeforeRun "export QUERY_STRING='id=1.2741055,1.34'"
+      BeforeRun "export QUERY_STRING='id=1.1621055,1.34'"
       When run ./api/characteristics
-      The output should include "$(result1)"
-      The output should include "$(result2)"
-      The error should include '"cmd" not set in characteristic/service properties -> take the constant defined in configuration'
+      The output should include '{"aid":1,"iid":1621055,"value":"1.1.0"}'
+      The output should include '{"aid":1,"iid":34,"value":"Homekit.sh"}'
+      The error should include 'No "cmd" set in characteristic/service properties for 1.34 (AccessoryInformation.AccessoryFlags), returning given constant value'
     End
   End
 
@@ -101,23 +55,8 @@ Describe 'api/characteristics PUT'
       #| ]
       #|}
       End
-      result() { cat << EOF
-Content-Type: application/hap+json
-Content-Length: 98
-
-{
-  "characteristics": [
-    {
-      "aid": -1,
-      "iid": 0,
-      "status": -70409
-    }
-  ]
-}
-EOF
-      }
       When run ./api/characteristics
-      The output should eq "$(result)"
+      The output should end with '{"characteristics":[{"aid":-1,"iid":0,"status":-70409}]}'
       The error should include "Characteristic 0 from accessory -1 not found!"
     End
   End
@@ -131,23 +70,8 @@ EOF
       #| ]
       #|}
       End
-      result() { cat << EOF
-Content-Type: application/hap+json
-Content-Length: 98
-
-{
-  "characteristics": [
-    {
-      "aid": 1,
-      "iid": 33,
-      "status": -70404
-    }
-  ]
-}
-EOF
-      }
       When run ./api/characteristics
-      The output should eq "$(result)"
+      The output should end with '{"characteristics":[{"aid":1,"iid":33,"status":-70404}]}'
       The error should include '"cmd" not set in characteristic/service properties'
     End
   End

@@ -27,55 +27,51 @@ id="$5"
 aid="$(echo "$id" | cut -d . -f 1)"
 iid="$(echo "$id" | cut -d . -f 2)"
 
-ret="{\"aid\": $aid, \"iid\": $iid}"
-
 service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")" || {
     logger_error "Resource $aid.$iid not found!"
-    echo "$ret" | jq ". + { status: $resource_does_not_exist }"
+    jq -n "{aid: $aid, iid: $iid, status: $resource_does_not_exist }"
     exit 0
 }
 
-servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
-characteristic="$(echo "$service_with_characteristic" | jq -c '.characteristics[0]')"
+characs=''
+characteristic() {
+    if [ -z "$characs" ]; then
+        characs="$(echo "$service_with_characteristic" | jq -c '.characteristics[0]')"
+    fi
+    echo "$characs"
+}
 
 if [ "$meta" = '1' ]; then
     logger_debug 'Requested for "meta"'
-    ret="$(echo "$characteristic" | jq '{format, unit, minValue, maxValue, minStep, maxLen} + $ret' --argjson ret "$ret")"
+    ret="$(characteristic | jq "{format, unit, minValue, maxValue, minStep, maxLen} + {aid: $aid, iid: $iid}")"
 fi
 if [ "$perms" = '1' ]; then
     logger_debug 'Requested for "perms"'
-    ret="$(echo "$characteristic" | jq '{perms} + $ret' --argjson ret "$ret")"
+    ret="$(characteristic | jq "{perms} + {aid: $aid, iid: $iid}")"
 fi
 if [ "$type" = '1' ]; then
     logger_debug 'Requested for "type"'
-    ret="$(echo "$characteristic" | jq '{type} + $ret' --argjson ret "$ret")"
+    ret="$(characteristic| jq "{type} + {aid: $aid, iid: $iid}")"
 fi
 if [ "$ev" = '1' ]; then
     logger_debug 'Requested for "ev"'
-    ret="$(echo "$characteristic" | jq '{ev} + $ret' --argjson ret "$ret")"
+    ret="$(characteristic | jq "{ev} + {aid: $aid, iid: $iid}")"
+fi
+
+if [ -z "${ret:-}" ]; then
+    ret="{\"aid\": $aid, \"iid\": $iid}"
 fi
 
 set +e
-value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "$iid" "$servicename" "$characteristicname")"
+value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "$iid")"
 responsevalue=$?
 set -e
 if [ $responsevalue = 158 ]; then
-    ret="$(echo "$ret" | jq ". + { status: $operation_timed_out }")"
+    echo "$ret" | jq ". + { status: $operation_timed_out }"
 elif [ $responsevalue = 152 ]; then
-    ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
-elif [ $responsevalue != 0 ] && [ $responsevalue != 154 ]; then
-    ret="$(echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }")"
+    echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }"
+elif [ $responsevalue != 0 ]; then
+    echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }"
 else
-    if [ $responsevalue = 154 ]; then
-        logger_debug "\"cmd\" not set in characteristic/service properties for $characteristicname@$servicename -> take the constant defined in configuration"
-        value="$(echo "$characteristic" | jq '.value')"
-    fi
-    if [ "$(echo "$characteristic" | jq '.format')" = 'string' ]; then
-        logger_debug 'Value is a string -> wrap it in quotes if not already'
-        value="$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')"
-    fi
-    ret="$(echo "$ret" | jq '. + { value: $value }' --argjson value "$value")"
+    echo "$ret" | jq '. + { value: $value }' --argjson value "$value"
 fi
-
-echo "$ret" | jq -jc 'if .value then del(.status) else . end'

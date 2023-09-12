@@ -4,6 +4,8 @@
 . ./profiling
 set -eu
 
+. ./preferences.sh
+
 logger_info 'Invoked api/identify'
 logger_trace 'api/identify'
 

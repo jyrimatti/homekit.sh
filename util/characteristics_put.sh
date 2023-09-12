@@ -34,8 +34,11 @@ service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid"
     exit 0
 }
 
-servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
+toString() {
+    servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+    characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
+    echo "$aid.$iid ($servicename.$characteristicname)"
+}
 
 ret="{\"aid\": $aid, \"iid\": $iid}"
 if [ "$value" != 'null' ]; then
@@ -45,13 +48,13 @@ if [ "$value" != 'null' ]; then
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
-        logger_error "Got responsecode $responsevalue while writing value for $characteristicname@$servicename"
+        logger_error "Got responsecode $responsevalue while writing value for $(toString)"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $cannot_write_to_read_only_characteristic}"
     elif [ $responsevalue = 158 ]; then
-        logger_error "Got timeout while writing value for $characteristicname@$servicename"
+        logger_error "Got timeout while writing value for $(toString)"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $operation_timed_out}"
     elif [ $responsevalue != 0 ]; then
-        logger_error "Got errorcode $responsevalue while writing value for $characteristicname@$servicename"
+        logger_error "Got errorcode $responsevalue while writing value for $(toString)"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $accessory_received_an_invalid_value_in_a_write_request}"
     elif [ "$response" = 'true' ]; then
         logger_debug 'Requested for "value"'
@@ -60,27 +63,34 @@ if [ "$value" != 'null' ]; then
 fi
 
 if [ "$ev" = 'true' ]; then
-    logger_info "Subscribing to events for $characteristicname@$servicename"
-    polling="$(echo "$service_with_characteristic" | jq -r '.polling // .characteristics[0].polling // empty')"
-    cmd="$(echo "$service_with_characteristic" | jq -r '.cmd // .characteristics[0].cmd // empty')"
-    if [ "$polling" = '' ]; then
-        logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events for $characteristicname@$servicename"
-        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
-    elif [ "$cmd" = '' ]; then
-        logger_warn "No 'cmd' defined for $aid.$iid. Will not be able to automatically produce events for $characteristicname@$servicename"
-        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
-    else
-        mkdir -p "$session_store/subscriptions"
-        subscription="$session_store/subscriptions/${aid}.${iid}"
-        mkdir -p "$session_store/events"
-        echo '' > "$subscription"
-        logger_debug "Subscribed $subscription"
-    fi
+    echo "$service_with_characteristic" |
+    jq -r '[.type, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
+    while IFS=$(echo "\t") read -r servicetype characteristictype polling cmd
+    do
+        logger_info "Subscribing to events for $aid.$iid ($servicetype.$characteristictype)"
+        
+        if [ "$polling" = ' ' ]; then
+            logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events for $(toString)"
+            ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+        elif [ "$cmd" = ' ' ]; then
+            logger_warn "No 'cmd' defined for $aid.$iid. Will not be able to automatically produce events for $(toString)"
+            ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+        else
+            test -e "$session_store/subscriptions" || mkdir -p "$session_store/subscriptions"
+            subscription="$session_store/subscriptions/${aid}.${iid}"
+            test -e "$session_store/events" || mkdir -p "$session_store/events"
+            echo '' > "$subscription"
+            logger_debug "Subscribed $subscription"
+        fi
+        echo "$ret"
+    done
 elif [ "$ev" = 'false' ]; then
-    logger_info "Unsubscribing from events for $characteristicname@$servicename"
+    logger_info "Unsubscribing from events for $(toString)"
     subscription="$session_store/subscriptions/${aid}.${iid}"
     rm -f "$subscription"
     logger_debug "Unsubscribed $subscription"
-fi
 
-echo "$ret"
+    echo "$ret"
+else
+    echo "$ret"
+fi

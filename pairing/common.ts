@@ -3,10 +3,11 @@ import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 export const enum Colors {
-    RED   = "\x1b[91m",
-    GREEN = "\x1b[92m",
-    GRAY  = "\x1b[97m",
-    RESET = "\x1b[0m"
+    RED    = "\x1b[91m",
+    GREEN  = "\x1b[92m",
+    YELLOW = "\x1b[93m",
+    GRAY   = "\x1b[97m",
+    RESET  = "\x1b[0m"
 }
 
 export const enum TLVValues {
@@ -59,16 +60,35 @@ export function readFromStore(name: string): Buffer {
     return readFileSync(join(__dirname + "/../store", name));
 }
 
+function getLevel() {
+    return (env.LOGGING_LEVEL || '').toUpperCase();
+}
+
 export function log_debug(msg: string): void {
-    log("DEBUG", Colors.GRAY, msg);
+    const level = getLevel();
+    if (level != "FATAL" && level != "ERROR" && level != "WARN" && level != "INFO") {
+        log("DEBUG", Colors.GRAY, msg);
+    }
 }
 export function log_info(msg: string): void {
-    log("INFO ", Colors.GREEN, msg);
+    const level = getLevel();
+    if (level != "FATAL" && level != "ERROR" && level != "WARN") {
+        log("INFO ", Colors.GREEN, msg);
+    }
+}
+export function log_warn(msg: string): void {
+    const level = getLevel();
+    if (level != "FATAL" && level != "ERROR") {
+        log("WARN ", Colors.YELLOW, msg);
+    }
 }
 export function log_error(msg: string): void {
-    log("ERROR", Colors.RED, msg);
+    const level = getLevel();
+    if (level != "FATAL") {
+        log("ERROR", Colors.RED, msg);
+    }
 }
-function log(level: "DEBUG" | "INFO " | "ERROR", color: Colors, msg: string): void {
+function log(level: "DEBUG" | "INFO " | "WARN " | "ERROR", color: Colors, msg: string): void {
     const time = new Date(new Date().getTime() - new Date().getTimezoneOffset()*60000).toISOString().replace('T',' ').slice(0, 19);
     stderr.write(color + time + " " + level + " [" + (env.REMOTE_ADDR || '') + ":" + (env.REMOTE_PORT || '') + "] javascript - " + msg + "\n" + Colors.RESET);
 }

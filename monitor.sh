@@ -13,10 +13,7 @@ do
     fi
     
     rm -R ./store/cache
-    mkdir -p ./store/cache/accessories
-    mkdir -p ./store/cache/characteristics
-    mkdir -p ./store/cache/config
-    mkdir -p ./store/cache/values
+    
     . ./preferences.sh
     dash ./util/cache_toml.sh
 

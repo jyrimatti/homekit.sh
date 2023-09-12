@@ -4,6 +4,8 @@
 . ./profiling
 set -u
 
+. ./preferences.sh
+
 logger_info 'Invoked api/pair-setup'
 logger_trace 'api/pair-setup'
 
@@ -20,3 +22,4 @@ if [ $? -eq 42 ]; then
 fi
 
 cat "$tmpfile"
+rm "$tmpfile"

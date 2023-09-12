@@ -4,6 +4,8 @@
 . ./profiling
 set -eu
 
+. ./preferences.sh
+
 logger_info 'Invoked api/resource'
 logger_trace 'api/resource'
 

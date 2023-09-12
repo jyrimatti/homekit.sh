@@ -12,19 +12,19 @@ logger_trace 'util/service_with_characteristic.sh'
 aid="$1"
 iid="$2"
 
-if [ -n "${HOMEKIT_SH_CACHE_CHARACTERISTICS:-}" ] && [ -e "./store/cache/characteristics/$aid.$iid.json" ]; then
-    cat "./store/cache/characteristics/$aid.$iid.json"
+if [ -n "${HOMEKIT_SH_CACHE_SERVICES:-}" ] && [ -e "./store/cache/services/$aid.$iid.json" ]; then
+    cat "./store/cache/services/$aid.$iid.json"
     logger_debug "Characteristic $aid.$iid retrived from cache"
 else
-    service_with_characteristic="$(dash ./util/services_grouped_by_type.sh "$aid" |\
-                                   parallel --jobs 0${PROFILING:+1} "dash ./util/generate_service.sh {} | jq -c '.characteristics |= map(select(.iid == $iid)) | select(.characteristics | any)'")"
+    service_with_characteristic="$(dash ./util/services_grouped_by_type.sh "$(dash ./util/accessory.sh "$aid")" |\
+                                   parallel --jobs 0${PROFILING:+1} "dash ./util/generate_service.sh 0 $aid {} | jq -c '.characteristics |= map(select(.iid == $iid)) | select(.characteristics | any)'")"
     if [ -n "${service_with_characteristic:+x}" ]; then
         logger_debug "Found characteristic $aid.$iid"
         echo "$service_with_characteristic";
 
-        if [ -n "${HOMEKIT_SH_CACHE_CHARACTERISTICS:-}" ]; then
-            mkdir -p ./store/cache/characteristics
-            echo "$service_with_characteristic" > "./store/cache/characteristics/$aid.$iid.json"
+        if [ -n "${HOMEKIT_SH_CACHE_SERVICES:-}" ]; then
+            test -e "./store/cache/services" || mkdir -p ./store/cache/services
+            echo "$service_with_characteristic" > "./store/cache/services/$aid.$iid.json"
         fi
         exit 0
     fi

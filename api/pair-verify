@@ -4,6 +4,8 @@
 . ./profiling
 set -eu
 
+. ./preferences.sh
+
 logger_info 'Invoked api/pair-verify'
 logger_trace 'api/pair-verify'
 
@@ -15,3 +17,4 @@ date -u +%Y-%m-%dT%H:%M:%SZ > "./store/sessions/$REMOTE_ADDR:$REMOTE_PORT/verifi
 date +%Y-%m-%dT%H:%M:%S >> "./store/sessions/$REMOTE_ADDR:$REMOTE_PORT/verified"
 
 cat "$tmpfile"
+rm "$tmpfile"

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>homekit.sh</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-title" content="Työrakografiikka">
+    <meta name="application-name" content="Työrakografiikka">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="styles.css" />
+    <script src="htmx.min.js"></script>
+    <script src="mustache.min.js"></script>
+    <script src="handlebars.min.js"></script>
+    <script src="client-side-templates.js"></script>
+</head>
+<body hx-ext="client-side-templates">
+    <h1>homekit.sh</h1>
+    <fieldset>
+        <legend>Accessories</legend>
+        <div class="accessories"
+             hx-get="accessories"
+             hx-trigger="load">
+            <div class="htmx-indicator"></div>
+        </div>
+    </fieldset>
+
+    <script id="accessory" type="text/handlebars">
+        <h3>aid: {{aid}} ({{file}})</h3>
+
+        <h3>services</h3>
+        <table>
+            <thead>
+                <tr><th>type</th><th>characteristics</th></tr>
+            </thead>
+            <tbody>
+                {{#each services}}
+                    <tr>
+                        <td>{{type}}</td>
+                        <td>
+                            <table>
+                                <thead>
+                                    <tr><th>type</th><th>value</th></tr>
+                                </thead>
+                                <tbody>
+                                    {{#each characteristics}}
+                                        <tr><td>{{@key}}</td>
+                                            <td>
+                                                <table>
+                                                {{#each this}}
+                                                    <tr><td>{{@key}}</td><td>{{.}}</td></tr>
+                                                    {{else}}
+                                                    <tr><td colspan="2">{{.}}</td></tr>
+                                                {{/each}}
+                                                {{#if cmd}}
+                                                    <tr><td>value</td><td hx-get="value?aid={{aid}}&iid={{iid}}" hx-trigger="load">VALUE</td></tr>
+                                                {{/if}}
+                                                </table>
+                                            </td></tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </script>
+</body>
+<script>
+    Handlebars.registerPartial("accessory", Handlebars.compile(document.getElementById("accessory").innerText));
+</script>
+</html>

@@ -11,9 +11,9 @@ params="$1"
 query="$2"
 shift 2
 
-if [ -n "${HOMEKIT_SH_CACHE_TOML:-}" ]; then
+if [ -n "${HOMEKIT_SH_CACHE_TOML_ENV:-}" ]; then
     for tomlfile in $*; do
-        logger_debug "Using memory cached JSON for $tomlfile"
+        logger_debug "Using env cached JSON for $tomlfile"
         dash ./util/cache_get.sh "$tomlfile"
     done | jq $params "$query"
 elif [ -n "${HOMEKIT_SH_CACHE_TOML_DISK:-}" ]; then

@@ -24,27 +24,25 @@ if test -f "$subscription_path"; then
     service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")"
     polling="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].polling // .polling // empty')"
 
-    if [ "$previous_value" = '' ] || { [ "$polling" != '' ] && [ "$age" -gt "$polling" ]; }; then
-        touch "$subscription_path"
+    toString() {
         servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
         characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
+        echo "$aid.$iid ($servicename.$characteristicname)"
+    }
+
+    if [ "$previous_value" = '' ] || { [ "$polling" != '' ] && [ "$age" -gt "$polling" ]; }; then
+        touch "$subscription_path"
         logger_debug 'Reading new value'
         set +e
-        value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "$iid" "$servicename" "$characteristicname")"
+        value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "$iid")"
         responsevalue=$?
         set -e
         if [ $responsevalue = 158 ]; then
-            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
-            logger_error "Got timeout while reading value for $characteristicname@$servicename"
+            logger_error "Got timeout while reading value for $(toString)"
         elif [ $responsevalue = 152 ]; then
-            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
-            logger_error "Got empty response while reading value for $characteristicname@$servicename"
+            logger_error "Got empty response while reading value for $(toString)"
         elif [ $responsevalue != 0 ]; then
-            servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-            characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
-            logger_error "Got errorcode $responsevalue while reading value for $characteristicname@$servicename"
+            logger_error "Got errorcode $responsevalue while reading value for $(toString)"
         else
             if [ "$(echo "$service_with_characteristic" | jq -c '.characteristics[0].format')" = 'string' ]; then
                 logger_debug 'Value is a string -> wrap it in quotes if not already'

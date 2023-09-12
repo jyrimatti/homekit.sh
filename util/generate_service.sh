@@ -6,7 +6,10 @@ set -eu
 
 logger_trace 'util/generate_service.sh'
 
-services_of_same_type="$1"
+withvalue="$1"
+aid="$2"
+services_of_same_type="$3"
 
-echo "$services_of_same_type" | jq -c '.[]' |\
-                                parallel --jobs 0${PROFILING:+1} "echo {} | dash ./util/generate_service_internal.sh {#}"
+echo "$services_of_same_type" |
+jq -c '.[]' |
+parallel --jobs 0${PROFILING:+1} "echo {} | dash ./util/generate_service_internal.sh $withvalue $aid {#}"

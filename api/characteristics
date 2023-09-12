@@ -4,6 +4,8 @@
 . ./profiling
 set -eu
 
+. ./preferences.sh
+
 logger_info 'Invoked api/characteristics'
 logger_trace 'api/characteristics'
 
@@ -13,7 +15,7 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     logger_debug 'Request is a GET'
     . ./util/cgi_helpers.sh
 
-    meta="${qs_meta_:-0}"
+    meta="${qs_meta:-0}"
     perms="${qs_perms:-0}"
     type="${qs_type:-0}"
     ev="${qs_ev:-0}"
@@ -32,7 +34,7 @@ fi
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"
 if [ "$has_errors" != "" ]; then
     logger_debug 'There were errors'
-    content="$(echo "$characteristics" | jq -sc '{ characteristics: map(.status = (.status // 0)) }')"
+    content="$(echo "$characteristics" | jq -sc '{ characteristics: map(.status = (if .value then 0 else .status end)) }')"
     dash ./util/respond.sh 207 "$content"
 elif [ "$REQUEST_METHOD" = 'GET' ]; then
     content="$(echo "$characteristics" | jq -sc '{ characteristics: . }')"

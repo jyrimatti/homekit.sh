@@ -9,7 +9,7 @@ set -eu
 
 logger_debug 'util/cache_toml.sh'
 
-if [ -n "${HOMEKIT_SH_CACHE_TOML:-}" ]; then
+if [ -n "${HOMEKIT_SH_CACHE_TOML_ENV:-}" ]; then
     tmpfile="$(mktemp /tmp/homekit.sh_cache_toml.XXXXXX)"
     find ./config ./accessories -name '*.toml' |\
         parallel --jobs 0${PROFILING:+1} "content=\"\$(dash ./util/validate_toml.sh {})\" && echo \"export HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh {})='\$content' && logger_debug 'Cached {} to HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh "{}")'\"" > "$tmpfile"
@@ -17,9 +17,10 @@ if [ -n "${HOMEKIT_SH_CACHE_TOML:-}" ]; then
     while IFS=$(echo "\n") read -r line; do
         eval "$line"
     done < "$tmpfile"
+    rm "$tmpfile"
 fi
 
 if [ -n "${HOMEKIT_SH_CACHE_TOML_DISK:-}" ]; then
     find config accessories -name '*.toml' |\
-        parallel -u --jobs 0${PROFILING:+1} "test -e ./store/cache/{} || mkdir -p \$(dirname ./store/cache/{}); dash ./util/validate_toml.sh {} > ./store/cache/{}"
+        parallel -u --jobs 0${PROFILING:+1} "test -e ./store/cache/{} || { mkdir -p \$(dirname ./store/cache/{}) && dash ./util/validate_toml.sh {} > ./store/cache/{}; }"
 fi

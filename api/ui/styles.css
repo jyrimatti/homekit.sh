@@ -1,0 +1,64 @@
+body {
+    font: 1em 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 100;
+}
+h3 {
+    font-weight: 400;
+}
+table {
+    border: 1px solid black;
+    width: 100%;
+}
+th {
+    width: 50%;
+    font-weight: bold;
+    border-bottom: 1px dotted black;
+}
+td {
+    white-space: nowrap;
+    border-bottom: 1px dotted black;
+}
+td table td {
+    border-right: 1px dotted black;
+}
+table table {
+    border: none;
+}
+
+.accessories {
+    display: flex;
+    flex-wrap: wrap;
+}
+.accessory {
+    margin: 1rem;
+}
+
+.htmx-request.htmx-indicator {
+    display: none;
+    width: 30px;
+    height: 30px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.htmx-indicator:after {
+    content: ' ';
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid #000;
+    border-color: #000 transparent #000 transparent;
+    animation: htmx-indicator 1.2s linear infinite;
+}
+
+@keyframes htmx-indicator {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -35,6 +35,13 @@ YELLOW = '\033[93m'
 GRAY   = '\033[97m'
 RESET  = '\033[0m'
 
+TRACE = 'TRACE'
+DEBUG = 'DEBUG'
+INFO  = 'INFO'
+WARN  = 'WARN'
+ERROR = 'ERROR'
+FATAL = 'FATAL'
+
 def packNonce(nonce):
     return struct.pack("Q", nonce).rjust(12, b"\x00")
 
@@ -47,7 +54,7 @@ def cipherOut(sessionStore, count):
     return ChaCha20_Poly1305.new(key=f.read(), nonce=packNonce(count))
 
 class MyHandler(http.server.CGIHTTPRequestHandler):
-    cgi_directories = ['/']
+    cgi_directories = ['/', '/ui']
     protocol_version = 'HTTP/1.1'
 
     timeout = 0 # non-blocking to allow sending events between requests
@@ -58,40 +65,43 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
     out_counts = {}
     conn_activity = {}
 
+    logging_level = INFO
+
     def __init__(self, request, client_address, server, *, directory = None):
         super().__init__(request, client_address, server, directory = os.fspath('api'))
+    
+    def is_cgi(self):
+        if self.path.endswith(".html") or self.path.endswith(".js") or self.path.endswith(".css") :
+            return False
+        return super().is_cgi()
 
     def log_date_time_string(self):
         year, month, day, hh, mm, ss, x, y, z = time.localtime(time.time())
         return "%04d-%02d-%02d %02d:%02d:%02d" % (year, month, day, hh, mm, ss)
 
-    def log_debug(self, format, *args):
+    def log(self, level, color, format, *args):
         message = format % args
-        sys.stderr.write(GRAY + "%s DEBUG [%s] - %s\n" %
+        sys.stderr.write(color + "%s %05s [%s] - %s\n" %
             (self.log_date_time_string(),
+            level,
             self.address_string(),
             message.translate(self._control_char_table)) + RESET)
+
+    def log_debug(self, format, *args):
+        if self.logging_level != FATAL and self.logging_level != ERROR and self.logging_level != WARN and self.logging_level != INFO:
+            self.log(DEBUG, GRAY, format, *args)
 
     def log_info(self, format, *args):
-        message = format % args
-        sys.stderr.write(GREEN + "%s INFO  [%s] - %s\n" %
-            (self.log_date_time_string(),
-            self.address_string(),
-            message.translate(self._control_char_table)) + RESET)
+        if self.logging_level != FATAL and self.logging_level != ERROR and self.logging_level != WARN:
+            self.log(INFO, GREEN, format, *args)
     
     def log_warn(self, format, *args):
-        message = format % args
-        sys.stderr.write(YELLOW + "%s WARN  [%s] - %s\n" %
-            (self.log_date_time_string(),
-            self.address_string(),
-            message.translate(self._control_char_table)) + RESET)
+        if self.logging_level != FATAL and self.logging_level != ERROR:
+            self.log(WARN, YELLOW, format, *args)
 
     def log_error(self, format, *args):
-        message = format % args
-        sys.stderr.write(RED + "%s ERROR [%s] - %s\n" %
-            (self.log_date_time_string(),
-            self.address_string(),
-            message.translate(self._control_char_table)) + RESET)
+        if self.logging_level != FATAL:
+            self.log(RED, ERROR, format, *args)
     
     def do_PUT(self):
         self.do_POST()
@@ -118,6 +128,11 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         self.in_counts[self.get_session_store()] = 0
         self.out_counts[self.get_session_store()] = 0
         self.conn_activity[self.get_session_store()] = start
+
+        # initialize logging level for this connection
+        logging=open("./config/logging", 'r')
+        self.logging_level = logging.read().upper()
+        logging.close()
 
         try:
             return super().handle()

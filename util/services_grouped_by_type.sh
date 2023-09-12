@@ -7,7 +7,6 @@ set -eu
 
 logger_trace 'util/services_grouped_by_type.sh'
 
-aid="$1"
+tomlfile="$1"
 
-tomlfile="$(dash ./util/accessory.sh "$aid")"
 dash ./util/tomlq-cached.sh -c '.services | group_by(.type) | .[]' "$tomlfile"

@@ -1,0 +1,17 @@
+#! /usr/bin/env nix-shell
+#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv parallel findutils ncurses
+. ./logging
+. ./profiling
+set -eu
+
+logger_info 'Invoked: api/ui/value'
+logger_trace 'api/ui/value'
+
+. ./util/cgi_helpers.sh
+
+aid="${qs_aid}"
+iid="${qs_iid}"
+
+ret=$(./util/service_with_characteristic.sh "$aid" "$iid" | ./util/value_get.sh "$aid" "$iid")
+
+./util/respond.sh 200 "$ret"

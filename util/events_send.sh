@@ -19,6 +19,7 @@ done
 
 if test -s "$events"; then
     content="$(jq '.characteristics' "$events" | jq -jcs 'add | {characteristics: .}')"
+    rm "$events"
 
     logger_info "Sending events $content"
 

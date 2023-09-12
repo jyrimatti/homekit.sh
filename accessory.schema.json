@@ -53,7 +53,8 @@
                 "maxValue":     { "type": "integer" },
                 "minStep":      { "type": "integer" },
                 "valid-values": { "items": { "type": "integer" } }
-            }
+            },
+            "oneOf": [{"required":["value"]}, {"required":["cmd"]}]
         },
         "overrideNumber": {
             "type": "object",
@@ -80,7 +81,8 @@
                 "maxValue":     { "type": "number" },
                 "minStep":      { "type": "number" },
                 "valid-values": { "items": { "type": "number" } }
-            }
+            },
+            "oneOf": [{"required":["value"]}, {"required":["cmd"]}]
         },
         "overrideString": {
             "type": "object",
@@ -104,7 +106,8 @@
                 },
                 "value":    { "type": "string" },
                 "maxLen":   { "type": "integer", "minimum": 1, "maximum": 256 }
-            }
+            },
+            "oneOf": [{"required":["value"]}, {"required":["cmd"]}]
         },
         "service": {
             "type": "object",

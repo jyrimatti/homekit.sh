@@ -1,10 +1,11 @@
 #!/bin/sh
 
+# just in case it cannot detect it correctly
 export PARALLEL_SHELL="dash"
-#export LOGGING_LEVEL=warn
 
-#export HOMEKIT_SH_CACHE_TOML=true
+# caching
+export HOMEKIT_SH_CACHE_SERVICES=true
+#export HOMEKIT_SH_CACHE_VALUES=5
 export HOMEKIT_SH_CACHE_TOML_DISK=true
-export HOMEKIT_SH_CACHE_ACCESSORIES=true
-export HOMEKIT_SH_CACHE_CHARACTERISTICS=true
-export HOMEKIT_SH_CACHE_VALUES=15
+#export HOMEKIT_SH_CACHE_TOML_ENV=true
+#export HOMEKIT_SH_CACHE_ACCESSORIES=true

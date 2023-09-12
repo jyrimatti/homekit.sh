@@ -1,0 +1,12 @@
+#! /usr/bin/env nix-shell
+#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv parallel findutils ncurses
+. ./logging
+. ./profiling
+set -eu
+
+logger_info 'Invoked: api/ui/accessories'
+logger_trace 'api/ui/accessories'
+
+ret="$(find ./accessories -name '*.toml' | xargs -I{} echo '<div class="accessory" hx-get="accessory?file={}" hx-trigger="load" handlebars-template="accessory"><div class="htmx-indicator"></div></div>')"
+
+./util/respond.sh 200 "$ret"
