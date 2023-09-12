@@ -17,7 +17,7 @@ do
 
     trap 'kill $DNSSD_PID' EXIT
 
-    ret="$(fswatch -1 ./store/dns-txt)"
+    ret="$(fswatch -1 -m poll_monitor ./store/dns-txt)"
     logger_info "dns-txt was modified"
     kill $DNSSD_PID
     if [ "$ret" = "" ]; then
