@@ -4,6 +4,8 @@
 . ./profiling
 set -eu
 
+export LC_ALL=C # "fix" Nix Perl locale warnings
+
 rm -fR ./store/*
 
 mkdir -p ./store/pairings
