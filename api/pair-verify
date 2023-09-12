@@ -11,7 +11,7 @@ logger_trace 'api/pair-verify'
 
 tmpfile="$(mktemp /tmp/homekit.sh_pair-verify.XXXXXX)"
 
-(cd pairing && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairVerify --silent > "$tmpfile")
+(cd pairing && npm install && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairVerify --silent > "$tmpfile")
 
 date -u +%Y-%m-%dT%H:%M:%SZ > "./store/sessions/$REMOTE_ADDR:$REMOTE_PORT/verified"
 date +%Y-%m-%dT%H:%M:%S >> "./store/sessions/$REMOTE_ADDR:$REMOTE_PORT/verified"

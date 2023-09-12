@@ -5,6 +5,7 @@
 set -eu
 
 export PATH="$HOME/.local/nix-override:$PATH"
+export LC_ALL=C # "fix" Nix Perl locale warnings
 
 rm -fR ./store/sessions/*
 parallel -u ::: ./broadcast.sh ./monitor.sh ./poller.sh "./serve.sh $(cat ./config/port)"
