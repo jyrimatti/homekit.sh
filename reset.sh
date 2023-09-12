@@ -14,4 +14,4 @@ echo "c#=1 id=$(cat ./config/username) md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0"
 . ./preferences.sh
 ./util/cache_toml.sh
 
-(cd pairing && npm run createSecrets)
+(cd pairing && npm install && npm run createSecrets)
