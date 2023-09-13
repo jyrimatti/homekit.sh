@@ -22,5 +22,5 @@ fi
 
 if [ -n "${HOMEKIT_SH_CACHE_TOML_DISK:-}" ]; then
     find config accessories -name '*.toml' |\
-        parallel -u --jobs 0${PROFILING:+1} "test -e ./store/cache/{} || { mkdir -p \$(dirname ./store/cache/{}) && dash ./util/validate_toml.sh {} > ./store/cache/{}; }"
+        parallel -u --jobs 0${PROFILING:+1} "test {} -nt $CACHE_DIR/{} || { mkdir -p \$(dirname $CACHE_DIR/{}) && dash ./util/validate_toml.sh {} > $CACHE_DIR/{}; }"
 fi

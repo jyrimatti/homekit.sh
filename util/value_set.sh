@@ -11,7 +11,7 @@ iid="$2"
 value="$3"
 
 if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
-    rm -f "./store/cache/values/$aid.$iid"
+    rm -f "$CACHE_DIR/values/$aid.$iid"
 fi
 
 toString() {

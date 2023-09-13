@@ -12,9 +12,9 @@ do
         exit 1
     fi
     
-    rm -R ./store/cache
+    rm -R "$CACHE_DIR"
     
-    . ./preferences.sh
+    . ./config/caching
     dash ./util/cache_toml.sh
 
     current="$(sed 's/c#=\([^ ]*\) .*/\1/' ./store/dns-txt)"

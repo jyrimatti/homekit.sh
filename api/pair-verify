@@ -4,7 +4,7 @@
 . ./profiling
 set -eu
 
-. ./preferences.sh
+. ./config/caching
 
 logger_info 'Invoked api/pair-verify'
 logger_trace 'api/pair-verify'

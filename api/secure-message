@@ -4,7 +4,7 @@
 . ./profiling
 set -eu
 
-. ./preferences.sh
+. ./config/caching
 
 logger_info 'Invoked api/secure-message'
 logger_trace 'api/secure-message'
