@@ -12,7 +12,7 @@ do
         exit 1
     fi
     
-    rm -R "$CACHE_DIR"
+    rm -R "$HOMEKIT_SH_CACHE_DIR"
     
     . ./config/caching
     dash ./util/cache_toml.sh

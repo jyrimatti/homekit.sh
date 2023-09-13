@@ -10,9 +10,9 @@ aid="$1"
 iid="$2"
 
 if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
-    if [ -e "$CACHE_DIR/values" ]; then
-        for i in $(find "$CACHE_DIR/values" -name "$aid.$iid" -mmin -$HOMEKIT_SH_CACHE_VALUES); do
-            cat "$CACHE_DIR/values/$aid.$iid"
+    if [ -e "$HOMEKIT_SH_CACHE_DIR/values" ]; then
+        for i in $(find "$HOMEKIT_SH_CACHE_DIR/values" -name "$aid.$iid" -mmin -$HOMEKIT_SH_CACHE_VALUES); do
+            cat "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
             logger_debug "Value for $aid.$iid retrived from cache"
             exit 0
         done
@@ -84,8 +84,8 @@ do
     esac
 
     if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
-        test -e "$CACHE_DIR/values" || mkdir -p "$CACHE_DIR"/values
-        echo "$ret" > "$CACHE_DIR/values/$aid.$iid"
+        test -e "$HOMEKIT_SH_CACHE_DIR/values" || mkdir -p "$HOMEKIT_SH_CACHE_DIR"/values
+        echo "$ret" > "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
     fi
 
     logger_info "$cmd Get in $((end - start))s returned: $ret for $aid.$iid"
