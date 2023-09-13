@@ -1,5 +1,5 @@
 
-export CACHE_DIR="./store/cache"
+export CACHE_DIR="${CACHE_DIR:-./store/cache}"
 
 export HOMEKIT_SH_CACHE_SERVICES=true
 #export HOMEKIT_SH_CACHE_VALUES=5
