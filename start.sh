@@ -4,8 +4,18 @@
 . ./profiling
 set -eu
 
-export PATH="$HOME/.local/nix-override:$PATH"
+# nix-env -iE "let pkgs = import <nixpkgs> {}; in jq: (with pkgs; import ./jq-1.7.nix { inherit lib fetchurl stdenv autoreconfHook oniguruma; })"
+# nix-env -iE "let pkgs = import <nixpkgs> {}; in jq: (with pkgs; import ././accessories/stiebel/modbus_cli.nix { inherit python3Packages; })"
+
+. ./config/caching
+
+if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
+    mkdir -p ./store/nix-override
+    ln -s "$(which dash)" ./store/nix-override/nix-shell
+    export PATH="./store/nix-override:$PATH"
+fi
+
 export LC_ALL=C # "fix" Nix Perl locale warnings
 
 rm -fR ./store/sessions/*
-parallel -u ::: ./broadcast.sh ./monitor.sh ./poller.sh "./serve.sh $(cat ./config/port)"
+parallel -u ::: ./broadcast.sh ./monitor.sh ./poller.sh "./serve.sh $(grep -v '^#' ./config/port)"

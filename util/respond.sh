@@ -8,8 +8,9 @@ logger_trace 'util/respond.sh'
 
 status="$1"
 content="${2:-}"
+contentType="${3:-application/hap+json}"
 
-contentType='Content-Type: application/hap+json'
+contentType="Content-Type: $contentType"
 connection='Connection: keep-alive'
 
 if [ "${REQUEST_TYPE:-}" = 'encrypted' ]; then

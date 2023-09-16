@@ -1,1 +1,3 @@
+# Logging level if not overridden by LOGGING_LEVEL environment variable.
+# one of: TRACE | DEBUG | INFO | WARN | ERROR | FATAL
 INFO

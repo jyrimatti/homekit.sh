@@ -12,7 +12,7 @@ logger_trace 'util/service_with_characteristic.sh'
 aid="$1"
 iid="$2"
 
-if [ -n "${HOMEKIT_SH_CACHE_SERVICES:-}" ] && [ -e "$HOMEKIT_SH_CACHE_DIR"/services/$aid.$iid.json" ]; then
+if [ -n "${HOMEKIT_SH_CACHE_SERVICES:-}" ] && [ -e "$HOMEKIT_SH_CACHE_DIR/services/$aid.$iid.json" ]; then
     cat "$HOMEKIT_SH_CACHE_DIR/services/$aid.$iid.json"
     logger_debug "Characteristic $aid.$iid retrived from cache"
 else

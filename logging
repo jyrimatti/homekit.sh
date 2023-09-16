@@ -13,7 +13,7 @@ if [ -z "${logger_trace+x}" ]; then
     logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S.%3N)" "$1" "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
 
     if [ -z "${LOGGING_LEVEL:-}" ]; then
-        export LOGGING_LEVEL="$(cat ./config/logging)"
+        export LOGGING_LEVEL="$(grep -v '^#' ./config/logging)"
     fi
 
     . "./logging.$LOGGING_LEVEL"

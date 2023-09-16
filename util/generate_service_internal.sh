@@ -11,7 +11,8 @@ aid="$2"
 index="$3"
 service="$(cat)"
 
-typecode="$(echo "$service" | jq -r '.type' | xargs dash ./util/typecode_service.sh)"
+serviceTypeName="$(echo "$service" | jq -r '.type')"
+typecode="$(dash ./util/typecode_service.sh "$serviceTypeName")"
 service_iid="$(dash ./util/iid_service.sh "$service" "$typecode" "$index")"
 
 characteristic_with_id_and_service() {
@@ -29,11 +30,11 @@ populatevalue() {
 
 {
     echo "$service" |
-    jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \(.[$k]|objects // {value:.})" | @sh' |
+    jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh' |
     xargs dash ./util/characteristic.sh |
     characteristic_with_id_and_service |
     populatevalue |
-    jq -cs "\$service + {type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
+    jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
 } || {
     logger_error 'Could not generate characteristics: check config/characteristic/*.toml'
     exit 1

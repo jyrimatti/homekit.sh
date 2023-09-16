@@ -11,7 +11,7 @@ rm -fR ./store/*
 mkdir -p ./store/pairings
 mkdir -p ./store/sessions
 mkdir -p ./store/sent_events
-echo "c#=1 id=$(cat ./config/username) md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0" > ./store/dns-txt
+echo "c#=1 id=$(grep -v '^#' ./config/username) md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0" > ./store/dns-txt
 
 . ./config/caching
 ./util/cache_toml.sh

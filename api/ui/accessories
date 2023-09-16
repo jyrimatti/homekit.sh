@@ -7,6 +7,6 @@ set -eu
 logger_info 'Invoked: api/ui/accessories'
 logger_trace 'api/ui/accessories'
 
-ret="$(find ./accessories -name '*.toml' | xargs -I{} echo '<div class="accessory" hx-get="accessory?file={}" hx-trigger="load" handlebars-template="accessory"><div class="htmx-indicator"></div></div>')"
+ret="$(find ./accessories -name '*.toml' | xargs -I{} ./util/aid.sh {} | xargs -I{} echo '<div class="accessory"><div hx-get="accessory?aid={}" hx-trigger="load" hx-swap="outerHTML" handlebars-template="accessory"><div class="htmx-indicator"></div></div></div>')"
 
-./util/respond.sh 200 "$ret"
+./util/respond.sh 200 "$ret" "text/html"

@@ -8,10 +8,10 @@ while true
 do
     if command -v dns-sd >/dev/null; then
         logger_info "Broadcasting with dns-sd"
-        dns-sd -R homekit.sh _hap._tcp . "$(cat ./config/port)" $(cat ./store/dns-txt) &
+        dns-sd -R homekit.sh _hap._tcp . "$(grep -v '^#' ./config/port)" $(cat ./store/dns-txt) &
     else
         logger_info "Broadcasting with avahi"
-        avahi-publish -s homekit.sh _hap._tcp "$(cat ./config/port)" $(cat ./store/dns-txt) &
+        avahi-publish -s homekit.sh _hap._tcp "$(grep -v '^#' ./config/port)" $(cat ./store/dns-txt) &
     fi
     DNSSD_PID=$!
 

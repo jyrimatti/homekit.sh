@@ -51,7 +51,10 @@ do
     fi
 
     if [ "$timeout" = ' ' ]; then
-        timeout="$(cat ./config/default-timeout)"
+        timeout="${HOMEKIT_SH_TIMEOUT:-}"
+    fi
+    if [ "$timeout" = '' ]; then
+        timeout="$(grep -v '^#' ./config/default-timeout)"
     fi
 
     logger_debug "Using timeout $timeout for $cmd Get for $(toString "$servicetype" "$characteristictype")"

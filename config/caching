@@ -1,8 +1,12 @@
+# caching configuration. Have to do some caching, unfortunately...
+
+# override nix-shell with dash to speed up script startup
+export HOMEKIT_SH_NIX_OVERRIDE="${HOMEKIT_SH_NIX_OVERRIDE:-true}"
 
 export HOMEKIT_SH_CACHE_DIR="${HOMEKIT_SH_CACHE_DIR:-./store/cache}"
 
-export HOMEKIT_SH_CACHE_SERVICES=true
-#export HOMEKIT_SH_CACHE_VALUES=5
-export HOMEKIT_SH_CACHE_TOML_DISK=true
-#export HOMEKIT_SH_CACHE_TOML_ENV=true
-#export HOMEKIT_SH_CACHE_ACCESSORIES=true
+export HOMEKIT_SH_CACHE_SERVICES="${HOMEKIT_SH_CACHE_SERVICES:-true}"
+#export HOMEKIT_SH_CACHE_VALUES="${HOMEKIT_SH_CACHE_VALUES:-5}"
+export HOMEKIT_SH_CACHE_TOML_DISK="${HOMEKIT_SH_CACHE_TOML_DISK:-true}"
+#export HOMEKIT_SH_CACHE_TOML_ENV="${HOMEKIT_SH_CACHE_TOML_ENV:-true}"
+#export HOMEKIT_SH_CACHE_ACCESSORIES="${HOMEKIT_SH_CACHE_ACCESSORIES:-true}"

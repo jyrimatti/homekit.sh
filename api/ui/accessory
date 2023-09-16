@@ -1,14 +1,16 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv parallel findutils ncurses
+#! nix-shell --pure --keep QUERY_STRING --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv parallel findutils ncurses
 . ./logging
 . ./profiling
 set -eu
 
-logger_info 'Invoked: api/ui/accessories'
-logger_trace 'api/ui/accessories'
+logger_info 'Invoked: api/ui/accessory'
+logger_trace 'api/ui/accessory'
 
 . ./util/cgi_helpers.sh
 
-ret=$(tomlq ". + {file: \"$qs_file\", aid: (.aid // $(./util/aid.sh $qs_file))}" $qs_file)
+file="$(./util/accessory.sh "$qs_aid")"
+
+ret="$(./util/services_grouped_by_type.sh "$file" | tr '\n' '\0' | xargs -0 -I{} ./util/generate_service.sh 0 "$qs_aid" '{}' | jq -s "{ aid: $qs_aid, file: \"$file\", services: . }")"
 
 ./util/respond.sh 200 "$ret"

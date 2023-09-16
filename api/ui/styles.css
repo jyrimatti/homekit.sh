@@ -24,6 +24,15 @@ td table td {
 table table {
     border: none;
 }
+.characteristic tr {
+    display: none;
+}
+.characteristic tr.value {
+    display: table-row;
+}
+.characteristics tr:hover tr {
+    display: table-row;
+}
 
 .accessories {
     display: flex;

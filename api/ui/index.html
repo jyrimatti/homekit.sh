@@ -10,7 +10,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="styles.css" />
     <script src="htmx.min.js"></script>
-    <script src="mustache.min.js"></script>
     <script src="handlebars.min.js"></script>
     <script src="client-side-templates.js"></script>
 </head>
@@ -29,31 +28,31 @@
         <h3>aid: {{aid}} ({{file}})</h3>
 
         <h3>services</h3>
-        <table>
+        <table class="services">
             <thead>
                 <tr><th>type</th><th>characteristics</th></tr>
             </thead>
             <tbody>
                 {{#each services}}
                     <tr>
-                        <td>{{type}}</td>
+                        <td>{{typeName}}</td>
                         <td>
-                            <table>
+                            <table class="characteristics">
                                 <thead>
                                     <tr><th>type</th><th>value</th></tr>
                                 </thead>
                                 <tbody>
                                     {{#each characteristics}}
-                                        <tr><td>{{@key}}</td>
+                                        <tr><td>{{typeName}}</td>
                                             <td>
-                                                <table>
+                                                <table class="characteristic">
                                                 {{#each this}}
                                                     <tr><td>{{@key}}</td><td>{{.}}</td></tr>
                                                     {{else}}
                                                     <tr><td colspan="2">{{.}}</td></tr>
                                                 {{/each}}
                                                 {{#if cmd}}
-                                                    <tr><td>value</td><td hx-get="value?aid={{aid}}&iid={{iid}}" hx-trigger="load">VALUE</td></tr>
+                                                    <tr class="value"><td>value</td><td class="value" hx-get="value?aid={{../../aid}}&iid={{iid}}" hx-trigger="load"><div class="htmx-indicator"></div></td></tr>
                                                 {{/if}}
                                                 </table>
                                             </td></tr>

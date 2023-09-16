@@ -29,7 +29,7 @@ do
     fi
 
     if [ "$timeout" = ' ' ]; then
-        timeout="$(cat ./config/default-timeout)"
+        timeout="$(grep -v '^#' ./config/default-timeout)"
     fi
 
     logger_debug "Using timeout $timeout for $cmd Set for $(toString "$servicetype" "$characteristictype")"
