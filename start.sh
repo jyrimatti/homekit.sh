@@ -12,7 +12,7 @@ set -eu
 if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
     mkdir -p ./store/nix-override
     ln -s "$(which dash)" ./store/nix-override/nix-shell
-    export PATH="./store/nix-override:$PATH"
+    export PATH="$(pwd)/store/nix-override:$PATH"
 fi
 
 export LC_ALL=C # "fix" Nix Perl locale warnings
