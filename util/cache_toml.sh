@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p dash coreutils ncurses parallel yq yajsv
+#! nix-shell -i dash -I channel:nixos-23.05-small -p dash coreutils ncurses yq yajsv
 . ./logging
 . ./profiling
 
@@ -9,10 +9,10 @@ set -eu
 
 logger_debug 'util/cache_toml.sh'
 
-if [ -n "${HOMEKIT_SH_CACHE_TOML_ENV:-}" ]; then
+if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     tmpfile="$(mktemp /tmp/homekit.sh_cache_toml.XXXXXX)"
-    find ./config ./accessories -name '*.toml' |\
-        parallel --jobs 0${PROFILING:+1} "content=\"\$(dash ./util/validate_toml.sh {})\" && echo \"export HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh {})='\$content' && logger_debug 'Cached {} to HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh "{}")'\"" > "$tmpfile"
+    find ./config ./accessories -name '*.toml' |
+        ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-32}" "content=\"\$(dash ./util/validate_toml.sh {0})\" && echo \"export HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh {0})='\$content' && logger_debug 'Cached {0} to HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh \"{0}\")'\"" > "$tmpfile"
 
     while IFS=$(echo "\n") read -r line; do
         eval "$line"
@@ -20,7 +20,7 @@ if [ -n "${HOMEKIT_SH_CACHE_TOML_ENV:-}" ]; then
     rm "$tmpfile"
 fi
 
-if [ -n "${HOMEKIT_SH_CACHE_TOML_DISK:-}" ]; then
-    find config accessories -name '*.toml' |\
-        parallel -u --jobs 0${PROFILING:+1} "test {} -ot $HOMEKIT_SH_CACHE_DIR/{} || { mkdir -p \$(dirname $HOMEKIT_SH_CACHE_DIR/{}) && dash ./util/validate_toml.sh {} > $HOMEKIT_SH_CACHE_DIR/{}; }"
+if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
+    find config accessories -name '*.toml' |
+        ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-32}" dash -c "test {0} -ot $HOMEKIT_SH_CACHE_DIR/{0} || (mkdir -p \$(dirname $HOMEKIT_SH_CACHE_DIR/{0}) && dash ./util/validate_toml.sh {0} > $HOMEKIT_SH_CACHE_DIR/{0})"
 fi

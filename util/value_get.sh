@@ -9,7 +9,7 @@ logger_trace 'util/value_get.sh'
 aid="$1"
 iid="$2"
 
-if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
+if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     if [ -e "$HOMEKIT_SH_CACHE_DIR/values" ]; then
         for i in $(find "$HOMEKIT_SH_CACHE_DIR/values" -name "$aid.$iid" -mmin -$HOMEKIT_SH_CACHE_VALUES); do
             cat "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
@@ -86,7 +86,7 @@ do
             ;;
     esac
 
-    if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
+    if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
         test -e "$HOMEKIT_SH_CACHE_DIR/values" || mkdir -p "$HOMEKIT_SH_CACHE_DIR"/values
         echo "$ret" > "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
     fi

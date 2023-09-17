@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq coreutils findutils parallel ncurses
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq coreutils findutils ncurses
 . ./logging
 . ./profiling
 set -eu
@@ -12,4 +12,5 @@ services_of_same_type="$3"
 
 echo "$services_of_same_type" |
 jq -c '.[]' |
-parallel --jobs 0${PROFILING:+1} "echo {} | dash ./util/generate_service_internal.sh $withvalue $aid {#}"
+nl |
+"./bin/rust-parallel-$(uname)" -r '\s*([0-9]+)\s*(.*)' --jobs "${PROFILING:-32}" dash -c "echo '{2}' | dash ./util/generate_service_internal.sh $withvalue $aid {1}"

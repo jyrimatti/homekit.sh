@@ -5,6 +5,12 @@
 
 set -eu
 
+if [ "$LOGGING_LEVEL" = 'TRACE' ]; then
+    # Skip this for tracing, since takes too much time
+    echo '?'
+    exit 0
+fi
+
 logger_trace 'util/type_to_string.sh'
 
 type="$1"

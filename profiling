@@ -1,7 +1,7 @@
 #!/usr/bin/env dash
 
 if [ -n "${PROFILING:-}" ]; then
-  PS4="$PROFILING"'`date "+%T.%3N"` `basename "$0"`:${LINENO} '
-  export PROFILING="$PROFILING   "
+  PS4="$HOMEKIT_SH_PROFILING_PREFIX"'`date "+%T.%3N"` `basename "$0"`:${LINENO} '
+  export HOMEKIT_SH_PROFILING_PREFIX="$HOMEKIT_SH_PROFILING_PREFIX   "
   set -x
 fi

@@ -10,7 +10,7 @@ aid="$1"
 iid="$2"
 value="$3"
 
-if [ -n "${HOMEKIT_SH_CACHE_VALUES:-}" ]; then
+if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     rm -f "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
 fi
 

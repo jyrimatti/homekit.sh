@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING --keep REQUEST_METHOD --keep QUERY_STRING --keep REMOTE_ADDR --keep REMOTE_PORT -i dash -I channel:nixos-23.05-small -p dash nix jq yq parallel findutils ncurses
+#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING --keep REQUEST_METHOD --keep QUERY_STRING --keep REMOTE_ADDR --keep REMOTE_PORT -i dash -I channel:nixos-23.05-small -p dash nix jq yq findutils ncurses
 . ./logging
 . ./profiling
 set -eu
@@ -20,15 +20,16 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     type="${qs_type:-0}"
     ev="${qs_ev:-0}"
 
-    characteristics="$(echo "${qs_id}" |\
-                       parallel --delimiter ',' --jobs 0${PROFILING:+1} dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
+    characteristics="$(echo "${qs_id}" |
+                       tr ',' '\n' |
+                       "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-32}" dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
 fi
 
 if [ "$REQUEST_METHOD" = 'PUT' ]; then
     logger_debug 'Request is a PUT'
     characteristics="$(cat |\
                        jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' |\
-                       parallel --jobs 0${PROFILING:+1} dash ./util/characteristics_put.sh '{= uq =}')"
+                       "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-32}" dash ./util/characteristics_put.sh)"
 fi
 
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"

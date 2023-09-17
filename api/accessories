@@ -9,7 +9,7 @@ set -eu
 logger_info 'Invoked: api/accessories'
 logger_trace 'api/accessories'
 
-if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ] && [ -e "$HOMEKIT_SH_CACHE_DIR"/accessories.json ]; then
+if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ] && [ -e "$HOMEKIT_SH_CACHE_DIR"/accessories.json ]; then
     dash ./util/respond.sh 200 "$(cat "$HOMEKIT_SH_CACHE_DIR"/accessories.json)"
     logger_debug "Accessories retrived from cache"
     exit 0
@@ -17,11 +17,11 @@ fi
 
 . ./util/cache_toml.sh
 
-accessories="$(find ./accessories -name '*.toml' |\
-               parallel --jobs 0${PROFILING:+1} "aid=\$(dash ./util/aid.sh {}); dash ./util/services_grouped_by_type.sh {} | parallel --jobs 0${PROFILING:+1} dash ./util/generate_service.sh 1 \$aid | jq -cs \"{ aid: \$aid, services: map({type, iid, characteristics}) }\"" |\
-               jq -cs '{accessories: map(.services |= map(del(.cmd, .polling) | .characteristics |= map(del(.cmd, .polling))))}')"
+accessories="$(find ./accessories -name '*.toml' |
+               "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-32}" -s --shell-path dash "lambda() { aid=\$(dash ./util/aid.sh \$1); dash ./util/services_grouped_by_type.sh \$1 | ./bin/rust-parallel-$(uname) -r '.*' --jobs ${PROFILING:-32} dash ./util/generate_service.sh 1 \$aid \$(echo {)0} | jq -cs \"{ aid: \$aid, services: map({type, iid, characteristics}) }\"; }; lambda" |
+               jq -cs '{accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName))))}')"
 
-if [ -n "${HOMEKIT_SH_CACHE_ACCESSORIES:-}" ]; then
+if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ]; then
     test -e "$HOMEKIT_SH_CACHE_DIR" || mkdir -p "$HOMEKIT_SH_CACHE_DIR"
     echo "$accessories" > "$HOMEKIT_SH_CACHE_DIR"/accessories.json
 fi

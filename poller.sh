@@ -12,7 +12,7 @@ do
         cut -d / -f 4,6 |\
         tr '/' ' ' |\
         xargs -r -L1 dash ./util/poll.sh |\
-        parallel -k --jobs 0${PROFILING:+1} || true
+        parallel -k --jobs "${PROFILING:-0}" || true
     
     sleep 1
 done
