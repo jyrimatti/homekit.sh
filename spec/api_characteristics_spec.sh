@@ -31,7 +31,7 @@ Describe 'api/characteristics GET'
       When run ./api/characteristics
       The output should include '{"aid":1,"iid":1621055,"value":"1.1.0"}'
       The output should include '{"aid":1,"iid":34,"value":"Homekit.sh"}'
-      The error should include 'No "cmd" set in characteristic/service properties for 1.34 (AccessoryInformation.AccessoryFlags), returning given constant value'
+      The error should include 'No "cmd" set in characteristic/service properties for 1.34 (AccessoryInformation.Model), returning given constant value'
     End
   End
 

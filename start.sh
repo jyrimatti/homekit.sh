@@ -11,7 +11,7 @@ set -eu
 
 if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
     mkdir -p ./store/nix-override
-    ln -s "$(which dash)" ./store/nix-override/nix-shell
+    ln -fs "$(which dash)" ./store/nix-override/nix-shell
     export PATH="$(pwd)/store/nix-override:$PATH"
 fi
 
