@@ -7,8 +7,8 @@
         "clean": "rm -R dist",
         "build": "tsc",
         "createSecrets": "ts-node -e \"import {createSecrets} from './createSecrets'; createSecrets()\"",
-        "pairSetup": "ts-node -e \"import {pairSetup} from './pairSetup'; pairSetup('$(grep -v '^#' ../config/pincode)', '$(cat ../config/username)', '$(echo $SESSION_STORE_PATH)')\"",
-        "pairVerify": "ts-node -e \"import {pairVerify} from './pairVerify'; pairVerify('$(cat ../config/username)', '$(echo $SESSION_STORE_PATH)')\""
+        "pairSetup": "ts-node -e \"import {pairSetup} from './pairSetup'; pairSetup('$(grep -v '^#' ../config/pincode)', '$(grep -v '^#' ../config/username)', '$(echo $SESSION_STORE_PATH)')\"",
+        "pairVerify": "ts-node -e \"import {pairVerify} from './pairVerify'; pairVerify('$(grep -v '^#' ../config/username)', '$(echo $SESSION_STORE_PATH)')\""
     },
     "keywords": [],
     "dependencies": {
