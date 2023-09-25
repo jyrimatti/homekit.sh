@@ -22,7 +22,7 @@ characteristic_with_id_and_service() {
 
 populatevalue() {
     if [ "$withvalue" = '1' ]; then
-        "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-32}" dash -c "echo '{0}' | jq -c '.characteristics[0] | (if \$\$value then .value = \$\$value else . end)' --argjson value \"\$(echo '{0}' | dash ./util/value_get.sh $aid \$(echo '{0}' | jq -r .characteristics[0].iid) || echo null)\""
+        "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-32}" dash -c "echo '{0}' | jq -c '.characteristics[0] | (if \$value then .value = \$value else . end)' --argjson value \"\$(echo '{0}' | dash ./util/value_get.sh $aid \$(echo '{0}' | jq -r .characteristics[0].iid) || echo null)\""
     else
          jq -c '.characteristics[0]'
     fi
