@@ -21,8 +21,10 @@ characteristic_with_id_and_service() {
 }
 
 populatevalue() {
+    withvalue="$1"
+    aid="$2"
     if [ "$withvalue" = '1' ]; then
-        "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-32}" dash -c "echo '{0}' | jq -c '.characteristics[0] | (if \$value then .value = \$value else . end)' --argjson value \"\$(echo '{0}' | dash ./util/value_get.sh $aid \$(echo '{0}' | jq -r .characteristics[0].iid) || echo null)\""
+        "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-32}" dash -c "echo '{0}' | jq -c '.characteristics[0] | (.value = (\$value // .defaultValue // .minValue // .[\"valid-values\"][0] // (if .format == \"bool\" and .type != \"14\" then false elif .format == \"string\" then \"\" else empty end))) // .' --argjson value \"\$(echo '{0}' | dash ./util/value_get.sh $aid \$(echo '{0}' | jq -r .characteristics[0].iid) || echo null)\""
     else
          jq -c '.characteristics[0]'
     fi
@@ -33,7 +35,7 @@ populatevalue() {
     jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh' |
     xargs dash ./util/characteristic.sh |
     characteristic_with_id_and_service |
-    populatevalue |
+    populatevalue "$withvalue" "$aid" |
     jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
 } || {
     logger_error 'Could not generate characteristics: check config/characteristic/*.toml'

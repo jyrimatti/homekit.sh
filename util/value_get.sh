@@ -64,8 +64,10 @@ do
     ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd ./accessories; $cmd Get")"
     responseValue=$?
     set -e
+    end="$(date +%s)"
+    duration="$((end - start))"
     if [ "$responseValue" -eq 124 ]; then
-        logger_error "Command '$cmd Get' timed out for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Command '$cmd Get' timed out in ${duration}s for $(toString "$servicetype" "$characteristictype")"
         exit 158
     elif [ "$responseValue" -ne 0 ]; then
         logger_error "Command '$cmd Get' failed for $(toString "$servicetype" "$characteristictype")"
@@ -74,7 +76,6 @@ do
         logger_error "Command '$cmd Get' returned empty response for $(toString "$servicetype" "$characteristictype")"
         exit 152
     fi
-    end="$(date +%s)"
 
     case $ret in
         '"'*'"') ;;
@@ -91,6 +92,6 @@ do
         echo "$ret" > "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
     fi
 
-    logger_info "$cmd Get in $((end - start))s returned: $ret for $aid.$iid"
+    logger_info "$cmd Get in ${duration}s returned: $ret for $aid.$iid"
     echo "$ret"
 done

@@ -6,8 +6,8 @@ set -eu
 
 while true
 do
-    ret="$(fswatch -1 ./accessories)"
-    logger_info "./accessories/ was modified"
+    ret="$(fswatch -1 --insensitive --exclude '.*' --include '.*[.]toml$' ./accessories)"
+    logger_info "Some .toml file under ./accessories was modified"
     if [ "$ret" = "" ]; then
         exit 1
     fi

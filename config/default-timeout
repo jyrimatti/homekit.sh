@@ -1,3 +1,3 @@
 # default timeout for executing commands, if not overridden in service/characteristic configuration.
 # e.g. 5.0s
-7.0s
+6.0s

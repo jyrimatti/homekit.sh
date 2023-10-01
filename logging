@@ -1,20 +1,5 @@
 #!/usr/bin/env dash
 
-if [ -z "${logger_trace+x}" ]; then
-    COLOR_RESET()     { tput sgr0; }
-    COLOR_RED()       { tput setaf 1; }
-    COLOR_GREEN()     { tput setaf 2; }
-    COLOR_YELLOW()    { tput setaf 3; }
-    COLOR_BLUE()      { tput setaf 4; }
-    COLOR_PURPLE()    { tput setaf 5; }
-    COLOR_CYAN()      { tput setaf 6; }
-    COLOR_GREY()      { tput setaf 7; }
-    COLOR_LIGHTGREY() { tput setaf 8; }
-    logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S.%3N)" "$1" "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
+. ./logging_no_exit_trap
 
-    if [ -z "${LOGGING_LEVEL:-}" ]; then
-        export LOGGING_LEVEL="$(grep -v '^#' ./config/logging)"
-    fi
-
-    . "./logging.$LOGGING_LEVEL"
-fi
+trap '_homekit_sh_ret=$?; test "$_homekit_sh_ret" != 0 && logger_warn "Command \"$(basename $0)\" $*\" exited with code $_homekit_sh_ret"; ' EXIT

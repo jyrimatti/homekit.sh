@@ -101,7 +101,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
 
     def log_error(self, format, *args):
         if self.logging_level != FATAL:
-            self.log(RED, ERROR, format, *args)
+            self.log(ERROR, RED, format, *args)
     
     def do_PUT(self):
         self.do_POST()
@@ -235,7 +235,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         if len(stdout) > 0:
             resp = str(stdout, 'utf-8')
             #resp = resp.replace("\n", "\r\n")
-            bytes = self.encodeToBlocks(stdout).getvalue()
+            bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
             self.log_info("Sending event with total encoded response length %s: %s", str(len(bytes)), resp)
             self.wfile.write(bytes)
             self.wfile.flush()

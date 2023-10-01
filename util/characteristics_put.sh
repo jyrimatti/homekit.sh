@@ -40,7 +40,7 @@ toString() {
     echo "$aid.$iid ($servicename.$characteristicname)"
 }
 
-ret="{\"aid\": $aid, \"iid\": $iid}"
+ret="{\"aid\": $aid, \"iid\": $iid, \"status\": 0}"
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
     set +e
