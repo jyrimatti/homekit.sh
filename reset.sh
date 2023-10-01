@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nodejs nix
+#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nodejs nix jq
 . ./logging
 . ./profiling
 set -eu
@@ -14,6 +14,6 @@ mkdir -p ./store/sent_events
 echo "c#=1 id=$(grep -v '^#' ./config/username) md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0" > ./store/dns-txt
 
 . ./config/caching
-./util/cache_toml.sh
+mkdir "$HOMEKIT_SH_CACHE_DIR"
 
 (cd pairing && npm install && npm run createSecrets)

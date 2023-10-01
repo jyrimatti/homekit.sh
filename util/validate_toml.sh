@@ -11,7 +11,7 @@ tomlfile="$1"
 
 case "$tomlfile" in
   *'accessories/'*)
-    tmpfile="$(mktemp /tmp/homekit.sh_validate_toml.XXXXXX.json)"
+    tmpfile="$(mktemp "$HOMEKIT_SH_CACHE_DIR/homekit.sh_validate_toml.XXXXXX.json")"
     tomlq -c < "$tomlfile" > "$tmpfile"
 
     logger_debug "Validating toml file $tomlfile"

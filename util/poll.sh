@@ -51,7 +51,7 @@ if test -f "$subscription_path"; then
             if [ "$value" != "$previous_value" ] && test -f "$subscription_path"; then
                 logger_debug "Creating event for $aid $iid"
                 echo "$value" > "$subscription_path"
-                tmpfile="$(mktemp /tmp/homekit.sh_poll.XXXXXX)"
+                tmpfile="$(mktemp "$HOMEKIT_SH_CACHE_DIR/homekit.sh_poll.XXXXXX")"
                 dash ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
                 mv "$tmpfile" "./store/sessions/$session/events/$subscription.json"
             fi

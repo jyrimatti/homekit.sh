@@ -9,7 +9,7 @@ set -u
 logger_info 'Invoked api/pair-setup'
 logger_trace 'api/pair-setup'
 
-tmpfile="$(mktemp /tmp/homekit.sh_pair-setup.XXXXXX)"
+tmpfile="$(mktemp "$HOMEKIT_SH_CACHE_DIR/homekit.sh_pair-setup.XXXXXX")"
 
 (cd pairing && npm install --silent && SESSION_STORE_PATH="sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairSetup --silent > "$tmpfile")
 
@@ -22,4 +22,3 @@ if [ $? -eq 42 ]; then
 fi
 
 cat "$tmpfile"
-rm "$tmpfile"
