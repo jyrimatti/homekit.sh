@@ -8,7 +8,7 @@ set -eu
 logger_info 'Invoked api/identify'
 logger_trace 'api/identify'
 
-for p in store/pairings/*; do
+for p in "$HOMEKIT_SH_STORE_DIR"/pairings/*; do
     if test -d "$p"; then
         dash ./util/respond.sh 400 '{ "status": -70401 }'
         exit 1

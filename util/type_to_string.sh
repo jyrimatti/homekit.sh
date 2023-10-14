@@ -6,7 +6,7 @@
 
 set -eu
 
-if [ "$LOGGING_LEVEL" = 'TRACE' ]; then
+if [ "$HOMEKIT_SH_LOGGING_LEVEL" = 'TRACE' ]; then
     # Skip this for tracing, since takes too much time
     echo '?'
     exit 0

@@ -1,5 +1,5 @@
 Describe 'api/accessories'
-  Before "export LOGGING_LEVEL=debug"
+  Before "export HOMEKIT_SH_LOGGING_LEVEL=debug"
 
   Describe 'GET'
     It 'returns accessories'

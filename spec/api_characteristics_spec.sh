@@ -1,5 +1,5 @@
 Describe 'api/characteristics GET'
-  Before "export LOGGING_LEVEL=debug"
+  Before "export HOMEKIT_SH_LOGGING_LEVEL=debug"
 
   Before "export REQUEST_METHOD=GET"
 
@@ -40,7 +40,7 @@ End
 
 
 Describe 'api/characteristics PUT'
-  Before "export LOGGING_LEVEL=debug"
+  Before "export HOMEKIT_SH_LOGGING_LEVEL=debug"
 
   Before "export REQUEST_METHOD=PUT"
   Before "export REMOTE_ADDR=localhost"

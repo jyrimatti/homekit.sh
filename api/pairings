@@ -6,10 +6,11 @@ import os
 import tlv8
 
 content = b''
-for o in os.listdir('./store/pairings'):
-    pairingID   = open("./store/pairings/" + o + "/iOSDevicePairingID","r").read()
-    ltpk        = open("./store/pairings/" + o + "/iOSDeviceLTPK","rb").read()
-    permissions = open("./store/pairings/" + o + "/iOSDevicePermissions","rb").read()
+storedir = os.environ['HOMEKIT_SH_STORE_DIR']
+for o in os.listdir(storedir + '/pairings'):
+    pairingID   = open(storedir + "/pairings/" + o + "/iOSDevicePairingID","r").read()
+    ltpk        = open(storedir + "/pairings/" + o + "/iOSDeviceLTPK","rb").read()
+    permissions = open(storedir + "/pairings/" + o + "/iOSDevicePermissions","rb").read()
 
     data = [
         tlv8.Entry(6, 2),

@@ -16,7 +16,7 @@ fi
 
 . ./util/cache_toml.sh
 
-accessories="$(find ./accessories -name '*.toml' |
+accessories="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' |
                "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-32}" -s --shell-path dash "lambda() { aid=\$(dash ./util/aid.sh \$1); dash ./util/services_grouped_by_type.sh \$1 | ./bin/rust-parallel-$(uname) -r '.*' --jobs ${PROFILING:-32} dash ./util/generate_service.sh 1 \$aid {0} | jq -cs \"{ aid: \$aid, services: map({type, iid, characteristics}) }\"; }; lambda" |
                jq -cs '{accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName))))}')"
 

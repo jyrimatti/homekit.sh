@@ -55,14 +55,14 @@ do
         timeout="${HOMEKIT_SH_TIMEOUT:-}"
     fi
     if [ "$timeout" = '' ]; then
-        timeout="$(grep -v '^#' ./config/default-timeout)"
+        timeout="$HOMEKIT_SH_DEFAULT_TIMEOUT"
     fi
 
     logger_debug "Using timeout $timeout for $cmd Get for $(toString "$servicetype" "$characteristictype")"
 
     start="$(date +%s)"
     set +e
-    ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd ./accessories; $cmd Get")"
+    ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get")"
     responseValue=$?
     set -e
     end="$(date +%s)"

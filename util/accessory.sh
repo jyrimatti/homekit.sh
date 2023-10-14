@@ -10,7 +10,7 @@ logger_trace 'util/accessory.sh'
 
 aid="$1"
 
-for f in $(find ./accessories -name '*.toml'); do
+for f in $(find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml'); do
     if [ "$(dash ./util/aid.sh "$f")" = "$aid" ]; then
         echo "$f"
         exit 0

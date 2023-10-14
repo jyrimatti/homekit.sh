@@ -117,7 +117,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         return self.client_address[0] + ":" + str(self.client_address[1])
 
     def get_session_store(self):
-        return 'store/sessions/' + self.address_string()
+        return os.environ['HOMEKIT_SH_RUNTIME_DIR'] + '/sessions/' + self.address_string()
     
     def handle(self):
         # initialize connection state
@@ -130,9 +130,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         self.conn_activity[self.get_session_store()] = start
 
         # initialize logging level for this connection
-        logging=open("./config/logging", 'r')
-        self.logging_level = logging.read().upper()
-        logging.close()
+        self.logging_level = os.environ['HOMEKIT_SH_LOGGING_LEVEL']
 
         try:
             return super().handle()

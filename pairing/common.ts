@@ -50,18 +50,18 @@ export const enum TLVErrorCode {
 
 
 export function mkStorePath(path: string): void {
-    mkdirSync(join(__dirname + "/../store", path), { recursive: true });
+    mkdirSync(join(env.HOMEKIT_SH_STORE_DIR || '', path), { recursive: true });
 }
 
 export function writeToStore(name: string, data: Buffer): void {
-    writeFileSync(join(__dirname + "/../store", name), data, { flag: 'w' });
+    writeFileSync(join(env.HOMEKIT_SH_STORE_DIR || '', name), data, { flag: 'w' });
 }
 export function readFromStore(name: string): Buffer {
-    return readFileSync(join(__dirname + "/../store", name));
+    return readFileSync(join(env.HOMEKIT_SH_STORE_DIR || '', name));
 }
 
 function getLevel() {
-    return (env.LOGGING_LEVEL || '').toUpperCase();
+    return (env.HOMEKIT_SH_LOGGING_LEVEL || '').toUpperCase();
 }
 
 export function log_debug(msg: string): void {

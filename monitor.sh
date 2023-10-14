@@ -7,19 +7,19 @@ set -eu
 
 while true
 do
-    ret="$(fswatch -1 --insensitive --exclude '.*' --include '.*[.]toml$' ./accessories)"
-    logger_info "Some .toml file under ./accessories was modified"
+    ret="$(fswatch -1 --insensitive --exclude '.*' --include '.*[.]toml$' "$HOMEKIT_SH_ACCESSORIES_DIR")"
+    logger_info "Some .toml file under $HOMEKIT_SH_ACCESSORIES_DIR was modified"
     if [ "$ret" = "" ]; then
         exit 1
     fi
     
     rm -R "$HOMEKIT_SH_CACHE_DIR"
     
-    . ./config/caching
+    . ./prefs
     dash ./util/cache_toml.sh
 
-    current="$(sed 's/c#=\([^ ]*\) .*/\1/' ./store/dns-txt)"
+    current="$(sed 's/c#=\([^ ]*\) .*/\1/' "$HOMEKIT_SH_STORE_DIR/dns-txt")"
     newval="$((current+1))"
     logger_info "Updated configuration number $current -> $newval"
-    sed -i "s/c#=[0-9]*/c#=$newval/" ./store/dns-txt
+    sed -i "s/c#=[0-9]*/c#=$newval/" "$HOMEKIT_SH_STORE_DIR/dns-txt"
 done

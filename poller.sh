@@ -8,7 +8,7 @@ set -eu
 while true
 do
     logger_debug "Polling subscriptions"
-    find ./store/sessions -mindepth 3 -maxdepth 3 -type f |\
+    find "$HOMEKIT_SH_RUNTIME_DIR/sessions" -mindepth 3 -maxdepth 3 -type f |\
         grep subscriptions |\
         cut -d / -f 4,6 |\
         tr '/' ' ' |\

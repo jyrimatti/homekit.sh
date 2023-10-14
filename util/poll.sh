@@ -10,7 +10,7 @@ logger_trace 'util/poll.sh'
 session="$1"
 subscription="$2"
 
-subscription_path="./store/sessions/$session/subscriptions/$subscription"
+subscription_path="$HOMEKIT_SH_RUNTIME_DIR/sessions/$session/subscriptions/$subscription"
 if test -f "$subscription_path"; then
     logger_debug "Polling $subscription_path"
 
@@ -52,9 +52,9 @@ if test -f "$subscription_path"; then
             if [ "$value" != "$previous_value" ] && test -f "$subscription_path"; then
                 logger_debug "Creating event for $aid $iid"
                 echo "$value" > "$subscription_path"
-                tmpfile="$(mktemp "$HOMEKIT_SH_CACHE_DIR/homekit.sh_poll.XXXXXX")"
+                tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_poll.XXXXXX")"
                 dash ./util/event_create.sh "$aid" "$iid" "$value" > "$tmpfile"
-                mv "$tmpfile" "./store/sessions/$session/events/$subscription.json"
+                mv "$tmpfile" "$HOMEKIT_SH_RUNTIME_DIR/sessions/$session/events/$subscription.json"
             fi
         fi
     fi

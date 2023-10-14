@@ -7,14 +7,14 @@ set -eu
 
 logger_trace 'util/events_send.sh'
 
-session_store="./store/sessions/$REMOTE_ADDR:$REMOTE_PORT"
+session_store="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
-events="$(mktemp "$HOMEKIT_SH_CACHE_DIR/homekit.sh_events_send.XXXXXX")"
+events="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_events_send.XXXXXX")"
 sent="$(date -u +%Y-%m-%dT%H:%M:%S)"
 for f in "$session_store"/events/*.json; do
     if test -f "$f"; then
         cat "$f" >> "$events"
-        mv "$f" "./store/sent_events/$(basename "$f")_$sent"
+        mv "$f" "$HOMEKIT_SH_STORE_DIR/sent_events/$(basename "$f")_$sent"
     fi
 done
 
