@@ -1,5 +1,6 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv findutils ncurses
+#! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nix jq yq yajsv findutils ncurses
+. ./prefs
 . ./logging
 . ./profiling
 set -eu
@@ -7,6 +8,6 @@ set -eu
 logger_info 'Invoked: api/ui/accessories'
 logger_trace 'api/ui/accessories'
 
-ret="$(find ./accessories -name '*.toml' | xargs -I{} ./util/aid.sh {} | xargs -I{} echo '<div class="accessory"><div hx-get="accessory?aid={}" hx-trigger="load" hx-swap="outerHTML" handlebars-template="accessory"><div class="htmx-indicator"></div></div></div>')"
+ret="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | xargs -I{} ./util/aid.sh {} | xargs -I{} echo '<div class="accessory"><div hx-get="accessory?aid={}" hx-trigger="load" hx-swap="outerHTML" handlebars-template="accessory"><div class="htmx-indicator"></div></div></div>')"
 
 ./util/respond.sh 200 "$ret" "text/html"

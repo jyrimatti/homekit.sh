@@ -1,5 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nodejs nix jq which
+. ./prefs
 . ./logging
 . ./profiling
 set -eu
@@ -8,7 +9,6 @@ export LC_ALL=C # "fix" Nix Perl locale warnings
 
 rm -fR ./store/*
 
-. ./config/caching
 mkdir "$HOMEKIT_SH_CACHE_DIR"
 
 if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then

@@ -1,10 +1,9 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --keep LOGGING_LEVEL --keep PROFILING -i dash -I channel:nixos-23.05-small -p dash nodejs ncurses
+#! nix-shell -i dash -I channel:nixos-23.05-small -p dash nodejs ncurses
+. ./prefs
 . ./logging
 . ./profiling
 set -u
-
-. ./config/caching
 
 logger_info 'Invoked api/pair-setup'
 logger_trace 'api/pair-setup'

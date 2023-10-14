@@ -1,5 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash jq coreutils findutils ncurses
+. ./prefs
 . ./logging
 . ./profiling
 set -eu

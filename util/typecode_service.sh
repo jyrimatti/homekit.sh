@@ -1,8 +1,8 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash yq jq ncurses sqlite
+. ./prefs
 . ./logging
 . ./profiling
-
 set -eu
 
 logger_trace 'util/typecode_service.sh'

@@ -1,0 +1,20 @@
+#!/usr/bin/env dash
+
+if [ -z "${HOMEKIT_SH_ENV_SET:-}" ]; then
+    export $(grep -v '^#' ./config/environment |
+             sed "s#%S#${XDG_STATE_HOME:-$HOME/.local/state}#g" |
+             sed "s#%C#${XDG_CACHE_HOME:-$HOME/.cache}#g" |
+             sed "s#%E#${XDG_CONFIG_HOME:-$HOME/.config}#g" |
+             sed "s#%t#${XDG_RUNTIME_DIR:-$HOMEKIT_SH_CACHE_DIR/tmp}#g" |
+             xargs)
+    
+    if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/environment" ]; then
+        export $(grep -v '^#' "${XDG_CONFIG_HOME:-$HOME/.config}/environment" |
+                sed "s#%S#${XDG_STATE_HOME:-$HOME/.local/state}#g" |
+                sed "s#%C#${XDG_CACHE_HOME:-$HOME/.cache}#g" |
+                sed "s#%E#${XDG_CONFIG_HOME:-$HOME/.config}#g" |
+                sed "s#%t#${XDG_RUNTIME_DIR:-$HOMEKIT_SH_CACHE_DIR/tmp}#g" |
+                xargs)
+    fi
+    export HOMEKIT_SH_ENV_SET=true
+fi
