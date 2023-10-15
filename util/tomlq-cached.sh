@@ -18,7 +18,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     done | jq $params "$query"
 elif [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
     logger_debug "Using disk cached JSON for $*"
-    (cd "$HOMEKIT_SH_CACHE_DIR"; jq $params "$query" $*)
+    jq $params "$query" $(IFS=$(echo "\n") echo "$*" | xargs -I{} echo "$HOMEKIT_SH_CACHE_DIR/{}")
 else
     logger_debug "Using tomlq for $*"
     tomlq $params "$query" $*

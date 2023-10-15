@@ -17,4 +17,6 @@ if [ -z "${HOMEKIT_SH_ENV_SET:-}" ]; then
                 xargs)
     fi
     export HOMEKIT_SH_ENV_SET=true
+
+    dash ./initdirs.sh
 fi

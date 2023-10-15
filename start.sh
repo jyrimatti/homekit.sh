@@ -17,4 +17,5 @@ fi
 export LC_ALL=C # "fix" Nix Perl locale warnings
 
 rm -fR "$HOMEKIT_SH_RUNTIME_DIR/sessions/*"
+mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"
 parallel -u ::: ./broadcast.sh ./monitor.sh ./poller.sh "./serve.sh $HOMEKIT_SH_PORT"

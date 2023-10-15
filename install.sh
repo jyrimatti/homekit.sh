@@ -21,8 +21,8 @@ if [ ! -d "$servicedir" ]; then
     mkdir -p "$servicedir"
 fi
 
-echo "Creating empty $configdir/environment for overrides..."
 if [ ! -f "$configdir/environment" ]; then
+    echo "Creating $configdir/environment for custom configuration (see $scriptdir/config/environment for defaults)..."
     {
         echo "# systemd specifiers:"
         echo "# %S XDG_STATE_HOME"
