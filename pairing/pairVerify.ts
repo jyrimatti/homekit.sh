@@ -5,7 +5,7 @@ import * as tlv from "./tlv";
 import { readSync } from 'fs';
 import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore } from './common';
 
-export function pairVerify(AccessoryPairingID: string, sessionStorePath: string): void {
+export function pairVerify(AccessoryPairingID: string, storePath: string, sessionStorePath: string): void {
     const data = Buffer.alloc(parseInt(env.CONTENT_LENGTH!));
     readSync(0, data, 0, parseInt(env.CONTENT_LENGTH!), null);
 
@@ -15,9 +15,9 @@ export function pairVerify(AccessoryPairingID: string, sessionStorePath: string)
     log_debug("pairVerify with sequence: " + sequence + " and data length: " + data.length);
 
     if (sequence === PairingStates.M1) {
-        pairVerifyM1(tlvData, Buffer.from(AccessoryPairingID), sessionStorePath);
+        pairVerifyM1(tlvData, Buffer.from(AccessoryPairingID), storePath, sessionStorePath);
     } else if (sequence === PairingStates.M3) {
-        pairVerifyM3(tlvData, sessionStorePath);
+        pairVerifyM3(tlvData, storePath, sessionStorePath);
     } else {
         log_error("Invalid state/sequence number");
 
@@ -26,7 +26,7 @@ export function pairVerify(AccessoryPairingID: string, sessionStorePath: string)
     }
 }
 
-function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, sessionStorePath: string): void {
+function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, storePath: string, sessionStorePath: string): void {
     log_debug("M2: Verify Start Response");
 
     // Generate new, random Curve25519 keypair.
@@ -43,7 +43,7 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     const AccessoryInfo = Buffer.concat([AccessoryPublicKey, AccessoryPairingID, iOSDevicePublicKey]);
 
     // Use Ed25519 to generate AccessorySignature by signing AccessoryInfo with its long-term secret key, AccessoryLTSK.
-    const AccessorySignature = tweetnacl.sign.detached(AccessoryInfo, readFromStore('AccessoryLTSK'));
+    const AccessorySignature = tweetnacl.sign.detached(AccessoryInfo, readFromStore(storePath + '/AccessoryLTSK'));
 
     // Construct a sub-TLV with the following items:
     const subTLV = tlv.encode(TLVValues.IDENTIFIER, AccessoryPairingID,
@@ -67,7 +67,7 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     log_debug("M2 responded")
 }
 
-function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string): void {
+function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessionStorePath: string): void {
     log_debug("M4: Verify Finish Response");
 
     const {messageData, authTagData} = extractMessageAndAuthTag(tlvData[TLVValues.ENCRYPTED_DATA]);
@@ -103,7 +103,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string)
     // Use the iOS deviceʼs Pairing Identifier, iOSDevicePairingID, to look up the iOS deviceʼs long-term public key, iOSDeviceLTPK, in its list of paired controllers.
     
     try {
-        readFromStore('pairings/' + iOSDevicePairingID + '/iOSDevicePairingID');
+        readFromStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePairingID');
     } catch (err) {
         log_info("Client iOSDevicePairingID " + iOSDevicePairingID + " not found -> not paired");
         // If not found, the accessory must respond with the following TLV items:
@@ -111,7 +111,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, sessionStorePath: string)
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
         return;
     }
-    const iOSDeviceLTPK = readFromStore('pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK');
+    const iOSDeviceLTPK = readFromStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK');
     const iOSDeviceInfo = Buffer.concat([iOSDevicePublicKey, iOSDevicePairingID, AccessoryPublicKey]);
     
     // Use Ed25519 to verify iOSDeviceSignature using iOSDeviceLTPK against iOSDeviceInfo contained in the decrypted sub-TLV

@@ -54,10 +54,10 @@ export function mkStorePath(path: string): void {
 }
 
 export function writeToStore(name: string, data: Buffer): void {
-    writeFileSync(join(env.HOMEKIT_SH_STORE_DIR || '', name), data, { flag: 'w' });
+    writeFileSync(name, data, { flag: 'w' });
 }
 export function readFromStore(name: string): Buffer {
-    return readFileSync(join(env.HOMEKIT_SH_STORE_DIR || '', name));
+    return readFileSync(name);
 }
 
 function getLevel() {

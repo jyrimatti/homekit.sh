@@ -7,7 +7,7 @@ import * as tlv from "./tlv";
 import { readSync } from 'fs';
 import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore, mkStorePath } from './common';
 
-export function pairSetup(setupCode: string, AccessoryPairingID: string, sessionStorePath: string): void {
+export function pairSetup(setupCode: string, AccessoryPairingID: string, storePath: string): void {
     const data = Buffer.alloc(parseInt(env.CONTENT_LENGTH!));
     readSync(0, data, 0, parseInt(env.CONTENT_LENGTH!), null);
 
@@ -17,11 +17,11 @@ export function pairSetup(setupCode: string, AccessoryPairingID: string, session
 
     try {
         if (sequence === PairingStates.M1) {
-            pairSetupM1(setupCode, sessionStorePath);
+            pairSetupM1(setupCode, storePath);
         } else if (sequence === PairingStates.M3) {
-            pairSetupM3(setupCode, tlvData, sessionStorePath);
+            pairSetupM3(setupCode, tlvData, storePath);
         } else if (sequence === PairingStates.M5) {
-            pairSetupM5(setupCode, tlvData, Buffer.from(AccessoryPairingID), sessionStorePath);
+            pairSetupM5(setupCode, tlvData, Buffer.from(AccessoryPairingID), storePath);
         } else {
             log_error("Invalid state/sequence number");
 
@@ -35,7 +35,7 @@ export function pairSetup(setupCode: string, AccessoryPairingID: string, session
 }
 
 
-function pairSetupM1(setupCode: string, sessionStorePath: string): void {
+function pairSetupM1(setupCode: string, storePath: string): void {
     log_debug("M2: SRP Start Response");
 
     /*try {
@@ -52,10 +52,10 @@ function pairSetupM1(setupCode: string, sessionStorePath: string): void {
 
     // Generate 16 bytes of random salt
     const salt = crypto.randomBytes(16);
-    writeToStore(sessionStorePath + "/salt", salt);
+    writeToStore(storePath + "/salt", salt);
 
     SRP.genKey(32).then(serverPrivateKey => {
-        writeToStore(sessionStorePath + "/serverPrivateKey", serverPrivateKey);
+        writeToStore(storePath + "/serverPrivateKey", serverPrivateKey);
     
         const srpServer = new SrpServer(SRP.params.hap,
                                         salt,
@@ -73,14 +73,14 @@ function pairSetupM1(setupCode: string, sessionStorePath: string): void {
     });
 }
 
-function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, sessionStorePath: string): void {
+function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, storePath: string): void {
     log_debug("M4: SRP Verify Response");
 
     const srpServer = new SrpServer(SRP.params.hap,
-                                    readFromStore(sessionStorePath + '/salt'),
+                                    readFromStore(storePath + '/salt'),
                                     Buffer.from("Pair-Setup"),
                                     Buffer.from(setupCode),
-                                    readFromStore(sessionStorePath + '/serverPrivateKey'));
+                                    readFromStore(storePath + '/serverPrivateKey'));
 
     const iOSDeviceSRPPublicKey = tlvData[TLVValues.PUBLIC_KEY];
     const iOSDeviceSRPProof     = tlvData[TLVValues.PROOF];
@@ -88,7 +88,7 @@ function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, session
     // Use the iOS deviceʼs SRP public key to compute the SRP shared secret key
     srpServer.setA(iOSDeviceSRPPublicKey);
 
-    writeToStore(sessionStorePath + "/iOSDeviceSRPPublicKey", iOSDeviceSRPPublicKey);
+    writeToStore(storePath + "/iOSDeviceSRPPublicKey", iOSDeviceSRPPublicKey);
 
     try {
         // Verify the iOS device's SRP proof 
@@ -111,15 +111,15 @@ function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, session
     log_debug("M4: Responded");
 }
 
-function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, sessionStorePath: string): void {
+function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, storePath: string): void {
     log_debug("<M5> Verification");
 
     const srpServer = new SrpServer(SRP.params.hap,
-                                    readFromStore(sessionStorePath + '/salt'),
+                                    readFromStore(storePath + '/salt'),
                                     Buffer.from("Pair-Setup"),
                                     Buffer.from(setupCode),
-                                    readFromStore(sessionStorePath + '/serverPrivateKey'));
-    srpServer.setA(readFromStore(sessionStorePath + '/iOSDeviceSRPPublicKey'));
+                                    readFromStore(storePath + '/serverPrivateKey'));
+    srpServer.setA(readFromStore(storePath + '/iOSDeviceSRPPublicKey'));
 
     const {messageData, authTagData} = extractMessageAndAuthTag(tlvData[TLVValues.ENCRYPTED_DATA]);
 
@@ -171,10 +171,10 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     }
 
     // Persistently save the iOSDevicePairingID and iOSDeviceLTPK as a pairing.
-    mkStorePath('pairings/' + iOSDevicePairingID);
-    writeToStore('pairings/' + iOSDevicePairingID + '/iOSDevicePairingID',   iOSDevicePairingID);
-    writeToStore('pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK',        iOSDeviceLTPK);
-    writeToStore('pairings/' + iOSDevicePairingID + '/iOSDevicePermissions', Buffer.from([1])); // Admin. TODO: implement proper permissions
+    mkStorePath(storePath + '/pairings/' + iOSDevicePairingID);
+    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePairingID',   iOSDevicePairingID);
+    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK',        iOSDeviceLTPK);
+    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePermissions', Buffer.from([1])); // Admin. TODO: implement proper permissions
 
     log_debug('<M6> Response Generation');
 
@@ -185,8 +185,8 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
                                       Buffer.from("Pair-Setup-Accessory-Sign-Info"),
                                       32);
 
-    const AccessoryLTPK = readFromStore('AccessoryLTPK');
-    const AccessoryLTSK = readFromStore('AccessoryLTSK');
+    const AccessoryLTPK = readFromStore(storePath + '/AccessoryLTPK');
+    const AccessoryLTSK = readFromStore(storePath + '/AccessoryLTSK');
     
     // Concatenate AccessoryX with the accessory's PairingIdentifier, AccessoryPairingID, and its long-term public key, AccessoryLTPK
     const AccessoryInfo = Buffer.concat([AccessoryX, AccessoryPairingID, AccessoryLTPK]);
