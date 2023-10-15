@@ -10,13 +10,13 @@ startprocesses="${1:-startprocesses}"
 # nix-env -iE "let pkgs = import <nixpkgs> {}; in jq: (with pkgs; import ./jq-1.7.nix { inherit lib fetchurl stdenv autoreconfHook oniguruma; })"
 # nix-env -iE "let pkgs = import <nixpkgs> {}; in jq: (with pkgs; import ./modbus_cli.nix { inherit python3Packages; })"
 
+export LC_ALL=C # "fix" Nix Perl locale warnings
+
+dash ./initdirs.sh
+
 if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
-    mkdir -p "$HOMEKIT_SH_STORE_DIR/nix-override"
-    ln -fs "$(which dash)" "$HOMEKIT_SH_STORE_DIR/nix-override/nix-shell"
     export PATH="$HOMEKIT_SH_STORE_DIR/nix-override:$PATH"
 fi
-
-export LC_ALL=C # "fix" Nix Perl locale warnings
 
 rm -fR "$HOMEKIT_SH_RUNTIME_DIR/sessions/*"
 mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"

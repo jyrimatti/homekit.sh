@@ -23,13 +23,7 @@ fi
 
 if [ ! -f "$configdir/environment" ]; then
     echo "Creating $configdir/environment for custom configuration (see $scriptdir/config/environment for defaults)..."
-    {
-        echo "# systemd specifiers:"
-        echo "# %S XDG_STATE_HOME"
-        echo "# %C XDG_CACHE_HOME"
-        echo "# %E XDG_CONFIG_HOME"
-        echo "# %t XDG_RUNTIME_DIR" 
-    } > "$configdir/environment"
+    touch "$configdir/environment"
 fi
 
 echo "Creating $servicedir/homekit.sh.service..."
@@ -57,9 +51,7 @@ Restart=always
 StandardOutput=journal
 StandardError=journal
 WorkingDirectory=$scriptdir
-Environment='HOMEKIT_SH_LOGGING=syslog' 'HOMEKIT_SH_ENV_SET=true'
-EnvironmentFile=$scriptdir/config/environment
-EnvironmentFile=$configdir/environment
+Environment='HOMEKIT_SH_LOGGING=syslog'
 
 [Install]
 WantedBy=default.target

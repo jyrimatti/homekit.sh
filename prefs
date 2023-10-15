@@ -1,30 +1,14 @@
 
 if [ -z "${HOMEKIT_SH_ENV_SET:-}" ]; then
-    logger_debug "XDG_STATE_HOME=$XDG_STATE_HOME"
-    logger_debug "XDG_CACHE_HOME=$XDG_CACHE_HOME"
-    logger_debug "XDG_CONFIG_HOME=$XDG_CONFIG_HOME"
-    logger_debug "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR"
-
-    first="$(grep -v '^#' ./config/environment |
-             sed "s#%S#${XDG_STATE_HOME:-$HOME/.local/state}#g" |
-             sed "s#%C#${XDG_CACHE_HOME:-$HOME/.cache}#g" |
-             sed "s#%E#${XDG_CONFIG_HOME:-$HOME/.config}#g" |
-             sed "s#%t#${XDG_RUNTIME_DIR:-$HOMEKIT_SH_CACHE_DIR/tmp}#g" |
-             xargs)"
-    logger_debug "Setting ENV: $first"
-    export $first
+    set -a
+    . ./config/environment
+    set +a
     
     if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/environment" ]; then
-        second="$(grep -v '^#' "${XDG_CONFIG_HOME:-$HOME/.config}/environment" |
-                  sed "s#%S#${XDG_STATE_HOME:-$HOME/.local/state}#g" |
-                  sed "s#%C#${XDG_CACHE_HOME:-$HOME/.cache}#g" |
-                  sed "s#%E#${XDG_CONFIG_HOME:-$HOME/.config}#g" |
-                  sed "s#%t#${XDG_RUNTIME_DIR:-$HOMEKIT_SH_CACHE_DIR/tmp}#g" |
-                  xargs)"
-        logger_debug "Overriding ENV with: $second"
-        export $second
+        set -a
+        . "${XDG_CONFIG_HOME:-$HOME/.config}/environment"
+        set +a
     fi
-    export HOMEKIT_SH_ENV_SET=true
 
-    dash ./initdirs.sh
+    export HOMEKIT_SH_ENV_SET=true
 fi
