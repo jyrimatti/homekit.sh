@@ -9,10 +9,10 @@ while true
 do
     if command -v dns-sd >/dev/null; then
         logger_info "Broadcasting with dns-sd"
-        dns-sd -R homekit.sh _hap._tcp . "$HOMEKIT_SH_PORT" "$(cat "$HOMEKIT_SH_STORE_DIR/dns-txt")" &
+        dns-sd -R homekit.sh _hap._tcp . "$HOMEKIT_SH_PORT" $(cat "$HOMEKIT_SH_STORE_DIR/dns-txt") &
     else
         logger_info "Broadcasting with avahi"
-        avahi-publish -s homekit.sh _hap._tcp "$HOMEKIT_SH_PORT" "$(cat "$HOMEKIT_SH_STORE_DIR/dns-txt")" &
+        avahi-publish -s homekit.sh _hap._tcp "$HOMEKIT_SH_PORT" $(cat "$HOMEKIT_SH_STORE_DIR/dns-txt") &
     fi
     DNSSD_PID=$!
 
@@ -22,6 +22,7 @@ do
     logger_info "dns-txt was modified"
     kill $DNSSD_PID
     if [ "$ret" = "" ]; then
+        logger_info "exiting broadcast.sh..."
         exit 1
     fi
 done
