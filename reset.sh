@@ -13,6 +13,4 @@ rm -fR "$HOMEKIT_SH_CACHE_DIR"
 
 dash ./initdirs.sh
 
-echo "c#=1 id=$HOMEKIT_SH_USERNAME md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0" > "$HOMEKIT_SH_STORE_DIR/dns-txt"
-
 (cd pairing && npm install && npm run createSecrets)

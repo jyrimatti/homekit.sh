@@ -19,7 +19,6 @@ if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
 fi
 
 rm -fR "$HOMEKIT_SH_RUNTIME_DIR/sessions/*"
-mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"
 
 if [ "$startprocesses" = 'startprocesses' ]; then
     logger_info "Starting Homekit.sh with ENV:"
