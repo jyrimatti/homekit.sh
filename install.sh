@@ -41,7 +41,6 @@ Type=simple
 ProtectSystem=strict
 ProtectHome=read-only
 ProtectKernelTunables=true
-MemoryDenyWriteExecute=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
 PrivateTmp=true
