@@ -1,0 +1,7 @@
+
+logger_trace() { return 0; }
+logger_debug() { logger -i -t homekit.sh -p user.info "$1"; }
+logger_info()  { logger -i -t homekit.sh -p user.notice "$1"; }
+logger_warn()  { logger -i -t homekit.sh -p user.warning "$1"; }
+logger_error() { logger -i -t homekit.sh -p user.err "$1"; }
+logger_fatal() { logger -i -t homekit.sh -p user.crit "$1"; }

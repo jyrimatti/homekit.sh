@@ -1,5 +1,5 @@
 #!/usr/bin/env dash
 
-. ./logging_no_exit_trap
+. ./log/logging_no_exit_trap
 
 trap '_homekit_sh_ret=$?; test "$_homekit_sh_ret" != 0 && logger_warn "Command \"$(basename $0)\" $*\" exited with code $_homekit_sh_ret"; ' EXIT

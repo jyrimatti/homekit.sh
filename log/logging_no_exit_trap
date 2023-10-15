@@ -2,10 +2,10 @@
 
 case ${HOMEKIT_SH_LOGGING:-stderr} in
     log4sh)
-        . ./log4sh
+        . ./log/log4sh
         ;;
     syslog)
-        . ./logging.syslog
+        . "./log/syslog.$HOMEKIT_SH_LOGGING_LEVEL"
         ;;
     stderr)
         if [ -z "${logger_trace+x}" ]; then
@@ -20,7 +20,7 @@ case ${HOMEKIT_SH_LOGGING:-stderr} in
             COLOR_LIGHTGREY() { tput setaf 8; }
             logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S.%3N)" "$1" "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
 
-            . "./logging.$HOMEKIT_SH_LOGGING_LEVEL"
+            . "./log/logging.$HOMEKIT_SH_LOGGING_LEVEL"
         fi
         ;;
     *)

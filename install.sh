@@ -36,14 +36,26 @@ echo "Creating $servicedir/homekit.sh.service..."
 cat > "$servicedir/homekit.sh.service" << EOF
 [Unit]
 Description=Homekit.sh
+Wants=avahi-daemon.service
 After=syslog.target network.target avahi-daemon.service
 
 [Service]
-ExecStart=$scriptdir/start.sh
+ExecStartPre=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh prepare'
+ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh'
 Type=simple
+
 ProtectSystem=strict
 ProtectHome=read-only
+ProtectHostname=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
 PrivateTmp=true
+
 Restart=always
 StandardOutput=journal
 StandardError=journal

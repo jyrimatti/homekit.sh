@@ -1,7 +1,7 @@
 #! /usr/bin/env nix-shell
 #! nix-shell --pure -i dash -I channel:nixos-23.05-small -p dash nix coreutils findutils gnugrep parallel
 . ./prefs
-. ./logging
+. ./log/logging
 . ./profiling
 set -eu
 
