@@ -50,7 +50,7 @@ export const enum TLVErrorCode {
 
 
 export function mkStorePath(path: string): void {
-    mkdirSync(join(env.HOMEKIT_SH_STORE_DIR || '', path), { recursive: true });
+    mkdirSync(path, { recursive: true });
 }
 
 export function writeToStore(name: string, data: Buffer): void {
