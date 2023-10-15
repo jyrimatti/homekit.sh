@@ -4,9 +4,9 @@ if [ -z "${HOMEKIT_SH_ENV_SET:-}" ]; then
     . ./config/environment
     set +a
     
-    if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/environment" ]; then
+    if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/homekit.sh/environment" ]; then
         set -a
-        . "${XDG_CONFIG_HOME:-$HOME/.config}/environment"
+        . "${XDG_CONFIG_HOME:-$HOME/.config}/homekit.sh/environment"
         set +a
     fi
 
