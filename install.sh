@@ -73,3 +73,4 @@ echo "Enabling homekit.sh.service..."
 systemctl --user enable homekit.sh.service
 
 echo "Done! Homekit.sh will now start on boot."
+echo "Yuo can start it manually with 'systemctl --user start homekit.sh.service'"

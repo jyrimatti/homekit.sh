@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep REQUEST_METHOD --keep QUERY_STRING --keep REMOTE_ADDR --keep REMOTE_PORT -i dash -I channel:nixos-23.05-small -p dash nix jq yq findutils ncurses
+#! nix-shell -i dash -I channel:nixos-23.05-small -p dash nix jq yq findutils ncurses
 . ./prefs
 . ./log/logging
 . ./profiling

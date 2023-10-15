@@ -1,4 +1,3 @@
-#!/usr/bin/env dash
 
 . ./log/logging_no_exit_trap
 
