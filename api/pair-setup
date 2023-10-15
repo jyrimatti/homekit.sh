@@ -10,6 +10,7 @@ logger_trace 'api/pair-setup'
 
 tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-setup.XXXXXX")"
 
+export NODE_OPTIONS="--max-old-space-size=4096"
 (cd pairing && npm install --silent && SESSION_STORE_PATH="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT" npm run pairSetup --silent > "$tmpfile")
 
 if [ $? -eq 42 ]; then

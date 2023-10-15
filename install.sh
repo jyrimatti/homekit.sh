@@ -49,6 +49,8 @@ PrivateTmp=true
 Restart=always
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=homekit.sh
+SyslogLevel=warning
 WorkingDirectory=$scriptdir
 Environment='HOMEKIT_SH_LOGGING=syslog'
 
