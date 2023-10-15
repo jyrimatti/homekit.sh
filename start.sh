@@ -22,7 +22,7 @@ rm -fR "$HOMEKIT_SH_RUNTIME_DIR/sessions/*"
 mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"
 
 if [ "$startprocesses" = 'startprocesses' ]; then
-    echo "Starting Homekit.sh with ENV:"
-    env
+    logger_info "Starting Homekit.sh with ENV:"
+    logger_info "$(env)"
     parallel -u ::: ./broadcast.sh ./monitor.sh ./poller.sh "./serve.sh $HOMEKIT_SH_PORT"
 fi
