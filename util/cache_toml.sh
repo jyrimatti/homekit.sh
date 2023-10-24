@@ -27,16 +27,19 @@ if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
+    target="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
+    logger_debug "Caching services, characteristics, and accessories to SQLite database: $target"
+
     servicescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
     characteristicscsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
     accessoriescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
 
-    dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > "$servicescsv"
-    dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(",")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.unit, (.value["valid-values"] // [] | join(","))]) | .[] | @csv' ./config/characteristics/*.toml > "$characteristicscsv"
-    find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' -exec echo 'echo "$(dash ./util/aid.sh {}),\"{}\""' \; | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-32}" -s --shell-path dash > "$accessoriescsv"
+    {
+        echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > '$servicescsv'"
+        echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(\",\")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.maxLen, .value.unit, (.value[\"valid-values\"] // [] | join(\",\"))]) | .[] | @csv' ./config/characteristics/*.toml > '$characteristicscsv'"
+        echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-32} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
+    } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-32}" -s --shell-path dash
 
-    target="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
-    logger_debug "Caching services, characteristics, and accessories to SQLite database: $target"
     HOMEKIT_SH_CACHE_TOML_SQLITE="$target"
     export HOMEKIT_SH_CACHE_TOML_SQLITE
 
@@ -47,7 +50,7 @@ create index accessories_file on accessories(file);
 create table services(typeName TEXT, typeCode TEXT);
 create index services_typeName on services(typeName);
 create index services_typeCode on services(typeCode);
-create table characteristics(typeName TEXT, typeCode TEXT, perms TEXT, format TEXT, minValue TEXT, maxValue TEXT, minStep TEXT, unit TEXT, validvalues TEXT);
+create table characteristics(typeName TEXT, typeCode TEXT, perms TEXT, format TEXT, minValue REAL, maxValue REAL, minStep REAL, maxLen INTEGER, unit TEXT, validvalues TEXT);
 create index characteristics_typeName on characteristics(typeName);
 create index characteristics_typeCode on characteristics(typeCode);
 .mode csv
@@ -55,4 +58,6 @@ create index characteristics_typeCode on characteristics(typeCode);
 .import "$characteristicscsv" characteristics
 .import "$accessoriescsv" accessories
 EOF
+
+    logger_debug "Caching to SQLite done"
 fi

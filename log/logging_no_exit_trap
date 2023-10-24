@@ -1,13 +1,13 @@
 
-case ${HOMEKIT_SH_LOGGING:-stderr} in
-    log4sh)
-        . ./log/log4sh
-        ;;
-    syslog)
-        . "./log/syslog.$HOMEKIT_SH_LOGGING_LEVEL"
-        ;;
-    stderr)
-        if [ -z "${logger_trace+x}" ]; then
+if [ -z "${logger_trace+x}" ]; then
+    case ${HOMEKIT_SH_LOGGING:-stderr} in
+        log4sh)
+            . ./log/log4sh
+            ;;
+        syslog)
+            . "./log/syslog.$HOMEKIT_SH_LOGGING_LEVEL"
+            ;;
+        stderr)
             COLOR_RESET()     { tput sgr0; }
             COLOR_RED()       { tput setaf 1; }
             COLOR_GREEN()     { tput setaf 2; }
@@ -20,8 +20,8 @@ case ${HOMEKIT_SH_LOGGING:-stderr} in
             logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S.%3N)" "$1" "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
 
             . "./log/logging.$HOMEKIT_SH_LOGGING_LEVEL"
-        fi
-        ;;
-    *)
-        echo "Invalid value for HOMEKIT_SH_LOGGING: $HOMEKIT_SH_LOGGING. Logging disabled." >&2
-esac
+            ;;
+        *)
+            echo "Invalid value for HOMEKIT_SH_LOGGING: $HOMEKIT_SH_LOGGING. Logging disabled." >&2
+    esac
+fi

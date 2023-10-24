@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash coreutils jq ncurses
+#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash coreutils jq ncurses sqlite3
 . ./prefs
 . ./log/logging
 . ./profiling
@@ -31,10 +31,22 @@ populatevalue() {
     fi
 }
 
+find_characteristic() {
+    if [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
+        logger_debug 'Using SQLite cached characteristics'
+        values="$(jq -c '.characteristics | map_values(. | objects // {value: .})')"
+        typeNames="$(echo "$values" | jq -r 'keys_unsorted | @csv')"
+        sqlite3 "$HOMEKIT_SH_CACHE_TOML_SQLITE" '.mode json' "SELECT typeName, typeCode type, perms, format, minValue, maxValue, minStep, maxLen, unit, validvalues 'valid-values' FROM characteristics WHERE typeName IN ($typeNames)" |
+            jq -c '(map({ (.typeName): (. | del(.typeName) | with_entries(if .value == "" then empty elif .key == "perms" or .key == "valid-values" then (.value |= split(",") ) else . end) ) }) | add) * $values | .[]' --argjson values "$values"
+    else
+        jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh' |
+            xargs dash ./util/characteristic.sh
+    fi
+}
+
 {
     echo "$service" |
-    jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh' |
-    xargs dash ./util/characteristic.sh |
+    find_characteristic |
     characteristic_with_id_and_service |
     populatevalue "$withvalue" "$aid" |
     jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
