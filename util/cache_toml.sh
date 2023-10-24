@@ -50,7 +50,7 @@ create index accessories_file on accessories(file);
 create table services(typeName TEXT, typeCode TEXT);
 create index services_typeName on services(typeName);
 create index services_typeCode on services(typeCode);
-create table characteristics(typeName TEXT, typeCode TEXT, perms TEXT, format TEXT, minValue REAL, maxValue REAL, minStep REAL, maxLen INTEGER, unit TEXT, validvalues TEXT);
+create table characteristics(typeName TEXT, typeCode TEXT, perms TEXT, format TEXT, minValue TEXT, maxValue TEXT, minStep TEXT, maxLen INTEGER, unit TEXT, validvalues TEXT);
 create index characteristics_typeName on characteristics(typeName);
 create index characteristics_typeCode on characteristics(typeCode);
 .mode csv
