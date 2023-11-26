@@ -246,6 +246,7 @@
                 "Brightness":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
                 "Hue":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 360 }] },
                 "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName":   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
                 "Saturation":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
                 "ColorTemperature": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 50, "maximum": 400 }] }
             },
@@ -295,8 +296,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "On":   { "$ref": "#/$defs/booleanlike" },
-                "Name": { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] }
+                "On":             { "$ref": "#/$defs/booleanlike" },
+                "Name":           { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName": { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] }
             },
             "required": [ "On" ]
         },
@@ -486,6 +488,7 @@
             "properties": {
                 "ProgrammableSwitchEvent": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
                 "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName":          { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
                 "ServiceLabelIndex":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 1 }] }
             },
             "required": [ "ProgrammableSwitchEvent" ]
