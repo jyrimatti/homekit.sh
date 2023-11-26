@@ -194,6 +194,7 @@
                 "Manufacturer":     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
                 "Model":            { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
                 "Name":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "ConfiguredName":   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
                 "SerialNumber":     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
                 "FirmwareRevision": { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] },
                 "HardwareRevision": { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] },
