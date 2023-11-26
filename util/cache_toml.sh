@@ -13,7 +13,7 @@ logger_debug 'util/cache_toml.sh'
 if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
     find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' |
-        ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-32}" "content=\"\$(dash ./util/validate_toml.sh {0})\" && echo \"export HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh {0})='\$content' && logger_debug 'Cached {0} to HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh \"{0}\")'\"" > "$tmpfile"
+        ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" "content=\"\$(dash ./util/validate_toml.sh {0})\" && echo \"export HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh {0})='\$content' && logger_debug 'Cached {0} to HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh \"{0}\")'\"" > "$tmpfile"
 
     while IFS=$(echo "\n") read -r line; do
         eval "$line"
@@ -23,7 +23,7 @@ fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
     find config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' |
-        ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-32}" dash -c "test {0} -ot $HOMEKIT_SH_CACHE_DIR/{0} || (mkdir -p \$(dirname $HOMEKIT_SH_CACHE_DIR/{0}) && dash ./util/validate_toml.sh {0} > $HOMEKIT_SH_CACHE_DIR/{0})"
+        ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash -c "test {0} -ot $HOMEKIT_SH_CACHE_DIR/{0} || (mkdir -p \$(dirname $HOMEKIT_SH_CACHE_DIR/{0}) && dash ./util/validate_toml.sh {0} > $HOMEKIT_SH_CACHE_DIR/{0})"
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
@@ -37,8 +37,8 @@ if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
     {
         echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > '$servicescsv'"
         echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(\",\")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.maxLen, .value.unit, (.value[\"valid-values\"] // [] | join(\",\"))]) | .[] | @csv' ./config/characteristics/*.toml > '$characteristicscsv'"
-        echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-32} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
-    } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-32}" -s --shell-path dash
+        echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-$HOMEKIT_SH_PARALLELISM} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
+    } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" -s --shell-path dash
 
     HOMEKIT_SH_CACHE_TOML_SQLITE="$target"
     export HOMEKIT_SH_CACHE_TOML_SQLITE

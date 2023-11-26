@@ -21,14 +21,14 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
 
     characteristics="$(echo "${qs_id}" |
                        tr ',' '\n' |
-                       "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-32}" dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
+                       "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
 fi
 
 if [ "$REQUEST_METHOD" = 'PUT' ]; then
     logger_debug 'Request is a PUT'
     characteristics="$(cat |\
                        jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' |\
-                       "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-32}" dash ./util/characteristics_put.sh)"
+                       "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash ./util/characteristics_put.sh)"
 fi
 
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"
