@@ -405,6 +405,7 @@
             "properties": {
                 "CurrentRelativeHumidity": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
                 "Name":                    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName":          { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
                 "StatusActive":            { "$ref": "#/$defs/booleanlike" },
                 "StatusFault":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
                 "StatusTampered":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
@@ -558,6 +559,7 @@
             "properties": {
                 "CarbonDioxideDetected":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
                 "Name":                   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName":         { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
                 "StatusActive":           { "$ref": "#/$defs/booleanlike" },
                 "StatusFault":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
                 "StatusTampered":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
@@ -622,6 +624,7 @@
             "properties": {
                 "Active":               { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
                 "Name":                 { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName":       { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
                 "CurrentFanState":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
                 "TargetFanState":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
                 "RotationDirection":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
