@@ -64,6 +64,9 @@ systemctl --user daemon-reload
 echo "Enabling homekit.sh.service..."
 systemctl --user enable homekit.sh.service
 
+echo "Enabling user process lingering for $USER..."
+loginctl enable-linger "$USER"
+
 echo "Done! Homekit.sh will now start on boot."
 echo "You can start it manually with 'systemctl --user start homekit.sh.service'"
 echo "Follow logs with 'journalctl -f -t homekit.sh'"
