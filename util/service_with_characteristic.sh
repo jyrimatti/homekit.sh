@@ -17,8 +17,8 @@ if [ "${HOMEKIT_SH_CACHE_SERVICES:-false}" = "true" ] && [ -e "$HOMEKIT_SH_CACHE
     cat "$HOMEKIT_SH_CACHE_DIR/services/$aid.$iid.json"
     logger_debug "Characteristic $aid.$iid retrived from cache"
 else
-    service_with_characteristic="$(dash ./util/services_grouped_by_type.sh "$(dash ./util/accessory.sh "$aid")" |\
-                                   "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash -c "dash ./util/generate_service.sh 0 $aid '{0}' | jq -c '.characteristics |= map(select(.iid == $iid)) | select(.characteristics | any)'")"
+    service_with_characteristic="$(dash ./util/services_grouped_by_type.sh "$(dash ./util/accessory.sh "$aid")"\
+                                    | "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash -c "dash ./util/generate_service.sh 0 $aid '{0}' | jq -c '.characteristics |= map(select(.iid == $iid)) | select(.characteristics | any)'")"
     if [ -n "${service_with_characteristic:+x}" ]; then
         logger_debug "Found characteristic $aid.$iid"
         echo "$service_with_characteristic";

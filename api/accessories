@@ -16,9 +16,10 @@ fi
 
 . ./util/cache_toml.sh
 
-accessories="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' |
-               "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" -s --shell-path dash "lambda() { aid=\$(dash ./util/aid.sh \$1); dash ./util/services_grouped_by_type.sh \$1 | ./bin/rust-parallel-$(uname) -r '.*' --jobs ${PROFILING:-$HOMEKIT_SH_PARALLELISM} dash ./util/generate_service.sh 1 \$aid {0} | jq -cs \"{ aid: \$aid, services: map({type, iid, characteristics}) }\"; }; lambda" |
-               jq -cs '{accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName))))}')"
+tomls="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
+accessories="$(echo "$tomls"\
+                | "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" -s --shell-path dash "lambda() { aid=\$(dash ./util/aid.sh \$1); dash ./util/services_grouped_by_type.sh \$1 | ./bin/rust-parallel-$(uname) -r '.*' --jobs ${PROFILING:-$HOMEKIT_SH_PARALLELISM} dash ./util/generate_service.sh 1 \$aid {0} | jq -cs \"{ aid: \$aid, services: map({type, iid, characteristics}) }\"; }; lambda"\
+                | jq -cs '{accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName))))}')"
 
 if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ]; then
     test -e "$HOMEKIT_SH_CACHE_DIR" || mkdir -p "$HOMEKIT_SH_CACHE_DIR"

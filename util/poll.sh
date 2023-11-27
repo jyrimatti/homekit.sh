@@ -26,8 +26,12 @@ if test -f "$subscription_path"; then
     polling="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].polling // .polling // empty')"
 
     toString() {
-        servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-        characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
+        servicename="$(echo "$service_with_characteristic"\
+                        | jq -r '.type'\
+                        | xargs dash ./util/type_to_string.sh)"
+        characteristicname="$(echo "$service_with_characteristic"\
+                               | jq -r '.characteristics[0].type'\
+                               | xargs dash ./util/type_to_string.sh)"
         echo "$aid.$iid ($servicename.$characteristicname)"
     }
 

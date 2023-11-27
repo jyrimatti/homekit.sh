@@ -36,20 +36,20 @@ find_characteristic() {
         logger_debug 'Using SQLite cached characteristics'
         values="$(jq -c '.characteristics | map_values(. | objects // {value: .})')"
         typeNames="$(echo "$values" | jq -r 'keys_unsorted | @csv')"
-        sqlite3 "$HOMEKIT_SH_CACHE_TOML_SQLITE" '.mode json' "SELECT typeName, typeCode type, perms, format, minValue, maxValue, minStep, maxLen, unit, validvalues 'valid-values' FROM characteristics WHERE typeName IN ($typeNames)" |
-            jq -c '(map({ (.typeName): (. | del(.typeName) | with_entries(if .value == "" then empty elif .key == "minValue" or .key == "maxValue" or .key == "minStep" then (.value |= tonumber) elif .key == "perms" or .key == "valid-values" then (.value |= split(",") ) else . end) ) }) | add) * $values | .[]' --argjson values "$values"
+        sqlite3 "$HOMEKIT_SH_CACHE_TOML_SQLITE" '.mode json' "SELECT typeName, typeCode type, perms, format, minValue, maxValue, minStep, maxLen, unit, validvalues 'valid-values' FROM characteristics WHERE typeName IN ($typeNames)"\
+         | jq -c '(map({ (.typeName): (. | del(.typeName) | with_entries(if .value == "" then empty elif .key == "minValue" or .key == "maxValue" or .key == "minStep" then (.value |= tonumber) elif .key == "perms" or .key == "valid-values" then (.value |= split(",") ) else . end) ) }) | add) * $values | .[]' --argjson values "$values"
     else
-        jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh' |
-            xargs dash ./util/characteristic.sh
+        jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh'\
+         | xargs dash ./util/characteristic.sh
     fi
 }
 
 {
-    echo "$service" |
-    find_characteristic |
-    characteristic_with_id_and_service |
-    populatevalue "$withvalue" "$aid" |
-    jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
+    echo "$service"\
+     | find_characteristic\
+     | characteristic_with_id_and_service\
+     | populatevalue "$withvalue" "$aid"\
+     | jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
 } || {
     logger_error 'Could not generate characteristics: check config/characteristic/*.toml'
     exit 1
