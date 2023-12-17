@@ -1,7 +1,7 @@
 import { env } from "process";
+import { spawnSync } from "child_process";
 import crypto from "crypto";
 import { SRP, SrpServer } from "fast-srp-hap";
-import tweetnacl from "tweetnacl";
 import * as hapCrypto from "./hapCrypto";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
@@ -161,9 +161,19 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     // Construct iOSDeviceInfo by concatenating iOSDeviceX with the iOSdevice's Pairing Identifier, iOSDevicePairingID, from the decrypted sub-TLV and the iOS deviceʼs long-term public key, iOSDeviceLTPK from the decrypted sub-TLV
     const iOSDeviceInfo = Buffer.concat([iOSDeviceX, iOSDevicePairingID, iOSDeviceLTPK]);
 
+    mkStorePath(storePath + '/pairings/' + iOSDevicePairingID);
+
     // Use Ed25519 to verify the signature of the constructed iOSDeviceInfo with thei OSDeviceLTPK from the decrypted sub-TLV
-    if (!tweetnacl.sign.detached.verify(iOSDeviceInfo, iOSDeviceSignature, iOSDeviceLTPK)) {
-        log_error("Invalid iOSDeviceSignature");
+    let file1 = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceLTPK';
+    let file2 = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceInfo';
+    let file3 = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceSignature';
+    writeToStore(file1, iOSDeviceLTPK);
+    writeToStore(file2, iOSDeviceInfo);
+    writeToStore(file3, iOSDeviceSignature);
+
+    let verify = spawnSync("./verify.sh", [file1, file2, file3]);
+    if (verify.status != 0) {
+        log_error("Invalid iOSDeviceSignature: " + verify.stderr.toString());
         // If signature verification fails, the accessory must respond with the following TLV items:
         respondTLV(400, tlv.encode(TLVValues.STATE, PairingStates.M6,
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
@@ -171,7 +181,6 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     }
 
     // Persistently save the iOSDevicePairingID and iOSDeviceLTPK as a pairing.
-    mkStorePath(storePath + '/pairings/' + iOSDevicePairingID);
     writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePairingID',   iOSDevicePairingID);
     writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK',        iOSDeviceLTPK);
     writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePermissions', Buffer.from([1])); // Admin. TODO: implement proper permissions
@@ -192,7 +201,15 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     const AccessoryInfo = Buffer.concat([AccessoryX, AccessoryPairingID, AccessoryLTPK]);
 
     // Use Ed25519 to generate AccessorySignature by signing AccessoryInfo with its long-term secret key, AccessoryLTSK.
-    const AccessorySignature = tweetnacl.sign.detached(AccessoryInfo, AccessoryLTSK);
+    let msgFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-AccessoryInfo';
+    let signatureFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-AccessorySignature';
+    writeToStore(msgFile, AccessoryInfo);
+
+    let sign = spawnSync("./sign.sh", [storePath + '/AccessoryLTSK', msgFile, signatureFile]);
+    if (sign.status != 0) {
+        throw new Error("Signing failed: " + sign.stderr.toString());
+    }
+    const AccessorySignature = readFromStore(signatureFile);
     
     // Construct the sub-TLV with the following TLV items:
     const subTLV = tlv.encode(TLVValues.IDENTIFIER, AccessoryPairingID,
