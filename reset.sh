@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i dash -I channel:nixos-23.11-small -p dash nodejs nix jq which
+#! nix-shell --pure -i dash -I channel:nixos-23.11-small -p dash nodejs nix jq which "pkgs.callPackage ./wolfclu.nix {}"
 . ./prefs
 . ./log/logging
 . ./profiling
@@ -13,4 +13,6 @@ rm -fR "$HOMEKIT_SH_CACHE_DIR"
 
 dash ./initdirs.sh
 
-(cd pairing && npm install && npm run createSecrets)
+wolfssl -genkey ed25519 -out "$HOMEKIT_SH_STORE_DIR/foo"
+mv "$HOMEKIT_SH_STORE_DIR/foo.pub" "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK"
+mv "$HOMEKIT_SH_STORE_DIR/foo.priv" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"

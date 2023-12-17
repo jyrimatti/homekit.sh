@@ -6,7 +6,6 @@
     "scripts": {
         "clean": "rm -R dist",
         "build": "tsc",
-        "createSecrets": "ts-node -e \"import {createSecrets} from './createSecrets'; createSecrets('$HOMEKIT_SH_STORE_DIR')\"",
         "pairSetup": "ts-node -e \"import {pairSetup} from './pairSetup'; pairSetup('$HOMEKIT_SH_PINCODE', '$HOMEKIT_SH_USERNAME', '$HOMEKIT_SH_STORE_DIR')\"",
         "pairVerify": "ts-node -e \"import {pairVerify} from './pairVerify'; pairVerify('$HOMEKIT_SH_USERNAME', '$HOMEKIT_SH_STORE_DIR', '$SESSION_STORE_PATH')\""
     },
