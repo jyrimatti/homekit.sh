@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i python -I channel:nixos-23.05-small -p python3Packages.tlv8
+#! nix-shell -i python -I channel:nixos-23.11-small -p python3Packages.tlv8
 
 import sys
 import os

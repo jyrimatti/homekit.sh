@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p nix dash findutils ncurses
+#! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash findutils ncurses
 . ./prefs
 . ./log/logging
 . ./profiling

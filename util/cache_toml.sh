@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.05-small -p dash coreutils ncurses yq yajsv sqlite
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash coreutils ncurses yq yajsv sqlite
 . ./prefs
 . ./log/logging
 . ./profiling
