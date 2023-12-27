@@ -1,6 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix "pkgs.callPackage ../wolfclu.nix {}"
-set -eux
+set -eu
 
 inkey="$1"
 in="$2"

@@ -137,6 +137,20 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
         // Verify the iOSdevice's auth Tag, which is appended to the encrypted Data and contained within the kTLVType_EncryptedData TLV item, from encryptedData.
         // Decrypt the sub-TLV in encryptedData.
         plaintext = hapCrypto.chacha20_poly1305_decryptAndVerify(sessionKey, Buffer.from("PS-Msg05"), null, messageData, authTagData);
+        let file1 = storePath + '/temp-messageData';
+        let file2 = storePath + '/temp-plaintext';
+        let file3 = storePath + '/temp-sessionKey';
+        writeToStore(file1, messageData);
+        writeToStore(file3, sessionKey);
+        let decrypt = spawnSync("./decryptAndVerify.sh", [file1, file2, file3, "PS-Msg05"]);
+        if (decrypt.status != 0) {
+            log_error("Error while decrypting and verifying M5 subTlv: " + decrypt.stderr.toString());
+            // If verification/decryption fails, the accessory must respond with the following TLV items:
+            respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4,
+                                       TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
+            return;
+        }
+        plaintext = readFromStore(file2);
     } catch (error) {
         log_error("Error while decrypting and verifying M5 subTlv");
         // If verification/decryption fails, the accessory must respond with the following TLV items:
