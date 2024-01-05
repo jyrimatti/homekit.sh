@@ -4,6 +4,7 @@
 import sys
 import os
 import tlv8
+import binascii
 
 structure = {
     0: tlv8.DataType.INTEGER,
@@ -24,4 +25,5 @@ structure = {
     255: tlv8.DataType.AUTODETECT
 }
 
-print(tlv8.decode(sys.stdin.buffer.read(int(os.environ.get('CONTENT_LENGTH', '0'))), structure))
+inhex=sys.stdin.read(int(os.environ.get('CONTENT_LENGTH', '-1')))
+print(tlv8.decode(bytes.fromhex(inhex), structure))

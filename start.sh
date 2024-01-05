@@ -7,8 +7,6 @@ set -eu
 
 startprocesses="${1:-startprocesses}"
 
-# nix-env -iE "let pkgs = import <nixpkgs> {}; in jq: (with pkgs; import ./modbus_cli.nix { inherit python3Packages; })"
-
 export LC_ALL=C # "fix" Nix Perl locale warnings
 
 dash ./initdirs.sh

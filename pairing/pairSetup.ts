@@ -29,7 +29,7 @@ export function pairSetup(setupCode: string, AccessoryPairingID: string, storePa
                                     TLVValues.ERROR, TLVErrorCode.UNKNOWN));
         }
     } catch (error) {
-        log_error("WTF? " + error);
+        log_error("WTF? " + error + error.stack);
         process.exit(1);
     }
 }
@@ -136,13 +136,8 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     try {
         // Verify the iOSdevice's auth Tag, which is appended to the encrypted Data and contained within the kTLVType_EncryptedData TLV item, from encryptedData.
         // Decrypt the sub-TLV in encryptedData.
-        plaintext = hapCrypto.chacha20_poly1305_decryptAndVerify(sessionKey, Buffer.from("PS-Msg05"), null, messageData, authTagData);
-        let file1 = storePath + '/temp-messageData';
-        let file2 = storePath + '/temp-plaintext';
-        let file3 = storePath + '/temp-sessionKey';
-        writeToStore(file1, messageData);
-        writeToStore(file3, sessionKey);
-        let decrypt = spawnSync("./decryptAndVerify.sh", [file1, file2, file3, "PS-Msg05"]);
+        //plaintext = hapCrypto.chacha20_poly1305_decryptAndVerify(sessionKey, Buffer.from("PS-Msg05"), null, messageData, authTagData);
+        let decrypt = spawnSync("./decrypt_and_verify.sh", ["PS-Msg05", sessionKey.toString('hex'), authTagData.toString('hex')], {input: messageData});
         if (decrypt.status != 0) {
             log_error("Error while decrypting and verifying M5 subTlv: " + decrypt.stderr.toString());
             // If verification/decryption fails, the accessory must respond with the following TLV items:
@@ -150,7 +145,7 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
                                        TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
             return;
         }
-        plaintext = readFromStore(file2);
+        plaintext = Buffer.from(decrypt.stdout.toString(), 'hex');
     } catch (error) {
         log_error("Error while decrypting and verifying M5 subTlv");
         // If verification/decryption fails, the accessory must respond with the following TLV items:
@@ -177,15 +172,16 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
 
     mkStorePath(storePath + '/pairings/' + iOSDevicePairingID);
 
-    // Use Ed25519 to verify the signature of the constructed iOSDeviceInfo with thei OSDeviceLTPK from the decrypted sub-TLV
-    let file1 = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceLTPK';
-    let file2 = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceInfo';
-    let file3 = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceSignature';
-    writeToStore(file1, iOSDeviceLTPK);
-    writeToStore(file2, iOSDeviceInfo);
-    writeToStore(file3, iOSDeviceSignature);
+    // Persistently save the iOSDevicePairingID and iOSDeviceLTPK as a pairing.
+    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePairingID',   iOSDevicePairingID);
+    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK',        iOSDeviceLTPK);
+    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePermissions', Buffer.from([1])); // Admin. TODO: implement proper permissions
 
-    let verify = spawnSync("./verify.sh", [file1, file2, file3]);
+    // Use Ed25519 to verify the signature of the constructed iOSDeviceInfo with thei OSDeviceLTPK from the decrypted sub-TLV
+    let iOSDeviceSignatureFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceSignature';
+    writeToStore(iOSDeviceSignatureFile, iOSDeviceSignature);
+
+    let verify = spawnSync("./verify.sh", [storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK', iOSDeviceSignatureFile], {input: iOSDeviceInfo});
     if (verify.status != 0) {
         log_error("Invalid iOSDeviceSignature: " + verify.stderr.toString());
         // If signature verification fails, the accessory must respond with the following TLV items:
@@ -193,11 +189,6 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
         return;
     }
-
-    // Persistently save the iOSDevicePairingID and iOSDeviceLTPK as a pairing.
-    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePairingID',   iOSDevicePairingID);
-    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK',        iOSDeviceLTPK);
-    writeToStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDevicePermissions', Buffer.from([1])); // Admin. TODO: implement proper permissions
 
     log_debug('<M6> Response Generation');
 
@@ -209,21 +200,16 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
                                       32);
 
     const AccessoryLTPK = readFromStore(storePath + '/AccessoryLTPK');
-    const AccessoryLTSK = readFromStore(storePath + '/AccessoryLTSK');
     
     // Concatenate AccessoryX with the accessory's PairingIdentifier, AccessoryPairingID, and its long-term public key, AccessoryLTPK
     const AccessoryInfo = Buffer.concat([AccessoryX, AccessoryPairingID, AccessoryLTPK]);
 
     // Use Ed25519 to generate AccessorySignature by signing AccessoryInfo with its long-term secret key, AccessoryLTSK.
-    let msgFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-AccessoryInfo';
-    let signatureFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-AccessorySignature';
-    writeToStore(msgFile, AccessoryInfo);
-
-    let sign = spawnSync("./sign.sh", [storePath + '/AccessoryLTSK', msgFile, signatureFile]);
+    let sign = spawnSync("./sign.sh", [storePath + '/AccessoryLTSK'], {input: AccessoryInfo});
     if (sign.status != 0) {
         throw new Error("Signing failed: " + sign.stderr.toString());
     }
-    const AccessorySignature = readFromStore(signatureFile);
+    const AccessorySignature = Buffer.from(sign.stdout.toString(), 'hex');;
     
     // Construct the sub-TLV with the following TLV items:
     const subTLV = tlv.encode(TLVValues.IDENTIFIER, AccessoryPairingID,
@@ -231,11 +217,16 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
                               TLVValues.SIGNATURE, AccessorySignature);
 
     // Encrypt the sub-TLV, encryptedData, and generate the 16 byte authtag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
-    const {ciphertext,authTag} = hapCrypto.chacha20_poly1305_encryptAndSeal(sessionKey, Buffer.from("PS-Msg06"), null, subTLV);
+    //const {ciphertext,authTag} = hapCrypto.chacha20_poly1305_encryptAndSeal(sessionKey, Buffer.from("PS-Msg06"), null, subTLV);
+    let encrypt = spawnSync("./encrypt_and_digest.sh", ["PS-Msg06", sessionKey.toString('hex')], {input: subTLV});
+    if (encrypt.status != 0) {
+        throw new Error("Encrypting M5 response failed: " + encrypt.stderr.toString());
+    }
+    let encrypted = Buffer.from(encrypt.stdout.toString(), 'hex');
 
     // Send the response to the iOS device with the following TLV items:
     respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M6,
-                               TLVValues.ENCRYPTED_DATA, Buffer.concat([ciphertext, authTag])));
+                               TLVValues.ENCRYPTED_DATA, encrypted));
 
     log_info("Pair-setup done!")
     process.exit(42);

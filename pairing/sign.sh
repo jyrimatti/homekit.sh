@@ -1,9 +1,10 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix "pkgs.callPackage ../wolfclu.nix {}"
-set -eux
+set -eu
 
-inkey="$1"
-in="$2"
-out="$3"
+inkey="$1" # filename for key
 
-wolfssl -ed25519 -sign -inkey "$inkey" -in "$in" -out "$out"
+# reads input data from stdin
+# writes signature to stdout, encoded as hex
+
+wolfssl -ed25519 -sign -inkey "$inkey" -in "-" | od -A n -v -t x1 | tr -d ' \n'

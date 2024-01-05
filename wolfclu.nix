@@ -6,13 +6,13 @@
 
 stdenv.mkDerivation rec {
   pname = "wolfCLU";
-  version = "0.1.4";
+  version = "0.1.5";
 
   src = fetchFromGitHub {
     owner = "wolfSSL";
     repo = "wolfCLU";
     rev = "refs/tags/v${version}-stable";
-    hash = "sha256-t4mThJYbwCsQ8d1N6EooFZu3Jo9WnGamAZPxm2v+UDE=";
+    hash = "sha256-MD3g99tbcviYbXBAzEaW8H2oBMdFDg8N094aR0NAm3U=";
   };
 
   wolfSSLWithCLU = wolfssl.overrideAttrs (finalAttrs: previousAttrs: {
