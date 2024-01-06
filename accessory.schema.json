@@ -501,6 +501,7 @@
             "properties": {
                 "CurrentTemperature": { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 100 }] },
                 "Name":               { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "ConfiguredName":     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
                 "StatusActive":       { "$ref": "#/$defs/booleanlike" },
                 "StatusFault":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
                 "StatusLowBattery":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
