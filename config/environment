@@ -29,7 +29,7 @@ HOMEKIT_SH_CACHE_TOML_SQLITE="${HOMEKIT_SH_CACHE_TOML_SQLITE:-true}"
 # logging config
 
 # one of: stderr/syslog/log4sh
-# logs by default to syslog fi used as systemd service, or to stderr otherwise
+# logs by default to syslog if used as systemd service, or to stderr otherwise
 #HOMEKIT_SH_LOGGING=stderr
 
 # logging level for stderr/log4sh loggin. One of: TRACE | DEBUG | INFO | WARN | ERROR | FATAL
@@ -55,7 +55,7 @@ HOMEKIT_SH_PORT="${HOMEKIT_SH_PORT:-12346}"
 
 # Unique identifier for the bridge.
 # Change this if you want the bridge to be seen as a different bridge by HomeKit.
-HOMEKIT_SH_USERNAME="${HOMEKIT_SH_USERNAME:-CD:22:3D:E3:CF:20}"
+HOMEKIT_SH_USERNAME="${HOMEKIT_SH_USERNAME:-CD:22:3D:E3:CF:2B}"
 
 # Parallelism used for rust-parallel
 HOMEKIT_SH_PARALLELISM="${HOMEKIT_SH_PARALLELISM:-$(nproc)}"

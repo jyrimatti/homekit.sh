@@ -3,7 +3,6 @@ import { spawnSync } from "child_process";
 import crypto from "crypto";
 import { SRP, SrpServer } from "fast-srp-hap";
 import * as hapCrypto from "./hapCrypto";
-import tweetnacl from "tweetnacl";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
 import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore, mkStorePath } from './common';

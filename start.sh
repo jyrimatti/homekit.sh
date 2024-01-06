@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix which fswatch nodejs yajsv parallel findutils coreutils gnused avahi python39 python3Packages.pycryptodome yq htmlq bc jq websocat flock getoptions ncurses curl sqlite "pkgs.callPackage ./modbus_cli.nix {}" "pkgs.callPackage ./wolfclu.nix {}"
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix which fswatch nodejs yajsv parallel findutils coreutils gnused avahi python3Packages.pycryptodome python3Packages.pynacl yq htmlq bc jq websocat flock getoptions ncurses curl sqlite "pkgs.callPackage ./modbus_cli.nix {}" "pkgs.callPackage ./wolfclu.nix {}"
 . ./prefs
 . ./log/logging
 . ./profiling
