@@ -3,6 +3,7 @@ import { spawnSync } from "child_process";
 import crypto from "crypto";
 import { SRP, SrpServer } from "fast-srp-hap";
 import * as hapCrypto from "./hapCrypto";
+import tweetnacl from "tweetnacl";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
 import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore, mkStorePath } from './common';
@@ -205,11 +206,13 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
     const AccessoryInfo = Buffer.concat([AccessoryX, AccessoryPairingID, AccessoryLTPK]);
 
     // Use Ed25519 to generate AccessorySignature by signing AccessoryInfo with its long-term secret key, AccessoryLTSK.
+    //const AccessorySignatureOrig = tweetnacl.sign.detached(AccessoryInfo, readFromStore(storePath + '/AccessoryLTSK'));
     let sign = spawnSync("./sign.sh", [storePath + '/AccessoryLTSK'], {input: AccessoryInfo});
     if (sign.status != 0) {
         throw new Error("Signing failed: " + sign.stderr.toString());
     }
-    const AccessorySignature = Buffer.from(sign.stdout.toString(), 'hex');;
+    let output = sign.stdout.toString();
+    const AccessorySignature = Uint8Array.from(Buffer.from(output, 'hex'));
     
     // Construct the sub-TLV with the following TLV items:
     const subTLV = tlv.encode(TLVValues.IDENTIFIER, AccessoryPairingID,
@@ -218,6 +221,7 @@ function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, Accesso
 
     // Encrypt the sub-TLV, encryptedData, and generate the 16 byte authtag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
     //const {ciphertext,authTag} = hapCrypto.chacha20_poly1305_encryptAndSeal(sessionKey, Buffer.from("PS-Msg06"), null, subTLV);
+    //const encrypted = Buffer.concat([ciphertext, authTag]);
     let encrypt = spawnSync("./encrypt_and_digest.sh", ["PS-Msg06", sessionKey.toString('hex')], {input: subTLV});
     if (encrypt.status != 0) {
         throw new Error("Encrypting M5 response failed: " + encrypt.stderr.toString());

@@ -13,6 +13,4 @@ rm -fR "$HOMEKIT_SH_CACHE_DIR"
 
 dash ./initdirs.sh
 
-wolfssl -genkey ed25519 -out "$HOMEKIT_SH_STORE_DIR/foo"
-mv "$HOMEKIT_SH_STORE_DIR/foo.pub" "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK"
-mv "$HOMEKIT_SH_STORE_DIR/foo.priv" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"
+./pairing/generate_keypair.sh "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"
