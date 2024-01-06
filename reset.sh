@@ -13,4 +13,4 @@ rm -fR "$HOMEKIT_SH_CACHE_DIR"
 
 dash ./initdirs.sh
 
-./pairing/generate_keypair.sh "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"
+./pairing/generate_sign_keypair.sh "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"

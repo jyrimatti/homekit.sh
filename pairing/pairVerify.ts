@@ -34,7 +34,7 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     //const AccessorySecretKeyOrig = Buffer.from(keyPair.secretKey);
     //const AccessoryPublicKeyOrig = Buffer.from(keyPair.publicKey);
 
-    let keypair = spawnSync("./generate_keypair.sh", [sessionStorePath + '/accessoryPublicKey', '-']);
+    let keypair = spawnSync("./generate_encode_keypair.sh", [sessionStorePath + '/accessoryPublicKey', '-']);
     if (keypair.status != 0) {
         throw new Error("Keypair generation failed: " + keypair.stderr.toString());
     }
