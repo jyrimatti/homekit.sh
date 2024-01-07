@@ -1,6 +1,5 @@
 import { env } from "process";
 import { spawnSync } from "child_process";
-import * as hapCrypto from "./hapCrypto";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
 import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore } from './common';
@@ -54,7 +53,13 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     //log_debug("M2: Got public key     : " + AccessoryPublicKey.toString('hex'));
     //log_debug("M2: Got public key orig: " + AccessoryPublicKeyOrig.toString('hex'));
 
-    const sharedSecret = Buffer.from(hapCrypto.generateCurve25519SharedSecKey(AccessorySecretKey, iOSDevicePublicKey));
+    //const sharedSecret = Buffer.from(hapCrypto.generateCurve25519SharedSecKey(AccessorySecretKey, iOSDevicePublicKey));
+    let ss = spawnSync("./generate_curve25519_shared_sec_key.sh", [AccessorySecretKey.toString('hex'), iOSDevicePublicKey.toString('hex')]);
+    if (ss.status != 0) {
+        throw new Error("Keypair generation failed: " + ss.stderr.toString());
+    }
+    const sharedSecret = Buffer.from(ss.stdout.toString().trim(), 'hex');
+    log_debug("M2: Got sharedSecret: " + sharedSecret.toString('hex'));
 
     // Construct AccessoryInfo by concatenating the following items in order:
     const AccessoryInfo = Buffer.concat([AccessoryPublicKey, AccessoryPairingID, iOSDevicePublicKey]);
@@ -72,7 +77,12 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
                               TLVValues.SIGNATURE, AccessorySignature);
 
     // Derive the symmetric session encryption key, SessionKey, from the Curve25519 shared secret by using HKDF-SHA-512 
-    const SessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Verify-Encrypt-Salt"), sharedSecret, Buffer.from("Pair-Verify-Encrypt-Info"), 32).slice(0, 32);
+    //const SessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Verify-Encrypt-Salt"), sharedSecret, Buffer.from("Pair-Verify-Encrypt-Info"), 32).slice(0, 32);
+    let hkdf = spawnSync("./hkdf.sh", ["Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"], {input: sharedSecret.toString('hex')});
+    if (hkdf.status != 0) {
+        throw new Error("HKDF failed: " + hkdf.stderr.toString());
+    }
+    const SessionKey = Buffer.from(hkdf.stdout.toString(), 'hex');
 
     // Encrypt the sub-TLV, encryptedData, and generate the 16-byte auth tag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
     //const {ciphertext, authTag} = hapCrypto.chacha20_poly1305_encryptAndSeal(SessionKey, Buffer.from("PV-Msg02"), null, subTLV);
@@ -105,11 +115,12 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
     const sharedSecret       = readFromStore(sessionStorePath + '/sharedSecret');
 
     // Derive the symmetric session encryption key, SessionKey, from the Curve25519 shared secret by using HKDF-SHA-512 
-    const SessionKey = hapCrypto.HKDF("sha512",
-                                      Buffer.from("Pair-Verify-Encrypt-Salt"),
-                                      sharedSecret,
-                                      Buffer.from("Pair-Verify-Encrypt-Info"),
-                                      32).slice(0, 32);
+    //const SessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Verify-Encrypt-Salt"), sharedSecret, Buffer.from("Pair-Verify-Encrypt-Info"), 32).slice(0, 32);
+    let hkdf = spawnSync("./hkdf.sh", ["Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"], {input: sharedSecret.toString('hex')});
+    if (hkdf.status != 0) {
+        throw new Error("HKDF failed: " + hkdf.stderr.toString());
+    }
+    const SessionKey = Buffer.from(hkdf.stdout.toString(), 'hex');
 
     let subTLV;
     try {
@@ -164,8 +175,21 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
         return;
     }
     
-    writeToStore(sessionStorePath + '/AccessoryToControllerKey', hapCrypto.HKDF("sha512", Buffer.from("Control-Salt"), sharedSecret, Buffer.from("Control-Read-Encryption-Key"), 32));
-    writeToStore(sessionStorePath + '/ControllerToAccessoryKey', hapCrypto.HKDF("sha512", Buffer.from("Control-Salt"), sharedSecret, Buffer.from("Control-Write-Encryption-Key"), 32));
+    //const AccessoryToControllerKey = hapCrypto.HKDF("sha512", Buffer.from("Control-Salt"), sharedSecret, Buffer.from("Control-Read-Encryption-Key"), 32);
+    let hkdf1 = spawnSync("./hkdf.sh", ["Control-Salt", "Control-Read-Encryption-Key"], {input: sharedSecret.toString('hex')});
+    if (hkdf1.status != 0) {
+        throw new Error("HKDF failed: " + hkdf1.stderr.toString());
+    }
+    const AccessoryToControllerKey = Buffer.from(hkdf1.stdout.toString(), 'hex');
+    writeToStore(sessionStorePath + '/AccessoryToControllerKey', AccessoryToControllerKey);
+
+    //const ControllerToAccessoryKey = hapCrypto.HKDF("sha512", Buffer.from("Control-Salt"), sharedSecret, Buffer.from("Control-Write-Encryption-Key"), 32)
+    let hkdf2 = spawnSync("./hkdf.sh", ["Control-Salt", "Control-Write-Encryption-Key"], {input: sharedSecret.toString('hex')});
+    if (hkdf2.status != 0) {
+        throw new Error("HKDF failed: " + hkdf2.stderr.toString());
+    }
+    const ControllerToAccessoryKey = Buffer.from(hkdf2.stdout.toString(), 'hex');
+    writeToStore(sessionStorePath + '/ControllerToAccessoryKey', ControllerToAccessoryKey);
 
     // Send the response to the iOS device with the following TLV items:
     respondTLV(200, tlv.encode(TLVValues.STATE, PairingStates.M4));
