@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 from nacl.bindings.crypto_scalarmult import crypto_scalarmult
 import sys
@@ -9,4 +9,4 @@ key2=bytes.fromhex(sys.argv[2])
 
 sharedSecret = crypto_scalarmult(key1, key2)
 
-print(sharedSecret.hex())
+print(sharedSecret.hex(), end="")

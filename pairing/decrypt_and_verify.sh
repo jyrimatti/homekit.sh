@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 import sys
 from Crypto.Cipher import ChaCha20_Poly1305
@@ -13,5 +13,5 @@ def decode(nonce, key, authtag, ciphertext):
 decoded = decode(sys.argv[1],
                  bytes.fromhex(sys.argv[2]),
                  bytes.fromhex(sys.argv[3]),
-                 sys.stdin.buffer.read())
-print(decoded.hex())
+                 bytes.fromhex(sys.stdin.read()))
+print(decoded.hex(), end="")

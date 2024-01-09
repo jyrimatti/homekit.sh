@@ -10,6 +10,11 @@ logger_trace 'util/respond.sh'
 status="$1"
 content="${2:-}"
 contentType="${3:-application/hap+json}"
+contentLength="${4:-}"
+
+if [ "$contentLength" = "" ]; then
+    contentLength="${#content}"
+fi
 
 contentType="Content-Type: $contentType"
 connection='Connection: keep-alive'
@@ -32,10 +37,11 @@ if [ -z "${2+x}" ]; then
     logger_debug "Responding with ${REQUEST_TYPE:-?} $status, $contentType and empty body"
     printf "\r\n"
 else
-    logger_debug "Responding with ${REQUEST_TYPE:-?} $status, $contentType and length ${#content}, content: $content"
+
+    logger_debug "Responding with ${REQUEST_TYPE:-?} $status, $contentType and length ${contentLength}, content: $content"
     printf "%s\r\n" "$contentType"
     printf "%s\r\n" "$connection"
-    printf "Content-Length: %i\r\n" "${#content}"
+    printf "Content-Length: %i\r\n" "${contentLength}"
     printf "\r\n"
     printf "%s" "$content"
 fi

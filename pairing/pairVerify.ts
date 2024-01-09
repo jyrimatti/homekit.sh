@@ -1,5 +1,7 @@
 import { env } from "process";
 import { spawnSync } from "child_process";
+// import * as hapCrypto from "./hapCrypto";
+// import tweetnacl from "tweetnacl";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
 import { TLVValues, PairingStates, log_debug, log_info, log_error, respondTLV, readFromStore, TLVErrorCode, extractMessageAndAuthTag, writeToStore } from './common';
@@ -33,19 +35,19 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     //const AccessorySecretKeyOrig = Buffer.from(keyPair.secretKey);
     //const AccessoryPublicKeyOrig = Buffer.from(keyPair.publicKey);
 
-    let keypair = spawnSync("./generate_encode_keypair.sh", [sessionStorePath + '/accessoryPublicKey', '-']);
+    let keypair = spawnSync("./pairing/generate_encode_keypair.sh", [sessionStorePath + '/AccessoryPublicKey', '-'], {cwd: '..'});
     if (keypair.status != 0) {
         throw new Error("Keypair generation failed: " + keypair.stderr.toString());
     }
-    const priv = keypair.stdout.toString().trim();
+    const AccessorySecretKey = Buffer.from(keypair.stdout.toString().trim(), 'hex');
+    log_debug("M2: Got AccessorySecretKey: " + AccessorySecretKey.toString('hex'));
 
     const iOSDevicePublicKey = tlvData[TLVValues.PUBLIC_KEY];
     
     // Generate the shared secret, SharedSecret, from its Curve25519 secret key and the iOSdevice's Curve25519 public key.
     
-    const AccessorySecretKey = Buffer.from(priv, 'hex');
     //const AccessorySecretKey = AccessorySecretKeyOrig;
-    const AccessoryPublicKey = readFromStore(sessionStorePath + '/accessoryPublicKey');
+    const AccessoryPublicKey = readFromStore(sessionStorePath + '/AccessoryPublicKey');
     //const AccessoryPublicKey = AccessoryPublicKeyOrig;
 
     //log_debug("M2: Got secret key (" + priv.length + "): " + priv);
@@ -53,8 +55,8 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     //log_debug("M2: Got public key     : " + AccessoryPublicKey.toString('hex'));
     //log_debug("M2: Got public key orig: " + AccessoryPublicKeyOrig.toString('hex'));
 
-    //const sharedSecret = Buffer.from(hapCrypto.generateCurve25519SharedSecKey(AccessorySecretKey, iOSDevicePublicKey));
-    let ss = spawnSync("./generate_curve25519_shared_sec_key.sh", [AccessorySecretKey.toString('hex'), iOSDevicePublicKey.toString('hex')]);
+    // const sharedSecret = Buffer.from(hapCrypto.generateCurve25519SharedSecKey(AccessorySecretKey, iOSDevicePublicKey));
+    let ss = spawnSync("./pairing/generate_curve25519_shared_sec_key.sh", [AccessorySecretKey.toString('hex'), iOSDevicePublicKey.toString('hex')], {cwd: '..'});
     if (ss.status != 0) {
         throw new Error("Keypair generation failed: " + ss.stderr.toString());
     }
@@ -65,36 +67,39 @@ function pairVerifyM1(tlvData: Record<number, Buffer>, AccessoryPairingID: Buffe
     const AccessoryInfo = Buffer.concat([AccessoryPublicKey, AccessoryPairingID, iOSDevicePublicKey]);
 
     // Use Ed25519 to generate AccessorySignature by signing AccessoryInfo with its long-term secret key, AccessoryLTSK.
-    //const AccessorySignature = tweetnacl.sign.detached(AccessoryInfo, readFromStore(storePath + '/AccessoryLTSK'));
-    let sign = spawnSync("./sign.sh", [storePath + '/AccessoryLTSK'], {input: AccessoryInfo});
+    // const AccessorySignature = tweetnacl.sign.detached(AccessoryInfo, readFromStore(storePath + '/AccessoryLTSK'));
+    let sign = spawnSync("./pairing/sign.sh", [storePath + '/AccessoryLTSK'], {input: AccessoryInfo.toString('hex'), cwd: '..'});
     if (sign.status != 0) {
         throw new Error("Signing failed: " + sign.stderr.toString());
     }
     const AccessorySignature = Uint8Array.from(Buffer.from(sign.stdout.toString(), 'hex'));
+    log_debug("M2: Got AccessorySignature: " + Buffer.from(AccessorySignature).toString('hex'));
 
     // Construct a sub-TLV with the following items:
     const subTLV = tlv.encode(TLVValues.IDENTIFIER, AccessoryPairingID,
                               TLVValues.SIGNATURE, AccessorySignature);
 
     // Derive the symmetric session encryption key, SessionKey, from the Curve25519 shared secret by using HKDF-SHA-512 
-    //const SessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Verify-Encrypt-Salt"), sharedSecret, Buffer.from("Pair-Verify-Encrypt-Info"), 32).slice(0, 32);
-    let hkdf = spawnSync("./hkdf.sh", ["Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"], {input: sharedSecret.toString('hex')});
+    // const SessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Verify-Encrypt-Salt"), sharedSecret, Buffer.from("Pair-Verify-Encrypt-Info"), 32).slice(0, 32);
+    let hkdf = spawnSync("./pairing/hkdf.sh", ["Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"], {input: sharedSecret.toString('hex'), cwd: '..'});
     if (hkdf.status != 0) {
         throw new Error("HKDF failed: " + hkdf.stderr.toString());
     }
     const SessionKey = Buffer.from(hkdf.stdout.toString(), 'hex');
+    log_debug("M2: Got SessionKey: " + SessionKey.toString('hex'));
 
     // Encrypt the sub-TLV, encryptedData, and generate the 16-byte auth tag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
-    //const {ciphertext, authTag} = hapCrypto.chacha20_poly1305_encryptAndSeal(SessionKey, Buffer.from("PV-Msg02"), null, subTLV);
-    //const encrypted = Buffer.concat([ciphertext, authTag]);
-    let encrypt = spawnSync("./encrypt_and_digest.sh", ["PV-Msg02", SessionKey.toString('hex')], {input: subTLV});
+    // const {ciphertext, authTag} = hapCrypto.chacha20_poly1305_encryptAndSeal(SessionKey, Buffer.from("PV-Msg02"), null, subTLV);
+    // const encrypted = Buffer.concat([ciphertext, authTag]);
+    let encrypt = spawnSync("./pairing/encrypt_and_digest.sh", ["PV-Msg02", SessionKey.toString('hex')], {input: subTLV.toString('hex'), cwd: '..'});
     if (encrypt.status != 0) {
-        throw new Error("Encrypting M5 response failed: " + encrypt.stderr.toString());
+        throw new Error("Encrypting M2 response failed: " + encrypt.stderr.toString());
     }
     let encrypted = Buffer.from(encrypt.stdout.toString(), 'hex');
+    log_debug("M2: Got encrypted: " + encrypted.toString('hex'));
 
     writeToStore(sessionStorePath + '/iOSDevicePublicKey', iOSDevicePublicKey);
-    writeToStore(sessionStorePath + '/accessoryPublicKey', AccessoryPublicKey);
+    writeToStore(sessionStorePath + '/AccessoryPublicKey', AccessoryPublicKey);
     writeToStore(sessionStorePath + '/sharedSecret',       sharedSecret);
 
     // Construct the response with the following TLV items:
@@ -111,12 +116,12 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
     const {messageData, authTagData} = extractMessageAndAuthTag(tlvData[TLVValues.ENCRYPTED_DATA]);
 
     const iOSDevicePublicKey = readFromStore(sessionStorePath + '/iOSDevicePublicKey');
-    const AccessoryPublicKey = readFromStore(sessionStorePath + '/accessoryPublicKey');
+    const AccessoryPublicKey = readFromStore(sessionStorePath + '/AccessoryPublicKey');
     const sharedSecret       = readFromStore(sessionStorePath + '/sharedSecret');
 
     // Derive the symmetric session encryption key, SessionKey, from the Curve25519 shared secret by using HKDF-SHA-512 
     //const SessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Verify-Encrypt-Salt"), sharedSecret, Buffer.from("Pair-Verify-Encrypt-Info"), 32).slice(0, 32);
-    let hkdf = spawnSync("./hkdf.sh", ["Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"], {input: sharedSecret.toString('hex')});
+    let hkdf = spawnSync("./pairing/hkdf.sh", ["Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"], {input: sharedSecret.toString('hex'), cwd: '..'});
     if (hkdf.status != 0) {
         throw new Error("HKDF failed: " + hkdf.stderr.toString());
     }
@@ -127,7 +132,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
         // Verify the iOSdevice's authTag, which is appended to the encryptedData and contained within the kTLVType_EncryptedData TLV item, against encryptedData.
         // Decrypt the sub-TLV in encryptedData.
         //subTLV = hapCrypto.chacha20_poly1305_decryptAndVerify(SessionKey, Buffer.from("PV-Msg03"), null, messageData, authTagData);
-        let decrypt = spawnSync("./decrypt_and_verify.sh", ["PV-Msg03", SessionKey.toString('hex'), authTagData.toString('hex')], {input: messageData});
+        let decrypt = spawnSync("./pairing/decrypt_and_verify.sh", ["PV-Msg03", SessionKey.toString('hex'), authTagData.toString('hex')], {input: messageData.toString('hex'), cwd: '..'});
         if (decrypt.status != 0) {
             log_error("Error while decrypting and verifying M3 subTlv: " + decrypt.stderr.toString());
             // If verification/decryption fails, the accessory must respond with the following TLV items:
@@ -166,7 +171,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
     let iOSDeviceSignatureFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceSignature';
     writeToStore(iOSDeviceSignatureFile, iOSDeviceSignature);
 
-    let verify = spawnSync("./verify.sh", [storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK', iOSDeviceSignatureFile], {input: iOSDeviceInfo});
+    let verify = spawnSync("./pairing/verify.sh", [storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK', iOSDeviceSignatureFile], {input: iOSDeviceInfo.toString('hex'), cwd: '..'});
     if (verify.status != 0) {
         log_error("Invalid iOSDeviceSignature: " + verify.stderr.toString());
         // If decryption fails, the accessory must respond with the following TLV items:
@@ -176,7 +181,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
     }
     
     //const AccessoryToControllerKey = hapCrypto.HKDF("sha512", Buffer.from("Control-Salt"), sharedSecret, Buffer.from("Control-Read-Encryption-Key"), 32);
-    let hkdf1 = spawnSync("./hkdf.sh", ["Control-Salt", "Control-Read-Encryption-Key"], {input: sharedSecret.toString('hex')});
+    let hkdf1 = spawnSync("./pairing/hkdf.sh", ["Control-Salt", "Control-Read-Encryption-Key"], {input: sharedSecret.toString('hex'), cwd: '..'});
     if (hkdf1.status != 0) {
         throw new Error("HKDF failed: " + hkdf1.stderr.toString());
     }
@@ -184,7 +189,7 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
     writeToStore(sessionStorePath + '/AccessoryToControllerKey', AccessoryToControllerKey);
 
     //const ControllerToAccessoryKey = hapCrypto.HKDF("sha512", Buffer.from("Control-Salt"), sharedSecret, Buffer.from("Control-Write-Encryption-Key"), 32)
-    let hkdf2 = spawnSync("./hkdf.sh", ["Control-Salt", "Control-Write-Encryption-Key"], {input: sharedSecret.toString('hex')});
+    let hkdf2 = spawnSync("./pairing/hkdf.sh", ["Control-Salt", "Control-Write-Encryption-Key"], {input: sharedSecret.toString('hex'), cwd: '..'});
     if (hkdf2.status != 0) {
         throw new Error("HKDF failed: " + hkdf2.stderr.toString());
     }

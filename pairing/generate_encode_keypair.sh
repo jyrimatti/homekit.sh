@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 from nacl.bindings.crypto_box import crypto_box_keypair
 import sys
@@ -8,4 +8,4 @@ from io import open
 
 priv=open(sys.argv[1], 'wb')
 priv.write(private_key)
-print(public_key.hex())
+print(public_key.hex(), end="")
