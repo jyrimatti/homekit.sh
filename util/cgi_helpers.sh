@@ -17,3 +17,12 @@ read_querystring() {
 }
 
 read_querystring
+
+read_binary() {
+    if [ "${CONTENT_LENGTH:-}" = "" ]; then
+        cat
+    else
+        echo "reading $CONTENT_LENGTH bytes..." >&2
+        dd ibs=1 count="$CONTENT_LENGTH" 2> /dev/null
+    fi
+}

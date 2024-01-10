@@ -24,10 +24,10 @@ export TLV_M4=4
 export TLV_M5=5
 export TLV_M6=6
 
-export TLV_ERROR_UNKNOWN=1,        # generic error to handle unexpected errors
-export TLV_ERROR_AUTHENTICATION=2, # setup code or signature verification failed
-export TLV_ERROR_BACKOFF=3,        # client must look at retry delay tlv item and wait that many seconds before retrying
-export TLV_ERROR_MAX_PEERS=4,      # server cannot accept any more pairings
-export TLV_ERROR_MAX_TRIES=5,      # server reached its maximum number of authentication attempts
-export TLV_ERROR_UNAVAILABLE=6,    # server pairing method is unavailable
-export TLV_ERROR_BUSY=7            # server is busy and cannot accept pairing request at this time
+export TLV_ERROR_UNKNOWN=1        # generic error to handle unexpected errors
+export TLV_ERROR_AUTHENTICATION=2 # setup code or signature verification failed
+export TLV_ERROR_BACKOFF=3        # client must look at retry delay tlv item and wait that many seconds before retrying
+export TLV_ERROR_MAX_PEERS=4      # server cannot accept any more pairings
+export TLV_ERROR_MAX_TRIES=5      # server reached its maximum number of authentication attempts
+export TLV_ERROR_UNAVAILABLE=6    # server pairing method is unavailable
+export TLV_ERROR_BUSY=7           # server is busy and cannot accept pairing request at this time

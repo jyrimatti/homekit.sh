@@ -164,14 +164,10 @@ function pairVerifyM3(tlvData: Record<number, Buffer>, storePath: string, sessio
                                    TLVValues.ERROR, TLVErrorCode.AUTHENTICATION));
         return;
     }
-    const iOSDeviceLTPK = readFromStore(storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK');
     const iOSDeviceInfo = Buffer.concat([iOSDevicePublicKey, iOSDevicePairingID, AccessoryPublicKey]);
     
     // Use Ed25519 to verify iOSDeviceSignature using iOSDeviceLTPK against iOSDeviceInfo contained in the decrypted sub-TLV
-    let iOSDeviceSignatureFile = storePath + '/pairings/' + iOSDevicePairingID + '/temp-iOSDeviceSignature';
-    writeToStore(iOSDeviceSignatureFile, iOSDeviceSignature);
-
-    let verify = spawnSync("./pairing/verify.sh", [storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK', iOSDeviceSignatureFile], {input: iOSDeviceInfo.toString('hex'), cwd: '..'});
+    let verify = spawnSync("./pairing/verify.sh", [storePath + '/pairings/' + iOSDevicePairingID + '/iOSDeviceLTPK', iOSDeviceSignature.toString('hex')], {input: iOSDeviceInfo.toString('hex'), cwd: '..'});
     if (verify.status != 0) {
         log_error("Invalid iOSDeviceSignature: " + verify.stderr.toString());
         // If decryption fails, the accessory must respond with the following TLV items:

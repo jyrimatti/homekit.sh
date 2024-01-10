@@ -19,12 +19,12 @@ AccessorySecretKey=$(./pairing/generate_encode_keypair.sh "$sessionStorePath/Acc
     exit 1
 }
 
-iOSDevicePublicKey="$(echo "$tlvjson" | jq -r ".[\"$TLV_PUBLIC_KEY\"]")"
+iOSDevicePublicKey="$(echo -n "$tlvjson" | jq -r ".[\"$TLV_PUBLIC_KEY\"]")"
 # Generate the shared secret, SharedSecret, from its Curve25519 secret key and the iOSdevice's Curve25519 public key.
 AccessoryPublicKey="$(cat "$sessionStorePath/AccessoryPublicKey" | dash ./util/bin2hex.sh)"
 sharedSecret=$(./pairing/generate_curve25519_shared_sec_key.sh "$AccessorySecretKey" "$iOSDevicePublicKey") || {
     logger_error 'Shared secret generation failed'
-    exit 2
+    exit 1
 }
 
 # Construct AccessoryInfo by concatenating the following items in order:
@@ -33,7 +33,7 @@ AccessoryInfo="$AccessoryPublicKey$(echo -n "$AccessoryPairingID" | dash ./util/
 # Use Ed25519 to generate AccessorySignature by signing AccessoryInfo with its long-term secret key, AccessoryLTSK.
 AccessorySignature=$(echo -n "$AccessoryInfo" | dash ./pairing/sign.sh "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK") || {
     logger_error 'Signing failed'
-    exit 3
+    exit 1
 }
 
 # Construct a sub-TLV with the following items:
@@ -42,13 +42,13 @@ subTLV="$(jq -n "{\"$TLV_IDENTIFIER\": \"$(echo -n "$AccessoryPairingID" | dash 
 # Derive the symmetric session encryption key, SessionKey, from the Curve25519 shared secret by using HKDF-SHA-512 
 SessionKey=$(echo -n "$sharedSecret" | dash ./pairing/hkdf.sh "Pair-Verify-Encrypt-Salt" "Pair-Verify-Encrypt-Info") || {
     logger_error 'HKDF failed'
-    exit 4
+    exit 1
 }
 
 # Encrypt the sub-TLV, encryptedData, and generate the 16-byte auth tag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
 encrypted=$(echo -n "$subTLV" | ./pairing/encrypt_and_digest.sh "PV-Msg02" "$SessionKey") || {
     logger_error 'Encrypting M2 response failed'
-    exit 5
+    exit 1
 }
 
 echo -n "$iOSDevicePublicKey" | dash ./util/hex2bin.sh > "$sessionStorePath/iOSDevicePublicKey"

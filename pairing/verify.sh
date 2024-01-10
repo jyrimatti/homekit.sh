@@ -3,9 +3,12 @@
 set -eu
 
 inkey="$1"   # filename for key
-sigfile="$2" # filename for signature
+sig="$2" # signature, encoded as hex
 
 # reads input data from stdin, encoded as hex
+
+sigfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_verify.XXXXXX")"
+echo -n "$sig" | dash ./util/hex2bin.sh > "$sigfile"
 
 tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_verify.XXXXXX")"
 dash ./util/hex2bin.sh > "$tmpfile"

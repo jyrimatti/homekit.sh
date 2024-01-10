@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nodejs ncurses jq xxd python3Packages.tlv8
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash coreutils nodejs ncurses jq xxd python3Packages.tlv8
 . ./prefs
 . ./log/logging
 . ./profiling
@@ -9,11 +9,13 @@ logger_info 'Invoked api/pair-verify'
 logger_trace 'api/pair-verify'
 
 contentType="application/pairing+tlv8"
+pairingStorePath="$HOMEKIT_SH_STORE_DIR/pairings"
 sessionStorePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
 . ./util/tlv.sh
+. ./util/cgi_helpers.sh
 
-tlvjson=$(dash ./util/bin2hex.sh | ./util/tlv_decode.sh)
+tlvjson=$(read_binary | dash ./util/bin2hex.sh | ./util/tlv_decode.sh)
 logger_debug "Got tlvjson: $tlvjson"
 
 response="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-verify.XXXXXX")"
@@ -28,16 +30,27 @@ if [ "$sequence" = "$TLV_M1" ]; then
     #echo "$tlvjson" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
     #cat "$tmpfile"
 elif [ "$sequence" = "$TLV_M3" ]; then
-    #dash ./pairing/pair_verify_m3.sh "$HOMEKIT_SH_USERNAME" "$tlvjson" | dash ./util/hex2bin.sh > "$response"
-    #dash ./util/respond.sh 200 "" "$contentType" "$(wc -c < "$response")"
+    resp="$(dash ./pairing/pair_verify_m3.sh "$pairingStorePath" "$sessionStorePath" "$tlvjson")"
+    result=$?
+    if [ "$result" = 0 ]; then
+        echo -n "$resp" | dash ./util/hex2bin.sh > "$response"
+        dash ./util/respond.sh 200 "" "$contentType" "$(wc -c < "$response")"
 
-    tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-verify.XXXXXX")"
-    echo "$tlvjson" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
-    cat "$tmpfile"
-    rm "$tmpfile"
+        date -u +%Y-%m-%dT%H:%M:%SZ > "$sessionStorePath/verified"
+        date +%Y-%m-%dT%H:%M:%S >> "$sessionStorePath/verified"
 
-    date -u +%Y-%m-%dT%H:%M:%SZ > "$sessionStorePath/verified"
-    date +%Y-%m-%dT%H:%M:%S >> "$sessionStorePath/verified"
+        cat "$response"
+        logger_info "Pair-verify done!"
+    else
+        echo -n "$resp" | dash ./util/hex2bin.sh > "$response"
+        dash ./util/respond.sh $result"00" "" "$contentType" "$(wc -c < "$response")"
+        cat "$response"
+    fi
+
+    #tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-verify.XXXXXX")"
+    #echo "$tlvjson" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
+    #cat "$tmpfile"
+    #rm "$tmpfile"
 else
     logger_error "Invalid state/sequence number: $sequence"
     jq -n "{$TLV_STATE: $sequence+1, $TLV_ERROR: $TLV_ERROR_UNKNOWN}" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh > "$response"
