@@ -15,26 +15,26 @@ sessionStorePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 . ./util/tlv.sh
 . ./util/cgi_helpers.sh
 
-tlvjson=$(read_binary | dash ./util/bin2hex.sh | ./util/tlv_decode.sh)
+tlvjson=$(read_binary | ./util/bin2hex.sh | ./util/tlv_decode.sh)
 logger_debug "Got tlvjson: $tlvjson"
 
 response="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-verify.XXXXXX")"
 
 sequence="$(echo "$tlvjson" | jq -r ".[\"$TLV_STATE\"]")"
 if [ "$sequence" = "$TLV_M1" ]; then
-    dash ./pairing/pair_verify_m1.sh "$HOMEKIT_SH_USERNAME" "$sessionStorePath" "$tlvjson" | dash ./util/hex2bin.sh > "$response"
-    dash ./util/respond.sh 200 "" "$contentType" "$(wc -c < "$response")"
+    ./pairing/pair_verify_m1.sh "$HOMEKIT_SH_USERNAME" "$sessionStorePath" "$tlvjson" | ./util/hex2bin.sh > "$response"
+    ./util/respond.sh 200 "" "$contentType" "$(wc -c < "$response")"
     cat "$response"
 
     #tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-verify.XXXXXX")"
-    #echo "$tlvjson" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
+    #echo "$tlvjson" | ./util/tlv_encode.sh | ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
     #cat "$tmpfile"
 elif [ "$sequence" = "$TLV_M3" ]; then
-    resp="$(dash ./pairing/pair_verify_m3.sh "$pairingStorePath" "$sessionStorePath" "$tlvjson")"
+    resp="$(./pairing/pair_verify_m3.sh "$pairingStorePath" "$sessionStorePath" "$tlvjson")"
     result=$?
     if [ "$result" = 0 ]; then
-        echo -n "$resp" | dash ./util/hex2bin.sh > "$response"
-        dash ./util/respond.sh 200 "" "$contentType" "$(wc -c < "$response")"
+        echo -n "$resp" | ./util/hex2bin.sh > "$response"
+        ./util/respond.sh 200 "" "$contentType" "$(wc -c < "$response")"
 
         date -u +%Y-%m-%dT%H:%M:%SZ > "$sessionStorePath/verified"
         date +%Y-%m-%dT%H:%M:%S >> "$sessionStorePath/verified"
@@ -42,17 +42,17 @@ elif [ "$sequence" = "$TLV_M3" ]; then
         cat "$response"
         logger_info "Pair-verify done!"
     else
-        echo -n "$resp" | dash ./util/hex2bin.sh > "$response"
-        dash ./util/respond.sh $result"00" "" "$contentType" "$(wc -c < "$response")"
+        echo -n "$resp" | ./util/hex2bin.sh > "$response"
+        ./util/respond.sh $result"00" "" "$contentType" "$(wc -c < "$response")"
         cat "$response"
     fi
 
     #tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-verify.XXXXXX")"
-    #echo "$tlvjson" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
+    #echo "$tlvjson" | ./util/tlv_encode.sh | ./util/hex2bin.sh | { cd pairing; SESSION_STORE_PATH="$sessionStorePath" npm run pairVerify --silent > "$tmpfile"; }
     #cat "$tmpfile"
     #rm "$tmpfile"
 else
     logger_error "Invalid state/sequence number: $sequence"
-    jq -n "{$TLV_STATE: $sequence+1, $TLV_ERROR: $TLV_ERROR_UNKNOWN}" | ./util/tlv_encode.sh | dash ./util/hex2bin.sh > "$response"
-    dash ./util/respond.sh 400 "" "$contentType" "$(wc -c < "$response")"
+    jq -n "{$TLV_STATE: $sequence+1, $TLV_ERROR: $TLV_ERROR_UNKNOWN}" | ./util/tlv_encode.sh | ./util/hex2bin.sh > "$response"
+    ./util/respond.sh 400 "" "$contentType" "$(wc -c < "$response")"
 fi
