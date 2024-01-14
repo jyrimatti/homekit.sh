@@ -42,12 +42,13 @@ iOSDeviceX="$(echo -n "$srpSharedSecret" | dash ./pairing/hkdf.sh "Pair-Setup-Co
 
 # decode the client payload and pass it on to the next step
 M5Packet="$(echo -n "$plaintext" | ./util/tlv_decode.sh)"
-iOSDevicePairingID="$(echo -n "$M5Packet" | jq -r ".[\"$TLV_IDENTIFIER\"]")"
+iOSDevicePairingIDhex="$(echo -n "$M5Packet" | jq -r ".[\"$TLV_IDENTIFIER\"]")"
+iOSDevicePairingID="$(echo -n "$iOSDevicePairingIDhex" | ./util/hex2bin.sh)"
 iOSDeviceLTPK="$(echo -n "$M5Packet" | jq -r ".[\"$TLV_PUBLIC_KEY\"]")"
 iOSDeviceSignature="$(echo -n "$M5Packet" | jq -r ".[\"$TLV_SIGNATURE\"]")"
 
 # Construct iOSDeviceInfo by concatenating iOSDeviceX with the iOSdevice's Pairing Identifier, iOSDevicePairingID, from the decrypted sub-TLV and the iOS deviceʼs long-term public key, iOSDeviceLTPK from the decrypted sub-TLV
-iOSDeviceInfo="${iOSDeviceX}${iOSDevicePairingID}${iOSDeviceLTPK}"
+iOSDeviceInfo="${iOSDeviceX}${iOSDevicePairingIDhex}${iOSDeviceLTPK}"
 
 mkdir -p "$pairingStorePath/$iOSDevicePairingID"
 echo -n "$iOSDevicePairingID" | ./util/hex2bin.sh > "$pairingStorePath/$iOSDevicePairingID/iOSDevicePairingID"

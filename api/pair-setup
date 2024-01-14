@@ -19,7 +19,7 @@ logger_debug "Got tlvjson: $tlvjson"
 sequence="$(echo "$tlvjson" | jq -r ".[\"$TLV_STATE\"]")"
 
 if [ "$sequence" = "$TLV_M1" ]; then
-    resp="$(./pairing/pair_setup_m1.sh "$HOMEKIT_SH_STORE_DIR" "$pairingStorePath" "$HOMEKIT_SH_PINCODE")"
+    resp="$(./pairing/pair_setup_m1.sh "$HOMEKIT_SH_STORE_DIR" "$HOMEKIT_SH_PINCODE")"
     status="$?"00
 elif [ "$sequence" = "$TLV_M3" ]; then
     resp="$(./pairing/pair_setup_m3.sh "$HOMEKIT_SH_STORE_DIR" "$tlvjson")"
