@@ -68,7 +68,7 @@ AccessoryX="$(echo -n "$srpSharedSecret" | dash ./pairing/hkdf.sh "Pair-Setup-Ac
     exit 1
 }
 
-AccessoryLTPK="$(cat "$storePath/accessoryLTPK" | ./util/bin2hex.sh)"
+AccessoryLTPK="$(cat "$storePath/AccessoryLTPK" | ./util/bin2hex.sh)"
 
 # Concatenate AccessoryX with the accessory's PairingIdentifier, AccessoryPairingID, and its long-term public key, AccessoryLTPK
 AccessoryInfo="${AccessoryX}$(echo -n "$AccessoryPairingID" | ./util/bin2hex.sh)${AccessoryLTPK}"
