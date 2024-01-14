@@ -40,7 +40,6 @@ else
 
     logger_debug "Responding with ${REQUEST_TYPE:-?} $status, $contentType and length ${contentLength}, content: $content"
     printf "%s\r\n" "$contentType"
-    printf "%s\r\n" "$connection"
     printf "Content-Length: %i\r\n" "${contentLength}"
     printf "\r\n"
     printf "%s" "$content"
