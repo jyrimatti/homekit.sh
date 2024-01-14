@@ -21,7 +21,6 @@ if [ -n "$(ls -A "$session_store"/events 2>/dev/null)" ]; then
 
     if test -s "$events"; then
         content="$(jq '.characteristics' "$events" | jq -jcs 'add | {characteristics: .}')"
-        rm "$events"
 
         logger_info "Sending events $content"
 
@@ -32,4 +31,5 @@ if [ -n "$(ls -A "$session_store"/events 2>/dev/null)" ]; then
         printf "\r\n"
         printf "%s" "$content"
     fi
+    rm "$events"
 fi

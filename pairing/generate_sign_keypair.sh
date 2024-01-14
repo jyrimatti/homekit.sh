@@ -15,6 +15,7 @@ wolfssl -genkey ed25519 -out "$tmpfile"
 mv "$tmpfile.pub" "$pub"
 if [ "$priv" = '-' ]; then
     ./util/bin2hex.sh < "$tmpfile.priv"
+    rm "$tmpfile.priv"
 else
     mv "$tmpfile.priv" "$priv"
 fi

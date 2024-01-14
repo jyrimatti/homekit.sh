@@ -11,6 +11,8 @@ AccessoryPairingID="$1"
 sessionStorePath="$2"
 tlvjson="$3"
 
+. ./util/tlv.sh
+
 logger_debug "M2: Verify Start Response"
 
 # Generate new, random Curve25519 keypair.

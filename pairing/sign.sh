@@ -16,4 +16,6 @@ outfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_sign.XXXXXX")" # segfaults
 infile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_sign.XXXXXX")"
 ./util/hex2bin.sh > "$infile"
 wolfssl -ed25519 -sign -inkey "$inkey" -in "$infile" -out "$outfile"
-cat "$outfile" | ./util/bin2hex.sh
+./util/bin2hex.sh < "$outfile"
+rm "$infile"
+rm "$outfile"

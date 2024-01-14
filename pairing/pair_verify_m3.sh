@@ -11,6 +11,8 @@ pairingStorePath="$1"
 sessionStorePath="$2"
 tlvjson="$3"
 
+. ./util/tlv.sh
+
 logger_debug "M4: Verify Finish Response"
 
 encrypted="$(echo -n "$tlvjson" | jq -r ".[\"$TLV_ENCRYPTED_DATA\"]")"

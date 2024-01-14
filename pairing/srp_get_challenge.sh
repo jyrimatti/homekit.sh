@@ -9,7 +9,9 @@ from io import open
 
 user=sys.argv[1]
 password=sys.argv[2]
-secret=bytes.fromhex(sys.argv[3])
+saltFile=sys.argv[3]
+verifierFile=sys.argv[4]
+secret=bytes.fromhex(sys.stdin.read())
 
 # http://tools.ietf.org/html/rfc5054#appendix-A 3072-bit Group
 n='''\
@@ -85,7 +87,11 @@ s,B      = svr.get_challenge()
 
 #BB = long_to_bytes( (int( k, 16 )*v + pow(int("05",16), bytes_to_long(svr.get_ephemeral_secret()), int(n, 16))) % int(n, 16) ).hex()
 
-sys.stdout.write(salt.hex() + ',' + B.hex() + ',' + vkey.hex())
+open(saltFile, 'wb').write(salt);
+open(verifierFile, 'wb').write(vkey);
+
+sys.stdout.write(B.hex())
+#sys.stdout.write(salt.hex() + ',' + B.hex() + ',' + vkey.hex())
 #sys.stdout.write(H( hashlib.sha512, int(n, 16), int("05",16), width=len(long_to_bytes(int(n,16))) ))
 #sys.stdout.write(str(v))
 #sys.stdout.write(B.hex() + "\n")

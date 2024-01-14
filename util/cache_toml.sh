@@ -62,6 +62,9 @@ create index characteristics_typeCode on characteristics(typeCode);
 .import "$characteristicscsv" characteristics
 .import "$accessoriescsv" accessories
 EOF
+    rm "$servicescsv"
+    rm "$characteristicscsv"
+    rm "$accessoriescsv"
 
     logger_debug "Caching to SQLite done"
 fi

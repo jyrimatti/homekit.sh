@@ -18,3 +18,5 @@ echo -n "$sig" | ./util/hex2bin.sh > "$sigfile"
 tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_verify.XXXXXX")"
 dash ./util/hex2bin.sh > "$tmpfile"
 wolfssl -ed25519 -verify -inkey "$inkey" -in "$tmpfile" -sigfile "$sigfile" -pubin
+rm "$sigfile"
+rm "$tmpfile"

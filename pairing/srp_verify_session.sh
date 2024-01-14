@@ -11,7 +11,8 @@ vkey=bytes.fromhex(sys.argv[2])
 salt=bytes.fromhex(sys.argv[3])
 secret=bytes.fromhex(sys.argv[4])
 A=bytes.fromhex(sys.argv[5])
-proof=bytes.fromhex(sys.argv[6])
+srpSharedSecretFile=sys.argv[6]
+proof=bytes.fromhex(sys.stdin.read())
 
 n='''\
 FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E08\
@@ -53,31 +54,32 @@ class MyVerifier(srp.Verifier):
     def _derive_H_AMK(self):
         super()._derive_H_AMK()
         _u = self.u
+        # need to disable rfc5054 for the duration of calculation of M, but not for the calculation of u...
         srp.rfc5054_enable(False)
         super()._derive_H_AMK()
         self.u = _u
+    
+    #def getU(self):
+    #    return self.u
+    #def getS(self):
+    #    return self.S
+    #def getK(self):
+    #    return self.K
+    #def getM(self):
+    #    return self.M
 
-    def getU(self):
-        return self.u
-    def getS(self):
-        return self.S
-    def getK(self):
-        return self.K
-    def getM(self):
-        return self.M
-
-def HNxorg( hash_class, N, g ):
-    bin_N = long_to_bytes(N)
-    bin_g = long_to_bytes(g)
-
-    padding = 0 #len(bin_N) - len(bin_g) #if _rfc5054_compat else 0
-
-    hN = hash_class( bin_N ).digest()
-    hg = hash_class( b''.join( [b'\0'*padding, bin_g] ) ).digest()
-    hg2 = hash_class( bin_g ).digest()
-
-    ret = six.b( ''.join( chr( six.indexbytes(hN, i) ^ six.indexbytes(hg, i) ) for i in range(0,len(hN)) ) )
-    return (ret, hN, hg, hg2)
+#def HNxorg( hash_class, N, g ):
+#    bin_N = long_to_bytes(N)
+#    bin_g = long_to_bytes(g)
+#
+#    padding = 0 #len(bin_N) - len(bin_g) #if _rfc5054_compat else 0
+#
+#    hN = hash_class( bin_N ).digest()
+#    hg = hash_class( b''.join( [b'\0'*padding, bin_g] ) ).digest()
+#    hg2 = hash_class( bin_g ).digest()
+#
+#    ret = six.b( ''.join( chr( six.indexbytes(hN, i) ^ six.indexbytes(hg, i) ) for i in range(0,len(hN)) ) )
+#    return (ret, hN, hg, hg2)
 
 srp.rfc5054_enable()
 svr  = MyVerifier( user, salt, vkey, A, hash_alg=srp.SHA512, ng_type=srp.NG_CUSTOM, g_hex="05", n_hex=n, bytes_b=secret)
@@ -88,9 +90,10 @@ class AuthenticationFailed (Exception):
     pass
 
 if HAMK is None:
-    (hnxorg, hN, hg, hg2) = HNxorg(hashlib.sha512, int(n, 16), int("05",16))
+    #(hnxorg, hN, hg, hg2) = HNxorg(hashlib.sha512, int(n, 16), int("05",16))
 
-    sys.stderr.write("Authentication failed. M1_user: " + proof.hex() + ", U: " + long_to_bytes(svr.getU()).hex() + ", S: " + long_to_bytes(svr.getS()).hex() + ", K: " + svr.getK().hex() + ", M: " + svr.getM().hex() + ", HNxorg: " + hnxorg.hex() + ", hN: " + hN.hex() + ", hg: " + hg.hex() + ", hg2: " + hg2.hex())
+    sys.stderr.write("Authentication failed. M1_user: " + proof.hex())
     raise AuthenticationFailed()
 
+open(srpSharedSecretFile, 'wb').write(svr.get_session_key());
 sys.stdout.write(HAMK.hex())

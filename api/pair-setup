@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nodejs ncurses
+#! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash nodejs ncurses python3Packages.tlv8 jq
 . ./prefs
 . ./log/logging
 . ./profiling
@@ -8,17 +8,39 @@ set -u
 logger_info 'Invoked api/pair-setup'
 logger_trace 'api/pair-setup'
 
-tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_pair-setup.XXXXXX")"
+pairingStorePath="$HOMEKIT_SH_STORE_DIR/pairings"
 
-(cd pairing && npm install --silent && npm run pairSetup --silent > "$tmpfile")
+. ./util/tlv.sh
+. ./util/cgi_helpers.sh
 
-if [ $? -eq 42 ]; then
-    logger_info 'Removing flag and changing configuration number in dns-txt'
-    sed -i 's/sf=1//' "$HOMEKIT_SH_STORE_DIR/dns-txt"
-    sed -i 's/c#=1/c#=2/' "$HOMEKIT_SH_STORE_DIR/dns-txt"
-    logger_debug 'Waiting 2 seconds to let the dns-txt change propagate'
-    sleep 2
-    logger_debug '...done waiting'
+tlvjson="$(read_binary | ./util/bin2hex.sh | ./util/tlv_decode.sh)"
+logger_debug "Got tlvjson: $tlvjson"
+
+sequence="$(echo "$tlvjson" | jq -r ".[\"$TLV_STATE\"]")"
+
+if [ "$sequence" = "$TLV_M1" ]; then
+    resp="$(./pairing/pair_setup_m1.sh "$HOMEKIT_SH_STORE_DIR" "$pairingStorePath" "$HOMEKIT_SH_PINCODE")"
+    status="$?"00
+elif [ "$sequence" = "$TLV_M3" ]; then
+    resp="$(./pairing/pair_setup_m3.sh "$HOMEKIT_SH_STORE_DIR" "$tlvjson")"
+    status="$?"00
+elif [ "$sequence" = "$TLV_M5" ]; then
+    resp="$(./pairing/pair_setup_m5.sh "$HOMEKIT_SH_USERNAME" "$HOMEKIT_SH_STORE_DIR" "$pairingStorePath" "$tlvjson")"
+    status="$?"00
+    if [ "$status" = "000" ]; then
+        logger_info 'Removing flag and changing configuration number in dns-txt'
+        sed -i 's/sf=1//' "$HOMEKIT_SH_STORE_DIR/dns-txt"
+        sed -i 's/c#=1/c#=2/' "$HOMEKIT_SH_STORE_DIR/dns-txt"
+        logger_debug 'Waiting 3 seconds to let the dns-txt change propagate'
+        sleep 3
+        logger_debug '...done waiting'
+
+        logger_info "Pair-setup done!"
+    fi
+else
+    logger_error "Invalid state/sequence number: $sequence"
+    resp="$(jq -n "{$TLV_STATE: $sequence+1, $TLV_ERROR: $TLV_ERROR_UNKNOWN}" | ./util/tlv_encode.sh)"
+    status=400
 fi
 
-cat "$tmpfile"
+./util/respond_tlv.sh "$status" "$resp"

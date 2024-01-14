@@ -3,7 +3,7 @@ import { spawnSync } from "child_process";
 //import crypto from "crypto";
 //import BigInteger from "./jsbn";
 //import tweetnacl from "tweetnacl";
-import { SRP, SrpServer, SrpParams } from "fast-srp-hap";
+//import { SRP, SrpServer, SrpParams } from "fast-srp-hap";
 //import * as hapCrypto from "./hapCrypto";
 import * as tlv from "./tlv";
 import { readSync } from 'fs';
@@ -37,18 +37,18 @@ export function pairSetup(setupCode: string, AccessoryPairingID: string, storePa
 }
 
 
-function padTo(n: Buffer, len: number): Buffer {
+/*function padTo(n: Buffer, len: number): Buffer {
     const padding = len - n.length;
     const result = Buffer.alloc(len);
     result.fill(0, 0, padding);
     n.copy(result, padding);
     return result;
-  }
-  
-  function padToN(numberHex: String, params: SrpParams): Buffer {
+}
+
+function padToN(numberHex: String, params: SrpParams): Buffer {
     const n = numberHex.length % 2 !== 0 ? "0" + numberHex : numberHex;
     return padTo(Buffer.from(n, "hex"), params.N_length_bits / 8);
-  }
+}*/
 
 function pairSetupM1(setupCode: string, storePath: string): void {
     log_debug("M2: SRP Start Response");
@@ -82,17 +82,13 @@ function pairSetupM1(setupCode: string, storePath: string): void {
     writeToStore(storePath + "/serverPrivateKey", serverPrivateKey);
     log_debug("M2: server private key generated: " + serverPrivateKey.toString('hex'));
 
-    let srp = spawnSync("./pairing/srp_get_serverkey.sh", ["Pair-Setup", setupCode, serverPrivateKey.toString('hex')], {cwd: '..'});
+    let srp = spawnSync("./pairing/srp_get_challenge.sh", ["Pair-Setup", setupCode, storePath + "/salt", storePath + "/verifier"], {input: serverPrivateKey.toString('hex'), cwd: '..'});
     if (srp.status != 0) {
         throw new Error("Server key generation failed: " + srp.stderr.toString());
     }
-    const ret = srp.stdout.toString().split(',');
-    const salt = Buffer.from(ret[0], 'hex');
-    const accessorySRPPublicKey = Buffer.from(ret[1], 'hex');
-    const verifier = Buffer.from(ret[2], 'hex');
+    const accessorySRPPublicKey = Buffer.from(srp.stdout.toString(), 'hex');
     
-    writeToStore(storePath + "/salt", salt);
-    writeToStore(storePath + "/verifier", verifier);
+    const salt = readFromStore(storePath + "/salt");
 
     /*const srpServer = new SrpServer(SRP.params.hap,
                                     salt,
@@ -171,12 +167,12 @@ function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, storePa
     }
     log_debug("M4: hN: " + hN.toString('hex'));*/
 
-    let verify = spawnSync("./pairing/srp_verify.sh", ["Pair-Setup",
-                                                      verifier.toString('hex'),
-                                                      salt.toString('hex'),
-                                                      serverPrivateKey.toString('hex'),
-                                                      iOSDeviceSRPPublicKey.toString('hex'),
-                                                      iOSDeviceSRPProof.toString('hex')], {cwd: '..'});
+    let verify = spawnSync("./pairing/srp_verify_session.sh", ["Pair-Setup",
+                                                                verifier.toString('hex'),
+                                                                salt.toString('hex'),
+                                                                serverPrivateKey.toString('hex'),
+                                                                iOSDeviceSRPPublicKey.toString('hex'),
+                                                                storePath + "/srpSharedSecret"], {input: iOSDeviceSRPProof.toString('hex'), cwd: '..'});
     if (verify.status != 0) {
         log_error("Invalid iOSDeviceSRPProof");
         // If verification fails, the accessory must respond with the following TLV items
@@ -213,16 +209,17 @@ function pairSetupM3(setupCode: string, tlvData: Record<number, Buffer>, storePa
 function pairSetupM5(setupCode: string, tlvData: Record<number, Buffer>, AccessoryPairingID: Buffer, storePath: string): void {
     log_debug("<M5> Verification");
 
-    const srpServer = new SrpServer(SRP.params.hap,
+    /*const srpServer = new SrpServer(SRP.params.hap,
                                     readFromStore(storePath + '/salt'),
                                     Buffer.from("Pair-Setup"),
                                     Buffer.from(setupCode),
                                     readFromStore(storePath + '/serverPrivateKey'));
-    srpServer.setA(readFromStore(storePath + '/iOSDeviceSRPPublicKey'));
+    srpServer.setA(readFromStore(storePath + '/iOSDeviceSRPPublicKey'));*/
 
     const {messageData, authTagData} = extractMessageAndAuthTag(tlvData[TLVValues.ENCRYPTED_DATA]);
 
-    const srpSharedSecret = srpServer.computeK();
+    //const srpSharedSecret = srpServer.computeK();
+    const srpSharedSecret = readFromStore(storePath + '/srpSharedSecret');
 
     // Derive the symmetric session encryption key, SessionKey,from the SRP shared secret by using HKDF-SHA-512 with the following parameters:
     //const sessionKey = hapCrypto.HKDF("sha512", Buffer.from("Pair-Setup-Encrypt-Salt"), srpSharedSecret, Buffer.from("Pair-Setup-Encrypt-Info"), 32);
