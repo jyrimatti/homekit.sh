@@ -8,8 +8,8 @@ set -eu
 logger_info "Monitoring for .toml files under $HOMEKIT_SH_ACCESSORIES_DIR..."
 while true
 do
-    ret="$(fswatch -1 --event=Updated --insensitive --exclude '.*' --include '.*[.]toml$' "$HOMEKIT_SH_ACCESSORIES_DIR"/* "$HOMEKIT_SH_ACCESSORIES_DIR"/*/*)"
-    logger_info "Some .toml file under $HOMEKIT_SH_ACCESSORIES_DIR was modified"
+    ret="$(fswatch -1 --event Updated --insensitive --exclude '.*' --include '.*[.]toml$' "$HOMEKIT_SH_ACCESSORIES_DIR"/* "$HOMEKIT_SH_ACCESSORIES_DIR"/*/*)"
+    logger_info "Some .toml file under $HOMEKIT_SH_ACCESSORIES_DIR was modified: $ret"
     if [ "$ret" = "" ]; then
         exit 1
     fi
