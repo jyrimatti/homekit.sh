@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash coreutils nodejs ncurses jq xxd python3Packages.tlv8
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash coreutils ncurses jq xxd python3Packages.tlv8
 . ./prefs
 . ./log/logging
 . ./profiling
