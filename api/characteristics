@@ -21,7 +21,7 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
 
     ids="$(echo "${qs_id}" | tr ',' '\n')"
     characteristics="$(echo "$ids"\
-                        | "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$(echo "$ids" | wc -l)}" dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
+                        | "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
 fi
 
 if [ "$REQUEST_METHOD" = 'PUT' ]; then
