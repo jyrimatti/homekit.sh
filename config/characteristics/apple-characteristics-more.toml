@@ -1,0 +1,698 @@
+[RemoteKey]
+type = "E1"
+perms = ["pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 16
+minStep = 1
+# 0 REWIND
+# 1 FAST_FORWARD
+# 2 NEXT_TRACK
+# 3 PREVIOUS_TRACK
+# 4 ARROW_UP
+# 5 ARROW_DOWN
+# 6 ARROW_LEFT
+# 7 ARROW_RIGHT
+# 8 SELECT
+# 9 BACK
+# 10 EXIT
+# 11 PLAY_PAUSE
+# 15 INFORMATION
+
+[SleepDiscoveryMode]
+type = "E8"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+# 0 NOT_DISCOVERABLE
+# 1 ALWAYS_DISCOVERABLE
+
+[ClosedCaptions]
+type = "DD"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+# 0 DISABLED
+# 1 ENABLED
+
+[DisplayOrder]
+type = "136"
+perms = ["pr", "pw", "ev"]
+format = "tlv8"
+
+[CurrentMediaState]
+type = "E0"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 5
+minStep = 1
+# 0 PLAY
+# 1 PAUSE
+# 2 STOP
+# 4 LOADING
+# 5 INTERRUPTED
+
+[TargetMediaState]
+type = "137"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+minStep = 1
+# 0 PLAY
+# 1 PAUSE
+# 2 STOP
+
+[PictureMode]
+type = "E2"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 13
+minStep = 1
+# 0 OTHER
+# 1 STANDARD
+# 2 CALIBRATED
+# 3 CALIBRATED_DARK
+# 4 VIVID
+# 5 GAME
+# 6 COMPUTER
+# 7 CUSTOM
+
+[PowerModeSelection]
+type = "DF"
+perms = ["pw"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+# 0 SHOW
+# 1 HIDE
+
+[InputSourceType]
+type = "DB"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 10
+minStep = 1
+# 0 OTHER
+# 1 HOME_SCREEN
+# 2 TUNER
+# 3 HDMI
+# 4 COMPOSITE_VIDEO
+# 5 S_VIDEO
+# 6 COMPONENT_VIDEO
+# 7 DVI
+# 8 AIRPLAY
+# 9 USB
+# 10 APPLICATION
+
+[CurrentVisibilityState]
+type = "135"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+# 0 SHOWN
+# 1 HIDDEN
+
+[Identifier]
+type = "E6"
+perms = ["pr"]
+format = "uint32"
+
+[InputDeviceType]
+type = "DC"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 6
+minStep = 1
+# 0 OTHER
+# 1 TV
+# 2 RECORDING
+# 3 TUNER
+# 4 PLAYBACK
+# 5 AUDIO_SYSTEM
+
+[TargetVisibilityState]
+type = "134"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+# 0 SHOWN
+# 1 HIDDEN
+
+[VolumeControlType]
+type = "E9"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 3
+minStep = 1
+# 0 NONE
+# 1 RELATIVE
+# 2 RELATIVE_WITH_CURRENT
+# 3 ABSOLUTE
+
+[VolumeSelector]
+type = "EA"
+perms = ["pw"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+# 0 INCREMENT
+# 1 DECREMENT
+
+[AccessControlLevel]
+type = "E5"
+perms = ["pr", "pw", "ev"]
+format = "uint16"
+minValue = 0
+maxValue = 2
+minStep = 1
+
+[PasswordSetting]
+type = "E4"
+perms = ["pr", "pw", "ev"]
+format = "tlv8"
+
+[MetricsBufferFullState]
+type = "272"
+perms = ["pr", "ev"]
+format = "bool"
+
+[SupportedMetrics]
+type = "271"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[Ping]
+type = "23C"
+perms = ["pr"]
+format = "data"
+
+[ActivityInterval]
+type = "23B"
+perms = ["pr", "ev"]
+format = "uint32"
+minValue = 0
+minStep = 1
+
+[HeartBeat]
+type = "24A"
+perms = ["pr", "ev"]
+format = "uint32"
+
+[SleepInterval]
+type = "23A"
+perms = ["pr", "ev"]
+format = "uint32"
+minValue = 0
+minStep = 1
+
+[AssetUpdateReadiness]
+type = "269"
+perms = ["pr", "ev"]
+format = "uint32"
+
+[SupportedAssetTypes]
+type = "268"
+perms = ["pr"]
+format = "uint32"
+
+[ConfigureBridgedAccessoryStatus]
+type = "9D"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[DiscoverBridgedAccessories]
+type = "9E"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+
+[DiscoveredBridgedAccessories]
+type = "9F"
+perms = ["pr", "ev"]
+format = "uint16"
+
+[ConfigureBridgedAccessory]
+type = "A0"
+perms = ["pw"]
+format = "tlv8"
+
+[Reachable]
+type = "63"
+perms = ["pr", "pw"]
+format = "bool"
+
+[LinkQuality]
+type = "9C"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 1
+maxValue = 4
+
+[AccessoryIdentifier]
+type = "57"
+perms = ["pr"]
+format = "string"
+
+[Category]
+type = "A3"
+perms = ["pr", "ev"]
+format = "uint16"
+
+[EventSnapshotsActive]
+type = "223"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+# 0 DISABLED
+# 1 ENABLED
+
+[HomeKitCameraActive]
+type = "21B"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+# 0 OFF
+# 1 ON
+
+[CameraOperatingModeIndicator]
+type = "21D"
+perms = ["pr", "pw", "ev", "tw"]
+format = "bool"
+# 0 DISABLED
+# 1 ENABLED
+
+[ManuallyDisabled]
+type = "227"
+perms = ["pr", "ev"]
+format = "bool"
+
+[NightVision]
+type = "11B"
+perms = ["pr", "pw", "ev", "tw"]
+format = "bool"
+
+[PeriodicSnapshotsActive]
+type = "225"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+# 0 DISABLE
+# 1 ENABLE
+
+[ThirdPartyCameraActive]
+type = "21C"
+perms = ["pr", "ev"]
+format = "uint8"
+# 0 OFF
+# 1 ON
+
+[DiagonalFieldOfView]
+type = "224"
+perms = ["pr", "ev"]
+format = "float"
+minValue = 0
+maxValue = 360
+unit = "arcdegrees"
+
+[SelectedCameraRecordingConfiguration]
+type = "209"
+perms = ["pr", "pw", "ev"]
+format = "tlv8"
+
+[SupportedAudioRecordingConfiguration]
+type = "207"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[SupportedCameraRecordingConfiguration]
+type = "205"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[SupportedVideoRecordingConfiguration]
+type = "206"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[RecordingAudioActive]
+type = "226"
+perms = ["pr", "pw", "ev", "tw"]
+format = "uint8"
+# 0 DISABLE
+# 1 ENABLE
+
+[RelayControlPoint]
+type = "5E"
+perms = ["pr", "pw", "ev"]
+format = "tlv8"
+
+[RelayState]
+type = "5C"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 5
+minStep = 1
+
+[RelayEnabled]
+type = "5B"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+
+[SupportedDiagnosticsSnapshot]
+type = "238"
+perms = ["pr"]
+format = "tlv8"
+
+[SelectedDiagnosticsModes]
+type = "24D"
+perms = ["pr", "pw"]
+format = "uint32"
+
+[SupportedDiagnosticsModes]
+type = "24C"
+perms = ["pr"]
+format = "uint32"
+
+[FirmwareUpdateReadiness]
+type = "234"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[FirmwareUpdateStatus]
+type = "235"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[StagedFirmwareVersion]
+type = "249"
+perms = ["pr", "ev"]
+format = "string"
+
+[SupportedFirmwareUpdateConfiguration]
+type = "233"
+perms = ["pr"]
+format = "tlv8"
+
+[ConfigurationState]
+type = "263"
+perms = ["pr", "ev"]
+format = "uint16"
+
+[NFCAccessControlPoint]
+type = "264"
+perms = ["pr", "pw", "wr"]
+format = "tlv8"
+
+[NFCAccessSupportedConfiguration]
+type = "265"
+perms = ["pr"]
+format = "tlv8"
+
+[ListPairings]
+type = "50"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[PairSetup]
+type = "4C"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[PairVerify]
+type = "4E"
+perms = ["pr", "pw"]
+format = "tlv8"
+
+[PairingFeatures]
+type = "4F"
+perms = ["pr"]
+format = "uint8"
+
+[WakeConfiguration]
+type = "222"
+perms = ["pr"]
+format = "tlv8"
+
+[SelectedSleepConfiguration]
+type = "252"
+perms = ["pr", "pw", "ev", "wr"]
+format = "tlv8"
+
+[SupportedSleepConfiguration]
+type = "251"
+perms = ["pr"]
+format = "tlv8"
+
+[SiriEndpointSessionStatus]
+type = "254"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[AirPlayEnable]
+type = "25B"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+
+[ProgrammableSwitchOutputState]
+type = "74"
+perms = ["pr", "pw", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+minStep = 1
+
+[CryptoHash]
+type = "250"
+perms = ["pw", "wr"]
+format = "tlv8"
+
+[TapType]
+type = "22F"
+perms = ["pr"]
+format = "uint16"
+
+[Token]
+type = "231"
+perms = ["pw"]
+format = "data"
+
+[CurrentTransport]
+type = "22B"
+perms = ["pr"]
+format = "bool"
+
+[ThreadControlPoint]
+type = "704"
+perms = ["pw"]
+format = "tlv8"
+
+[ThreadNodeCapabilities]
+type = "702"
+perms = ["pr"]
+format = "uint16"
+minValue = 0
+maxValue = 31
+minStep = 1
+
+[ThreadStatus]
+type = "703"
+perms = ["pr", "ev"]
+format = "uint16"
+minValue = 0
+maxValue = 6
+minStep = 1
+
+[CCAEnergyDetectThreshold]
+type = "246"
+perms = ["pr"]
+format = "int"
+
+[CCASignalDetectThreshold]
+type = "245"
+perms = ["pr"]
+format = "int"
+
+[EventRetransmissionMaximum]
+type = "23D"
+perms = ["pr"]
+format = "uint8"
+
+[EventTransmissionCounters]
+type = "23E"
+perms = ["pr"]
+format = "uint32"
+
+[MACRetransmissionMaximum]
+type = "247"
+perms = ["pr"]
+format = "uint8"
+
+[MACTransmissionCounters]
+type = "248"
+perms = ["pr"]
+format = "data"
+
+[ReceiverSensitivity]
+type = "244"
+perms = ["pr"]
+format = "int"
+
+[ReceivedSignalStrengthIndication]
+type = "23F"
+perms = ["pr"]
+format = "int"
+
+[SignalToNoiseRatio]
+type = "241"
+perms = ["pr"]
+format = "int"
+
+[ThreadOpenThreadVersion]
+type = "706"
+perms = ["pr"]
+format = "string"
+
+[TransmitPower]
+type = "242"
+perms = ["pr"]
+format = "int"
+
+[MaximumTransmitPower]
+type = "243"
+perms = ["pr"]
+format = "int"
+
+[CurrentTime]
+type = "9B"
+perms = ["pr", "pw"]
+format = "string"
+
+[DayOfTheWeek]
+type = "98"
+perms = ["pr", "pw"]
+format = "uint8"
+minValue = 1
+maxValue = 7
+
+[TimeUpdate]
+type = "9A"
+perms = ["pr", "pw"]
+format = "bool"
+
+[SupportedTransferTransportConfiguration]
+type = "202"
+perms = ["pr"]
+format = "tlv8"
+
+[SetupTransferTransport]
+type = "201"
+perms = ["pw", "wr"]
+format = "tlv8"
+
+[TunnelConnectionTimeout]
+type = "61"
+perms = ["pr", "pw", "ev"]
+format = "int"
+
+[TunneledAccessoryAdvertising]
+type = "60"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+
+[TunneledAccessoryConnected]
+type = "59"
+perms = ["pr", "pw", "ev"]
+format = "bool"
+
+[TunneledAccessoryStateNumber]
+type = "58"
+perms = ["pr", "ev"]
+format = "int"
+
+[ManagedNetworkEnable]
+type = "215"
+perms = ["pr", "pw", "ev", "tw"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+# 0 DISABLED
+# 1 ENABLED
+
+[NetworkAccessViolationControl]
+type = "21F"
+perms = ["pr", "pw", "ev", "tw", "wr"]
+format = "tlv8"
+
+[NetworkClientProfileControl]
+type = "20C"
+perms = ["pr", "pw", "ev", "tw", "wr"]
+format = "tlv8"
+
+[NetworkClientStatusControl]
+type = "20D"
+perms = ["pr", "pw",  "wr"]
+format = "tlv8"
+
+[RouterStatus]
+type = "20E"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 1
+# 0 READY
+# 1 NOT_READY
+
+[SupportedRouterConfiguration]
+type = "210"
+perms = ["pr"]
+format = "tlv8"
+
+[WANConfigurationList]
+type = "211"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[WANStatusList]
+type = "212"
+perms = ["pr", "ev"]
+format = "tlv8"
+
+[Wi-FiSatelliteStatus]
+type = "21E"
+perms = ["pr", "ev"]
+format = "uint8"
+minValue = 0
+maxValue = 2
+# 0 UNKNOWN
+# 1 CONNECTED
+# 2 NOT_CONNECTED
+
+[Wi-FiCapabilities]
+type = "22C"
+perms = ["pr"]
+format = "uint32"
+
+[Wi-FiConfigurationControl]
+type = "22D"
+perms = ["pr", "pw", "ev", "tw", "wr"]
+format = "tlv8"
+

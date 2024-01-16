@@ -1,0 +1,86 @@
+[Television]
+type = "D8"
+
+[TelevisionSpeaker]
+type = "113"
+
+[InputSource]
+type = "D9"
+
+[AccessCode]
+type = "260"
+
+[AccessoryMetrics]
+type = "270"
+
+[AccessoryRuntimeInformation]
+type = "239"
+
+[AssetUpdate]
+type = "267"
+
+[Assistant]
+type = "26A"
+
+[BridgeConfiguration]
+type = "A1"
+
+[BridgingState]
+type = "62"
+
+[CameraOperatingMode]
+type = "21A"
+
+[CameraRecordingManagement]
+type = "204"
+
+[CloudRelay]
+type = "5A"
+
+[Diagnostics]
+type = "237"
+
+[FirmwareUpdate]
+type = "236"
+
+[NfcAccess]
+type = "266"
+
+[Pairing]
+type = "55"
+
+[PowerManagement]
+type = "221"
+
+[SiriEndpoint]
+type = "253"
+
+[SmartSpeaker]
+type = "228"
+
+[StatefulProgrammableSwitch]
+type = "88"
+
+[TapManagement]
+type = "22E"
+
+[ThreadTransport]
+type = "701"
+
+[TimeInformation]
+type = "99"
+
+[TransferTransportManagement]
+type = "203"
+
+[Tunnel]
+type = "56"
+
+[Wi-FiRouter]
+type = "20A"
+
+[Wi-FiSatellite]
+type = "20F"
+
+[Wi-FiTransport]
+type = "22A"

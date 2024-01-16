@@ -179,7 +179,36 @@
                         { "$ref": "#/$defs/TargetControl" },
                         { "$ref": "#/$defs/AudioStreamManagement" },
                         { "$ref": "#/$defs/DataStreamTransportManagement" },
-                        { "$ref": "#/$defs/Siri" }
+                        { "$ref": "#/$defs/Siri" },
+                        { "$ref": "#/$defs/Television" },
+                        { "$ref": "#/$defs/TelevisionSpeaker" },
+                        { "$ref": "#/$defs/InputSource" },
+                        { "$ref": "#/$defs/AccessCode" },
+                        { "$ref": "#/$defs/AccessoryMetrics" },
+                        { "$ref": "#/$defs/AccessoryRuntimeInformation" },
+                        { "$ref": "#/$defs/AssetUpdate" },
+                        { "$ref": "#/$defs/Assistant" },
+                        { "$ref": "#/$defs/BridgeConfiguration" },
+                        { "$ref": "#/$defs/BridgingState" },
+                        { "$ref": "#/$defs/CameraOperatingMode" },
+                        { "$ref": "#/$defs/CameraRecordingManagement" },
+                        { "$ref": "#/$defs/CloudRelay" },
+                        { "$ref": "#/$defs/Diagnostics" },
+                        { "$ref": "#/$defs/FirmwareUpdate" },
+                        { "$ref": "#/$defs/NfcAccess" },
+                        { "$ref": "#/$defs/Pairing" },
+                        { "$ref": "#/$defs/PowerManagement" },
+                        { "$ref": "#/$defs/SiriEndpoint" },
+                        { "$ref": "#/$defs/SmartSpeaker" },
+                        { "$ref": "#/$defs/StatefulProgrammableSwitch" },
+                        { "$ref": "#/$defs/TapManagement" },
+                        { "$ref": "#/$defs/ThreadTransport" },
+                        { "$ref": "#/$defs/TimeInformation" },
+                        { "$ref": "#/$defs/TransferTransportManagement" },
+                        { "$ref": "#/$defs/Tunnel" },
+                        { "$ref": "#/$defs/Wi-FiRouter" },
+                        { "$ref": "#/$defs/Wi-FiSatellite" },
+                        { "$ref": "#/$defs/Wi-FiTransport" }
                     ]
                 }
             },
@@ -816,6 +845,381 @@
                 "SiriInputType": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 0 }] }
             },
             "required": [ "SiriInputType" ]
+        },
+
+        "Television": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ActiveIdentifier":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "ConfiguredName":     { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "RemoteKey":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 16 }] },
+                "SleepDiscoveryMode": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Brightness":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "ClosedCaptions":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "DisplayOrder":       { "$ref": "#/$defs/tlv8" },
+                "CurrentMediaState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 5 }] },
+                "TargetMediaState":   { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "Name":               { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string",  "maxLength": 64 }] },
+                "PictureMode":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 13 }] },
+                "PowerModeSelection": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Active", "ActiveIdentifier", "ConfiguredName", "RemoteKey", "SleepDiscoveryMode" ]
+        },
+
+        "TelevisionSpeaker": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Mute":              { "$ref": "#/$defs/booleanlike" },
+                "Active":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Volume":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] },
+                "VolumeControlType": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 3 }] },
+                "VolumeSelector":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "Mute" ]
+        },
+
+        "InputSource": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ConfiguredName":         { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, { "type": "string", "maxLength": 64 }] },
+                "InputSourceType":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 10 }] },
+                "IsConfigured":           { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "CurrentVisibilityState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Identifier":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "InputDeviceType":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 6 }] },
+                "TargetVisibilityState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] }
+            },
+            "required": [ "ConfiguredName", "InputSourceType", "IsConfigured", "Name", "CurrentVisibilityState" ]
+        },
+
+        "AccessCode": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "AccessCodeControlPoint":           { "$ref": "#/$defs/tlv8" },
+                "AccessCodeSupportedConfiguration": { "$ref": "#/$defs/tlv8" },
+                "ConfigurationState":               { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] }
+            },
+            "required": [ "AccessCodeControlPoint", "AccessCodeSupportedConfiguration", "ConfigurationState" ]
+        },
+
+        "AccessoryMetrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":                 { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "MetricsBufferFullState": { "$ref": "#/$defs/booleanlike" },
+                "SupportedMetrics":       { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "Active", "MetricsBufferFullState", "SupportedMetrics" ]
+        },
+
+        "AccessoryRuntimeInformation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Ping":             { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] },
+                "ActivityInterval": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "HeartBeat":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "SleepInterval":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] }
+            },
+            "required": [ "Ping" ]
+        },
+
+        "AssetUpdate": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "AssetUpdateReadiness": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "SupportedAssetTypes":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] }
+            },
+            "required": [ "AssetUpdateReadiness", "SupportedAssetTypes" ]
+        },
+
+        "Assistant": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Identifier": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "Name":       { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "Active", "Identifier", "Name" ]
+        },
+
+        "BridgeConfiguration": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ConfigureBridgedAccessoryStatus": { "$ref": "#/$defs/tlv8" },
+                "DiscoverBridgedAccessories":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "DiscoveredBridgedAccessories":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "ConfigureBridgedAccessory":       { "$ref": "#/$defs/tlv8" },
+                "Name":                            { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "ConfigureBridgedAccessoryStatus", "DiscoverBridgedAccessories", "DiscoveredBridgedAccessories", "ConfigureBridgedAccessory" ]
+        },
+
+        "BridgingState": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Reachable":           { "$ref": "#/$defs/booleanlike" },
+                "LinkQuality":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 1, "maximum": 4 }] },
+                "AccessoryIdentifier": { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "Category":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 1, "maximum": 16 }] },
+                "Name":                { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "Reachable", "LinkQuality", "AccessoryIdentifier", "Category" ]
+        },
+
+        "CameraOperatingMode": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "EventSnapshotsActive":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "HomeKitCameraActive":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CameraOperatingModeIndicator": { "$ref": "#/$defs/booleanlike" },
+                "ManuallyDisabled":             { "$ref": "#/$defs/booleanlike" },
+                "NightVision":                  { "$ref": "#/$defs/booleanlike" },
+                "PeriodicSnapshotsActive":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "ThirdPartyCameraActive":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "DiagonalFieldOfView":          { "oneOf": [{ "$ref": "#/$defs/overrideNumber"  }, { "type": "number", "minimum": 0, "maximum": 360 }] }
+            },
+            "required": [ "EventSnapshotsActive", "HomeKitCameraActive" ]
+        },
+
+        "CameraRecordingManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":                                { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "SelectedCameraRecordingConfiguration":  { "$ref": "#/$defs/tlv8" },
+                "SupportedAudioRecordingConfiguration":  { "$ref": "#/$defs/tlv8" },
+                "SupportedCameraRecordingConfiguration": { "$ref": "#/$defs/tlv8" },
+                "SupportedVideoRecordingConfiguration":  { "$ref": "#/$defs/tlv8" },
+                "RecordingAudioActive":                  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] }
+            },
+            "required": [ "Active", "SelectedCameraRecordingConfiguration", "SupportedAudioRecordingConfiguration", "SupportedCameraRecordingConfiguration", "SupportedVideoRecordingConfiguration" ]
+        },
+
+        "CloudRelay": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "RelayControlPoint": { "$ref": "#/$defs/tlv8" },
+                "RelayState":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 5 }] },
+                "RelayEnabled":      { "$ref": "#/$defs/booleanlike" }
+            },
+            "required": [ "RelayControlPoint", "RelayState", "RelayEnabled" ]
+        },
+
+        "Diagnostics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SupportedDiagnosticsSnapshot": { "$ref": "#/$defs/tlv8" },
+                "SelectedDiagnosticsModes":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "SupportedDiagnosticsModes":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] }
+            },
+            "required": [ "SupportedDiagnosticsSnapshot" ]
+        },
+
+        "FirmwareUpdate": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "FirmwareUpdateReadiness":              { "$ref": "#/$defs/tlv8" },
+                "FirmwareUpdateStatus":                 { "$ref": "#/$defs/tlv8" },
+                "StagedFirmwareVersion":                { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "SupportedFirmwareUpdateConfiguration": { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "FirmwareUpdateReadiness", "FirmwareUpdateStatus" ]
+        },
+
+        "NfcAccess": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ConfigurationState":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "NFCAccessControlPoint":           { "$ref": "#/$defs/tlv8" },
+                "NFCAccessSupportedConfiguration": { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "ConfigurationState", "NFCAccessControlPoint", "NFCAccessSupportedConfiguration" ]
+        },
+
+        "Pairing": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ListPairings":    { "$ref": "#/$defs/tlv8" },
+                "PairSetup":       { "$ref": "#/$defs/tlv8" },
+                "PairVerify":      { "$ref": "#/$defs/tlv8" },
+                "PairingFeatures": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] }
+            },
+            "required": [ "ListPairings", "PairSetup", "PairVerify", "PairingFeatures" ]
+        },
+
+        "PowerManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "WakeConfiguration":           { "$ref": "#/$defs/tlv8" },
+                "SelectedSleepConfiguration":  { "$ref": "#/$defs/tlv8" },
+                "SupportedSleepConfiguration": { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "WakeConfiguration" ]
+        },
+
+        "SiriEndpoint": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SiriEndpointSessionStatus": { "$ref": "#/$defs/tlv8" },
+                "Version":                   { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "ActiveIdentifier":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "ManuallyDisabled":          { "$ref": "#/$defs/booleanlike" }
+            },
+            "required": [ "SiriEndpointSessionStatus", "Version" ]
+        },
+
+        "SmartSpeaker": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentMediaState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 5 }] },
+                "TargetMediaState":  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "AirPlayEnable":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "ConfiguredName":    { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "Mute":              { "$ref": "#/$defs/booleanlike" },
+                "Name":              { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "Volume":            { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 100 }] }
+            },
+            "required": [ "CurrentMediaState", "TargetMediaState" ]
+        },
+
+        "StatefulProgrammableSwitch": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ProgrammableSwitchEvent":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] },
+                "ProgrammableSwitchOutputState": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "Name":                          { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "ProgrammableSwitchEvent", "ProgrammableSwitchOutputState" ]
+        },
+
+        "TapManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Active":     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "CryptoHash": { "$ref": "#/$defs/tlv8" },
+                "TapType":    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "Token":      { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] }
+            },
+            "required": [ "Active", "CryptoHash", "TapType", "Token" ]
+        },
+
+        "ThreadTransport": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentTransport":                 { "$ref": "#/$defs/booleanlike" },
+                "ThreadControlPoint":               { "$ref": "#/$defs/tlv8" },
+                "ThreadNodeCapabilities":           { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 31 }] },
+                "ThreadStatus":                     { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 6 }] },
+                "CCAEnergyDetectThreshold":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "CCASignalDetectThreshold":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "EventRetransmissionMaximum":       { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "EventTransmissionCounters":        { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "MACRetransmissionMaximum":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "MACTransmissionCounters":          { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string" }] },
+                "ReceiverSensitivity":              { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "ReceivedSignalStrengthIndication": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "SignalToNoiseRatio":               { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "ThreadOpenThreadVersion":          { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "TransmitPower":                    { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "MaximumTransmitPower":             { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] }
+            },
+            "required": [ "CurrentTransport", "ThreadControlPoint", "ThreadNodeCapabilities", "ThreadStatus" ]
+        },
+
+        "TimeInformation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentTime":  { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "DayOfTheWeek": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 7 }] },
+                "TimeUpdate":   { "$ref": "#/$defs/booleanlike" },
+                "Name":         { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] }
+            },
+            "required": [ "CurrentTime", "DayOfTheWeek", "TimeUpdate" ]
+        },
+
+        "TransferTransportManagement": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "SupportedTransferTransportConfiguration": { "$ref": "#/$defs/tlv8" },
+                "SetupTransferTransport":                  { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "SupportedTransferTransportConfiguration", "SetupTransferTransport" ]
+        },
+
+        "Tunnel": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "AccessoryIdentifier":          { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "TunnelConnectionTimeout":      { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] },
+                "TunneledAccessoryAdvertising": { "$ref": "#/$defs/booleanlike" },
+                "TunneledAccessoryConnected":   { "$ref": "#/$defs/booleanlike" },
+                "TunneledAccessoryStateNumber": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer" }] }
+            },
+            "required": [ "AccessoryIdentifier", "TunnelConnectionTimeout", "TunneledAccessoryAdvertising", "TunneledAccessoryConnected", "TunneledAccessoryStateNumber" ]
+        },
+
+        "Wi-FiRouter": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ConfiguredName":                { "oneOf": [{ "$ref": "#/$defs/overrideString"  }, {"type": "string", "maxLength": 64 }] },
+                "ManagedNetworkEnable":          { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "NetworkAccessViolationControl": { "$ref": "#/$defs/tlv8" },
+                "NetworkClientProfileControl":   { "$ref": "#/$defs/tlv8" },
+                "NetworkClientStatusControl":    { "$ref": "#/$defs/tlv8" },
+                "RouterStatus":                  { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 1 }] },
+                "SupportedRouterConfiguration":  { "$ref": "#/$defs/tlv8" },
+                "WANConfigurationList":          { "$ref": "#/$defs/tlv8" },
+                "WANStatusList":                 { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "ConfiguredName", "ManagedNetworkEnable", "NetworkAccessViolationControl", "NetworkClientProfileControl", "NetworkClientStatusControl", "RouterStatus", "SupportedRouterConfiguration", "WANConfigurationList", "WANStatusList" ]
+        },
+
+        "Wi-FiSatellite": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "WiFiSatelliteStatus": { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0, "maximum": 2 }] }
+            },
+            "required": [ "WiFiSatelliteStatus" ]
+        },
+
+        "Wi-FiTransport": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "CurrentTransport":         { "$ref": "#/$defs/booleanlike" },
+                "WiFiCapabilities":         { "oneOf": [{ "$ref": "#/$defs/overrideInteger" }, { "type": "integer", "minimum": 0 }] },
+                "WiFiConfigurationControl": { "$ref": "#/$defs/tlv8" }
+            },
+            "required": [ "CurrentTransport", "WiFiCapabilities" ]
         }
     }
   }
