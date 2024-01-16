@@ -17,8 +17,10 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
         dash ./util/cache_get.sh "$tomlfile"
     done | jq $params "$query"
 elif [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
-    logger_debug "Using disk cached JSON for $*"
-    jq $params "$query" $(IFS=$(echo "\n") echo "$*" | xargs -I{} echo "$HOMEKIT_SH_CACHE_DIR/{}")
+    for tomlfile in $*; do
+        logger_debug "Using disk cached JSON for $tomlfile"
+        cat $HOMEKIT_SH_CACHE_DIR/$tomlfile
+    done | jq $params "$query"
 else
     logger_debug "Using tomlq for $*"
     tomlq $params "$query" $*
