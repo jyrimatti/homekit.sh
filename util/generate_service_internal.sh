@@ -31,6 +31,10 @@ populatevalue() {
     fi
 }
 
+populateevent() {
+    jq -c 'if has("polling") then . else . + {"ev": false} end'
+}
+
 find_characteristic() {
     if [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
         logger_debug 'Using SQLite cached characteristics'
@@ -49,6 +53,7 @@ find_characteristic() {
      | find_characteristic\
      | characteristic_with_id_and_service\
      | populatevalue "$withvalue" "$aid"\
+     | populateevent\
      | jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
 } || {
     logger_error 'Could not generate characteristics: check config/characteristic/*.toml'
