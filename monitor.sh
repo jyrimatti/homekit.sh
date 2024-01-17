@@ -17,7 +17,7 @@ do
     rm -R "$HOMEKIT_SH_CACHE_DIR"
     
     . ./prefs
-    dash ./util/cache_toml.sh
+    ./util/cache_toml.sh
 
     current="$(sed 's/c#=\([^ ]*\) .*/\1/' "$HOMEKIT_SH_STORE_DIR/dns-txt")"
     newval="$((current+1))"

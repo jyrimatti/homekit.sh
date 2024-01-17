@@ -30,13 +30,29 @@ echo "Creating $servicedir/homekit.sh.service..."
 cat > "$servicedir/homekit.sh.service" << EOF
 [Unit]
 Description=Homekit.sh
-Wants=avahi-daemon.service
 After=syslog.target network.target avahi-daemon.service
 
 [Service]
-ExecStartPre=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh prepare'
-ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh'
+Type=oneshot
+ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh prepare'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+RequiredBy=network.target
+EOF
+
+cat > "$servicedir/homekit.sh-broadcast.service" << EOF
+[Unit]
+Description=Homekit.sh Broadcast
+PartOf=homekit.sh.service
+After=homekit.sh.service
+Wants=avahi-daemon.service
+
+[Service]
+ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/broadcast.sh'
 Type=simple
+Restart=always
 
 ProtectSystem=strict
 ProtectHome=read-only
@@ -45,7 +61,6 @@ RestrictRealtime=true
 RestrictSUIDSGID=true
 PrivateTmp=true
 
-Restart=always
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=homekit.sh
@@ -54,8 +69,94 @@ WorkingDirectory=$scriptdir
 Environment='HOMEKIT_SH_LOGGING=syslog'
 
 [Install]
-WantedBy=default.target
-RequiredBy=network.target
+WantedBy=homekit.sh.service
+EOF
+
+cat > "$servicedir/homekit.sh-monitor.service" << EOF
+[Unit]
+Description=Homekit.sh Monitor
+PartOf=homekit.sh.service
+After=homekit.sh.service
+
+[Service]
+ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/monitor.sh'
+Type=simple
+Restart=always
+
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homekit.sh
+SyslogLevel=warning
+WorkingDirectory=$scriptdir
+Environment='HOMEKIT_SH_LOGGING=syslog'
+
+[Install]
+WantedBy=homekit.sh.service
+EOF
+
+cat > "$servicedir/homekit.sh-poller.service" << EOF
+[Unit]
+Description=Homekit.sh Poller
+PartOf=homekit.sh.service
+After=homekit.sh.service
+
+[Service]
+ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/poller.sh'
+Type=simple
+Restart=always
+
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homekit.sh
+SyslogLevel=warning
+WorkingDirectory=$scriptdir
+Environment='HOMEKIT_SH_LOGGING=syslog'
+
+[Install]
+WantedBy=homekit.sh.service
+EOF
+
+cat > "$servicedir/homekit.sh-serve.service" << EOF
+[Unit]
+Description=Homekit.sh Serve
+PartOf=homekit.sh.service
+After=homekit.sh.service
+
+[Service]
+ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh'
+Type=simple
+Restart=always
+
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homekit.sh
+SyslogLevel=warning
+WorkingDirectory=$scriptdir
+Environment='HOMEKIT_SH_LOGGING=syslog'
+
+[Install]
+WantedBy=homekit.sh.service
 EOF
 
 echo "Reloading systemd config..."

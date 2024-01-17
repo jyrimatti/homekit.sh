@@ -5,6 +5,10 @@
 . ./profiling
 set -eu
 
+if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
+    export PATH="$HOMEKIT_SH_STORE_DIR/nix-override:$PATH"
+fi
+
 while true
 do
     logger_debug "Polling subscriptions"
