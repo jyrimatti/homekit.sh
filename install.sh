@@ -36,6 +36,7 @@ After=syslog.target network.target avahi-daemon.service
 Type=oneshot
 ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh prepare'
 RemainAfterExit=yes
+TimeoutStartSec=600
 
 ProtectSystem=strict
 ProtectHome=read-only
