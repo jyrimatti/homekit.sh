@@ -163,7 +163,7 @@ echo "Reloading systemd config..."
 systemctl --user daemon-reload
 
 echo "Enabling homekit.sh.service..."
-systemctl --user enable homekit.sh.service
+systemctl --user enable homekit.sh homekit.sh-broadcast homekit.sh-monitor homekit.sh-poller homekit.sh-serve
 
 echo "Enabling user process lingering for $USER..."
 loginctl enable-linger "$USER"

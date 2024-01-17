@@ -1,5 +1,7 @@
 
 if [ -z "${HOMEKIT_SH_ENV_SET:-}" ]; then
+    export LC_ALL=C # "fix" Nix Perl locale warnings
+    
     set -a
     . ./config/environment
     set +a
