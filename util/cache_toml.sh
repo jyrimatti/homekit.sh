@@ -49,6 +49,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
     HOMEKIT_SH_CACHE_TOML_SQLITE="$target"
     export HOMEKIT_SH_CACHE_TOML_SQLITE
 
+    rm "$target"
     sqlite3 "$target" << EOF
 create table accessories(aid INTEGER, file TEXT);
 create index accessories_aid on accessories(aid);
