@@ -29,15 +29,17 @@ response="$7"
 
 session_store="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
 
-service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")" || {
-    logger_error "Resource $aid.$iid not found!"
-    echo "{\"aid\": $aid, \"iid\": $iid, \"status\": $resource_does_not_exist}"
-    exit 0
+service_with_characteristic() {
+    dash ./util/service_with_characteristic.sh "$aid" "$iid" || {
+        logger_error "Resource $aid.$iid not found!"
+        echo "{\"aid\": $aid, \"iid\": $iid, \"status\": $resource_does_not_exist}"
+    }
 }
 
 toString() {
-    servicename="$(echo "$service_with_characteristic" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
-    characteristicname="$(echo "$service_with_characteristic" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
+    swc="$(service_with_characteristic)"
+    servicename="$(echo "$swc" | jq -r '.type' | xargs dash ./util/type_to_string.sh)"
+    characteristicname="$(echo "$swc" | jq -r '.characteristics[0].type' | xargs dash ./util/type_to_string.sh)"
     echo "$aid.$iid ($servicename.$characteristicname)"
 }
 
@@ -45,7 +47,7 @@ ret="{\"aid\": $aid, \"iid\": $iid, \"status\": 0}"
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
     set +e
-    echo "$service_with_characteristic" | dash ./util/value_set.sh "$aid" "$iid" "$value"
+    service_with_characteristic | dash ./util/value_set.sh "$aid" "$iid" "$value"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
@@ -64,7 +66,7 @@ if [ "$value" != 'null' ]; then
 fi
 
 if [ "$ev" = 'true' ]; then
-    echo "$service_with_characteristic" |
+    service_with_characteristic |
     jq -r '[.type, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
     while IFS=$(echo "\t") read -r servicetype characteristictype polling cmd
     do
