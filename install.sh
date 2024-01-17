@@ -37,6 +37,20 @@ Type=oneshot
 ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh prepare'
 RemainAfterExit=yes
 
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+PrivateTmp=true
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=homekit.sh
+SyslogLevel=warning
+WorkingDirectory=$scriptdir
+Environment='HOMEKIT_SH_LOGGING=syslog'
+
 [Install]
 WantedBy=default.target
 RequiredBy=network.target
