@@ -18,7 +18,7 @@ type="$1"
 
 if [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
     logger_debug 'Using SQLite cached services and characteristics'
-    sqlite3 "$HOMEKIT_SH_CACHE_TOML_SQLITE" "select typeName from services where typeCode='$type' union select typeName from characteristics where typeCode='$type' limit 1"
+    sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" "select typeName from services where typeCode='$type' union select typeName from characteristics where typeCode='$type' limit 1"
 else
     dash ./util/tomlq-cached.sh -rn "first(inputs | select(.[] | .type == \"$type\") | keys[0])" ./config/services/*.toml ./config/characteristics/*.toml
 fi
