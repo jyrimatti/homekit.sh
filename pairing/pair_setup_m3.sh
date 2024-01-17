@@ -27,7 +27,7 @@ salt="$(cat "$storePath/salt" | ./util/bin2hex.sh)"
 accessorySideSRPProof=$(echo -n "$iOSDeviceSRPProof" | ./pairing/srp_verify_session.sh "Pair-Setup" "$verifier" "$salt" "$serverPrivateKey" "$iOSDeviceSRPPublicKey" "$storePath/srpSharedSecret") || {
     logger_error "Invalid iOSDeviceSRPProof"
     # If verification fails, the accessory must respond with the following TLV items
-    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": \"$TLV_ERROR_AUTHENTICATION\"}" | ./util/tlv_encode.sh
+    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
     exit 2
 }
 

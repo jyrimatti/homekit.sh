@@ -30,7 +30,7 @@ sessionKey="$(echo -n "$srpSharedSecret" | dash ./pairing/hkdf.sh "Pair-Setup-En
 plaintext="$(echo -n "$messageData" | ./pairing/decrypt_and_verify.sh "PS-Msg05" "$sessionKey" "$authTagData")" || {
     logger_error "Error while decrypting and verifying M5 subTlv"
     # If verification/decryption fails, the accessory must respond with the following TLV items:
-    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": \"$TLV_ERROR_AUTHENTICATION\"}" | ./util/tlv_encode.sh
+    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
     exit 2
 }
 
@@ -59,7 +59,7 @@ echo -n "01" | ./util/hex2bin.sh > "$pairingStorePath/$iOSDevicePairingID/iOSDev
 echo -n "$iOSDeviceInfo" | ./pairing/verify.sh "$pairingStorePath/$iOSDevicePairingID/iOSDeviceLTPK" "$iOSDeviceSignature" || {
     logger_error "Invalid iOSDeviceSignature"
     # If signature verification fails, the accessory must respond with the following TLV items:
-    jq -n "{\"$TLV_STATE\": $TLV_M6, \"$TLV_ERROR\": \"$TLV_ERROR_AUTHENTICATION\"}" | ./util/tlv_encode.sh
+    jq -n "{\"$TLV_STATE\": $TLV_M6, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
     exit 4
 }
 

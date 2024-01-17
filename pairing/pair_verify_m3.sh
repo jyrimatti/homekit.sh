@@ -34,7 +34,7 @@ SessionKey=$(echo -n "$sharedSecret" | dash ./pairing/hkdf.sh "Pair-Verify-Encry
 # Decrypt the sub-TLV in encryptedData.
 subTLVhex="$(echo -n "$messageData" | ./pairing/decrypt_and_verify.sh "PV-Msg03" "$SessionKey" "$authTagData" || {
         logger_error 'Error while decrypting and verifying M3 subTlv'
-        jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": \"$TLV_ERROR_AUTHENTICATION\"}" | ./util/tlv_encode.sh
+        jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
         exit 2
 })"
 subTLV="$(echo -n "$subTLVhex" | ./util/tlv_decode.sh)"
@@ -46,7 +46,7 @@ iOSDeviceSignature="$(echo -n "$subTLV" | jq -r ".[\"$TLV_SIGNATURE\"]")"
 # Use the iOS deviceʼs Pairing Identifier, iOSDevicePairingID, to look up the iOS deviceʼs long-term public key, iOSDeviceLTPK, in its list of paired controllers.
 test -f "$pairingStorePath/$iOSDevicePairingID/iOSDevicePairingID" || {
     logger_info "Client iOSDevicePairingID $iOSDevicePairingID not found -> not paired"
-    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": \"$TLV_ERROR_AUTHENTICATION\"}" | ./util/tlv_encode.sh
+    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
     exit 4
 }
 
@@ -55,7 +55,7 @@ iOSDeviceInfo="${iOSDevicePublicKey}${iOSDevicePairingIDhex}${AccessoryPublicKey
 # Use Ed25519 to verify iOSDeviceSignature using iOSDeviceLTPK against iOSDeviceInfo contained in the decrypted sub-TLV
 echo -n "$iOSDeviceInfo" | dash ./pairing/verify.sh "$pairingStorePath/$iOSDevicePairingID/iOSDeviceLTPK" "$iOSDeviceSignature" || {
     logger_error 'Invalid iOSDeviceSignature'
-    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": \"$TLV_ERROR_AUTHENTICATION\"}" | ./util/tlv_encode.sh
+    jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
     exit 4
 }
 
