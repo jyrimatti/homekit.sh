@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix coreutils findutils gnugrep parallel
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix coreutils findutils gnugrep
 . ./prefs
 . ./log/logging
 . ./profiling
@@ -17,7 +17,7 @@ do
         cut -d / -f 4,6 |\
         tr '/' ' ' |\
         xargs -r -L1 dash ./util/poll.sh |\
-        parallel -k --jobs "${PROFILING:-0}" || true
+        "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" || true
     
     sleep 1
 done

@@ -154,6 +154,7 @@ After=homekit.sh.service
 ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh'
 Type=simple
 Restart=always
+TasksMax=infinity
 
 ProtectSystem=strict
 ProtectHome=read-only
