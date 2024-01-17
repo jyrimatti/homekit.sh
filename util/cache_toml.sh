@@ -23,14 +23,16 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     rm "$tmpfile"
 fi
 
+sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT/cache"
+
 if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
     tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
     echo "$tomls"\
-     | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" dash -c "test {0} -ot $HOMEKIT_SH_CACHE_DIR/{0} || (mkdir -p \$(dirname $HOMEKIT_SH_CACHE_DIR/{0}) && dash ./util/validate_toml.sh {0} > $HOMEKIT_SH_CACHE_DIR/{0})"
+     | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" dash -c "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
-    target="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
+    target="$sessionCachePath/sqlite"
     logger_debug "Caching services, characteristics, and accessories to SQLite database: $target"
 
     servicescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
