@@ -32,7 +32,7 @@ populatevalue() {
 }
 
 populateevent() {
-    jq -c 'if has("polling") then . else . + {"ev": false} end'
+    jq -c '. + {"ev": has("polling")}'
 }
 
 find_characteristic() {
