@@ -24,33 +24,39 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
 fi
 
 sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT/cache"
+target="$sessionCachePath/sqlite"
 
-if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
-    tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
-    echo "$tomls"\
-     | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" dash -c "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
+if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" = "true" ]; then
+    if [ -f "$target" ]; then
+        logger_debug "SQLite cache already exists, thus so must cached TOML files"
+    else
+        tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
+        echo "$tomls"\
+        | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" dash -c "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
+    fi
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
-    target="$sessionCachePath/sqlite"
-    logger_debug "Caching services, characteristics, and accessories to SQLite database: $target"
+    if [ -f "$target" ]; then
+        logger_debug "Using existing SQLite cache"
+    else
+        logger_debug "Caching services, characteristics, and accessories to SQLite database: $target"
 
-    servicescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
-    characteristicscsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
-    accessoriescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
+        servicescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
+        characteristicscsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
+        accessoriescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
 
-    tomlCount="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | wc -l)"
-    {
-        echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > '$servicescsv'"
-        echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(\",\")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.maxLen, .value.unit, (.value[\"valid-values\"] // [] | join(\",\"))]) | .[] | @csv' ./config/characteristics/*.toml > '$characteristicscsv'"
-        echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-$tomlCount} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
-    } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-3}" -s --shell-path dash
+        tomlCount="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | wc -l)"
+        {
+            echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > '$servicescsv'"
+            echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(\",\")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.maxLen, .value.unit, (.value[\"valid-values\"] // [] | join(\",\"))]) | .[] | @csv' ./config/characteristics/*.toml > '$characteristicscsv'"
+            echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-$tomlCount} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
+        } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-3}" -s --shell-path dash
 
-    HOMEKIT_SH_CACHE_TOML_SQLITE="$target"
-    export HOMEKIT_SH_CACHE_TOML_SQLITE
+        HOMEKIT_SH_CACHE_TOML_SQLITE="$target"
+        export HOMEKIT_SH_CACHE_TOML_SQLITE
 
-    test -f "$target" && rm "$target"
-    sqlite3 "$target" << EOF
+        sqlite3 "$target" << EOF
 create table accessories(aid INTEGER, file TEXT);
 create index accessories_aid on accessories(aid);
 create index accessories_file on accessories(file);
@@ -65,9 +71,10 @@ create index characteristics_typeCode on characteristics(typeCode);
 .import "$characteristicscsv" characteristics
 .import "$accessoriescsv" accessories
 EOF
-    rm "$servicescsv"
-    rm "$characteristicscsv"
-    rm "$accessoriescsv"
+        rm "$servicescsv"
+        rm "$characteristicscsv"
+        rm "$accessoriescsv"
 
-    logger_debug "Caching to SQLite done"
+        logger_debug "Caching to SQLite done"
+    fi
 fi
