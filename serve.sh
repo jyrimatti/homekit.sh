@@ -179,7 +179,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         else:
             assert len(startBytes) == 2
             text = self.decodeFromBlocks(startBytes, self.rfile)
-            self.log_debug("Encrypted request in plain text: %s", str(text, 'utf-8'))
+            self.log_debug("Encrypted request (with start bytes: %b) in plain text: %b", startBytes, text)
             os.environ['REQUEST_TYPE'] = "encrypted"
             
             # replace streams with temp files
@@ -213,11 +213,11 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
             
             if end >= 10:
-                self.log_error("Request to %s took %s seconds. Total encoded response length: %s, response: %s", self.path, str(end), str(len(bytes)), resp)
+                self.log_error("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
             elif end >= 7:
-                self.log_warn("Request to %s took %s seconds. Total encoded response length: %s, response: %s", self.path, str(end), str(len(bytes)), resp)
+                self.log_warn("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
             else:
-                self.log_debug("Request to %s took %s seconds. Total encoded response length: %s, response: %s", self.path, str(end), str(len(bytes)), resp)
+                self.log_debug("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
             
             self.wfile.write(bytes)
             self.wfile.flush()
@@ -234,7 +234,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             resp = str(stdout, 'utf-8')
             #resp = resp.replace("\n", "\r\n")
             bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
-            self.log_info("Sending event with total encoded response length %s: %s", str(len(bytes)), resp)
+            self.log_info("Sending event with total encoded response length %i: %s", len(bytes), resp)
             self.wfile.write(bytes)
             self.wfile.flush()
 
@@ -277,7 +277,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             (ciphertext,digest) = a2c.encrypt_and_digest(block)
 
             offset += length
-            self.log_debug("Got ciphertext/digest of length: %s/%s", str(len(ciphertext)), str(len(digest)))
+            self.log_debug("Got ciphertext/digest of length: %i/%i", len(ciphertext), len(digest))
             
             ret.write(struct.pack("H", len(ciphertext)))
             ret.write(ciphertext)
