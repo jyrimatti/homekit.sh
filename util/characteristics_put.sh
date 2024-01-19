@@ -67,7 +67,7 @@ fi
 
 if [ "$ev" = 'true' ]; then
     service_with_characteristic |
-    jq -r '[.type, .ev // true, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
+    jq -r '[.type, .characteristics[0].ev, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
     while IFS=$(echo "\t") read -r servicetype supportsEvents characteristictype polling cmd
     do
         if [ "$supportsEvents" = 'false' ]; then
