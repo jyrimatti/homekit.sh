@@ -41,7 +41,7 @@ find_characteristic() {
         values="$(jq -c '.characteristics | map_values(. | objects // {value: .})')"
         typeNames="$(echo "$values" | jq -r 'keys_unsorted | @csv' | tr '"' "'")"
         sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" '.mode json' "SELECT typeName, typeCode type, perms, format, minValue, maxValue, minStep, maxLen, unit, validvalues 'valid-values' FROM characteristics WHERE typeName IN ($typeNames)"\
-         | jq -c '(map({ (.typeName): (. | del(.typeName) | with_entries(if .value == "" then empty elif .key == "minValue" or .key == "maxValue" or .key == "minStep" then (.value |= tonumber) elif .key == "perms" or .key == "valid-values" then (.value |= split(",") ) else . end) ) }) | add) * $values | .[]' --argjson values "$values"
+         | jq -c '(map({ (.typeName): (. | del(.typeName) | with_entries(if .value == "" then empty elif .key == "minValue" or .key == "maxValue" or .key == "minStep" then (.value |= tonumber) elif .key == "perms" then (.value |= split(",")) elif .key == "valid-values" then (.value |= split(",") | map(. |= tonumber) ) else . end) ) }) | add) * $values | .[]' --argjson values "$values"
     else
         jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh'\
          | xargs dash ./util/characteristic.sh
