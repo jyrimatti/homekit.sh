@@ -60,25 +60,30 @@ if [ "$value" != 'null' ]; then
         logger_error "Got errorcode $responsevalue while writing value for $(toString)"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $accessory_received_an_invalid_value_in_a_write_request}"
     elif [ "$response" = 'true' ]; then
-        logger_debug 'Requested for "value"'
+        logger_debug "Requested for 'value' for $aid.$iid"
         ret="{\"aid\": $aid, \"iid\": $iid, \"value\": $value}"
     fi
 fi
 
 if [ "$ev" = 'true' ]; then
     service_with_characteristic |
-    jq -r '[.type, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
-    while IFS=$(echo "\t") read -r servicetype characteristictype polling cmd
+    jq -r '[.type, .ev // true, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
+    while IFS=$(echo "\t") read -r servicetype supportsEvents characteristictype polling cmd
     do
-        logger_info "Subscribing to events for $aid.$iid ($servicetype.$characteristictype)"
-        
-        if [ "$polling" = ' ' ]; then
-            logger_warn "No 'polling' defined for $aid.$iid. Will not be able to automatically produce events for $(toString)"
+        if [ "$supportsEvents" = 'false' ]; then
+            logger_warn "Events not supported for $aid.$iid ($servicetype.$characteristictype)"
+            ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+            echo "$ret"
+            continue
+        elif [ "$polling" = ' ' ]; then
+            logger_warn "No 'polling' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
             ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
         elif [ "$cmd" = ' ' ]; then
-            logger_warn "No 'cmd' defined for $aid.$iid. Will not be able to automatically produce events for $(toString)"
+            logger_warn "No 'cmd' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
             ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
         else
+            logger_info "Subscribing to events for $aid.$iid ($servicetype.$characteristictype)"
+
             test -e "$session_store/subscriptions" || mkdir -p "$session_store/subscriptions"
             subscription="$session_store/subscriptions/${aid}.${iid}"
             test -e "$session_store/events" || mkdir -p "$session_store/events"
@@ -88,7 +93,7 @@ if [ "$ev" = 'true' ]; then
         echo "$ret"
     done
 elif [ "$ev" = 'false' ]; then
-    logger_info "Unsubscribing from events for $(toString)"
+    logger_info "Unsubscribing from events for $aid.$iid"
     subscription="$session_store/subscriptions/${aid}.${iid}"
     rm -f "$subscription"
     logger_debug "Unsubscribed $subscription"
