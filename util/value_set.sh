@@ -25,7 +25,7 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].timeout // .timeout
 while IFS=$(echo "\t") read -r servicetype characteristictype timeout value cmd
 do
     if [ "$cmd" = ' ' ]; then
-        logger_error "Cannot set value, \"cmd\" not set in characteristic/service properties for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Cannot set value, \"cmd\" not set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype)"
         exit 154
     fi
 
@@ -33,11 +33,13 @@ do
         timeout="$HOMEKIT_SH_DEFAULT_TIMEOUT"
     fi
 
-    logger_debug "Using timeout $timeout for $cmd Set for $(toString "$servicetype" "$characteristictype")"
+    logger_debug "Using timeout $timeout for $cmd Set for $aid.$iid ($servicetype.$characteristictype)"
+    servicename="$(dash ./util/type_to_string.sh "$servicetype")"
+    characteristicname="$(dash ./util/type_to_string.sh "$characteristictype")"
 
     start="$(date +%s)"
     set +e
-    timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Set '' '' '$value'"
+    timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Set '$servicename' '$characteristicname' '$value'"
     responseValue=$?
     set -e
     if [ "$responseValue" -eq 124 ]; then
@@ -49,5 +51,5 @@ do
     fi
     end="$(date +%s)"
 
-    logger_info "$cmd Set: $((end - start))s for $(toString "$servicetype" "$characteristictype")"
+    logger_info "$cmd Set: $((end - start))s for $aid.$iid ($servicename.$characteristicname)"
 done

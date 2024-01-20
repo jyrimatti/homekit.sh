@@ -31,7 +31,7 @@ while IFS=$(echo "\t") read -r servicetype characteristictype format timeout val
 do
     if [ "$cmd" = ' ' ]; then
         if [ "$value" != ' ' ]; then
-            logger_debug "No \"cmd\" set in characteristic/service properties for $(toString "$servicetype" "$characteristictype"), returning given constant value '$value'"
+            logger_debug "No \"cmd\" set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype), returning given constant value '$value'"
             if [ "$format" = 'string' ]; then
                 echo "\"$value\""
             else
@@ -58,11 +58,13 @@ do
         timeout="$HOMEKIT_SH_DEFAULT_TIMEOUT"
     fi
 
-    logger_debug "Using timeout $timeout for $cmd Get for $(toString "$servicetype" "$characteristictype")"
+    logger_debug "Using timeout $timeout for $cmd Get for $aid.$iid ($servicetype.$characteristictype)"
+    servicename="$(dash ./util/type_to_string.sh "$servicetype")"
+    characteristicname="$(dash ./util/type_to_string.sh "$characteristictype")"
 
     start="$(date +%s)"
     set +e
-    ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get")"
+    ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get '$servicename' '$characteristicname'")"
     responseValue=$?
     set -e
     end="$(date +%s)"
