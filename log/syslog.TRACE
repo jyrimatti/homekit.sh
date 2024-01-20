@@ -3,8 +3,8 @@ logger_trace() {
     logger -i -t homekit.sh -p user.debug "Entering: $1";
     trap "_LOGGING_ret=\$?; _LOGGING_started=\"$(date +%s%3N)\"; _LOGGING_finished=\$(date +%s%3N); logger -i -t homekit.sh -p user.debug \"Finished (\$_LOGGING_ret): $1 in \$((\$_LOGGING_finished - \$_LOGGING_started))ms\"" EXIT;
 }
-logger_debug() { logger -i -t homekit.sh -p user.info "$1"; }
-logger_info()  { logger -i -t homekit.sh -p user.notice "$1"; }
-logger_warn()  { logger -i -t homekit.sh -p user.warning "$1"; }
-logger_error() { logger -i -t homekit.sh -p user.err "$1"; }
-logger_fatal() { logger -i -t homekit.sh -p user.crit "$1"; }
+logger_debug() { logger -i -t homekit.sh -p user.info    "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
+logger_info()  { logger -i -t homekit.sh -p user.notice  "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
+logger_warn()  { logger -i -t homekit.sh -p user.warning "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
+logger_error() { logger -i -t homekit.sh -p user.err     "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
+logger_fatal() { logger -i -t homekit.sh -p user.crit    "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
