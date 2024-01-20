@@ -1,27 +1,30 @@
-#! /nix/var/nix/profiles/default/bin/nix-shell
-#! nix-shell -i python -I channel:nixos-23.11-small -p python3Packages.tlv8
+#! /usr/bin/env nix-shell
+#! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash ncurses python3Packages.tlv8 jq findutils
+. ./prefs
+. ./log/logging
+. ./profiling
+set -eu
 
-import sys
-import os
-import tlv8
+logger_info 'Invoked api/pairings'
+logger_trace 'api/pairings'
 
-content = b''
-storedir = os.environ['HOMEKIT_SH_STORE_DIR']
-for o in os.listdir(storedir + '/pairings'):
-    pairingID   = open(storedir + "/pairings/" + o + "/iOSDevicePairingID","r").read()
-    ltpk        = open(storedir + "/pairings/" + o + "/iOSDeviceLTPK","rb").read()
-    permissions = open(storedir + "/pairings/" + o + "/iOSDevicePermissions","rb").read()
+. ./util/tlv.sh
 
-    data = [
-        tlv8.Entry(6, 2),
-        tlv8.Entry(1, pairingID),
-        tlv8.Entry(3, ltpk),
-        tlv8.Entry(11, int.from_bytes(permissions, byteorder='little'))
-    ]
+i=0
+resp="$(for pairing in "$HOMEKIT_SH_STORE_DIR"/pairings/*; do
+    pairingid="$(cat "$pairing/iOSDevicePairingID" | ./util/bin2hex.sh)"
+    ltpk="$(cat "$pairing/iOSDeviceLTPK" | ./util/bin2hex.sh)"
+    permissions="$(cat "$pairing/iOSDevicePermissions" | ./util/bin2hex.sh)"
+    ret="$(jq -n "{\"$TLV_IDENTIFIER\": \"$pairingid\", \"$TLV_PUBLIC_KEY\": \"$ltpk\", \"$TLV_PERMISSIONS\":\"$permissions\"}")"
+    if [ $i -eq 0 ]; then
+        i=$((i+1))
+        ret="$(echo "$ret" | jq -c "{\"$TLV_STATE\": $TLV_M2} + .")"
+    fi
+    if [ $i -gt 0 ]; then
+        i=$((i+1))
+        jq -n "{\"$TLV_SEPARATOR\": \"\"}" | ./util/tlv_encode.sh
+    fi
+    echo "$ret" | ./util/tlv_encode.sh
+done)"
 
-    content += tlv8.encode(data)
-
-print('Content-Type: application/hap+json')
-print('Content-Length: ' + str(len(content)))
-print('')
-print(content)
+./util/respond_tlv.sh "200" "$resp"

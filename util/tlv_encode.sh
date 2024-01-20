@@ -16,7 +16,7 @@ structure = {
     8: tlv8.DataType.INTEGER,
     9: tlv8.DataType.BYTES,
     10: tlv8.DataType.BYTES,
-    11: tlv8.DataType.INTEGER,
+    11: tlv8.DataType.BYTES,
     12: tlv8.DataType.BYTES,
     13: tlv8.DataType.BYTES,
     19: tlv8.DataType.INTEGER,
