@@ -15,12 +15,6 @@ if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     rm -f "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
 fi
 
-toString() {
-    servicename="$(dash ./util/type_to_string.sh "$1")"
-    characteristicname="$(dash ./util/type_to_string.sh "$2")"
-    echo "$aid.$iid ($servicename.$characteristicname)"
-}
-
 jq -r '[.type, .characteristics[0].type, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
 while IFS=$(echo "\t") read -r servicetype characteristictype timeout value cmd
 do
@@ -43,10 +37,10 @@ do
     responseValue=$?
     set -e
     if [ "$responseValue" -eq 124 ]; then
-        logger_error "Command '$cmd Set' timed out for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Command '$cmd Set' timed out for $aid.$iid ($servicetype.$characteristictype)"
         exit 158
     elif [ "$responseValue" -ne 0 ]; then
-        logger_error "Command '$cmd Set' failed for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Command '$cmd Set' failed for $aid.$iid ($servicetype.$characteristictype)"
         exit $responseValue
     fi
     end="$(date +%s)"

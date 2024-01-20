@@ -21,12 +21,6 @@ if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     fi
 fi
 
-toString() {
-    servicename="$(dash ./util/type_to_string.sh "$1")"
-    characteristicname="$(dash ./util/type_to_string.sh "$2")"
-    echo "$aid.$iid ($servicename.$characteristicname)"
-}
-
 jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
 while IFS=$(echo "\t") read -r servicetype characteristictype format timeout value cmd
 do
@@ -41,11 +35,11 @@ do
             exit 0
         else
             if [ "$servicetype" = '3E' ] && [ "$characteristictype" = '14' ]; then
-                logger_debug "Returning null for $(toString "$servicetype" "$characteristictype") since Apple requires value field to be not present."
+                logger_debug "Returning null for $aid.$iid ($servicetype.$characteristictype) since Apple requires value field to be not present."
                 echo 'null'
                 exit 0
             else
-                logger_error "No \"cmd\" or \"value\" set in characteristic/service properties for $(toString "$servicetype" "$characteristictype") -> leaving 'value' out"
+                logger_error "No \"cmd\" or \"value\" set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype) -> leaving 'value' out"
                 echo 'null'
                 exit 154
             fi
@@ -77,13 +71,13 @@ do
     end="$(date +%s)"
     duration="$((end - start))"
     if [ "$responseValue" -eq 124 ]; then
-        logger_error "Command '$cmd Get' timed out in ${duration}s for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Command '$cmd Get' timed out in ${duration}s for $aid.$iid ($servicetype.$characteristictype)"
         exit 158
     elif [ "$responseValue" -ne 0 ]; then
-        logger_error "Command '$cmd Get' failed for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Command '$cmd Get' failed for $aid.$iid ($servicetype.$characteristictype)"
         exit $responseValue
     elif [ "$ret" = '' ]; then
-        logger_error "Command '$cmd Get' returned empty response for $(toString "$servicetype" "$characteristictype")"
+        logger_error "Command '$cmd Get' returned empty response for $aid.$iid ($servicetype.$characteristictype)"
         exit 152
     fi
 
