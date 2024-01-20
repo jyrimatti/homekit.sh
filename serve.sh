@@ -286,6 +286,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
 
 # Use a forking server (instead of threading) to allow specifying different environment variables for each connection
 class ForkingHTTPServer(socketserver.ForkingMixIn, http.server.HTTPServer):
+    max_children = 9999999 # don's start killing arbitrary children...
     pass
 
 #class DualStackServer(ForkingHTTPServer):
