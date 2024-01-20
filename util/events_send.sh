@@ -7,7 +7,7 @@ set -eu
 
 logger_trace 'util/events_send.sh'
 
-session_store="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
+session_store="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}"
 
 if [ -n "$(ls -A "$session_store"/events 2>/dev/null)" ]; then
     events="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_events_send.XXXXXX")"

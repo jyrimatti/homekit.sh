@@ -9,7 +9,7 @@ logger_info 'Invoked api/pair-verify'
 logger_trace 'api/pair-verify'
 
 pairingStorePath="$HOMEKIT_SH_STORE_DIR/pairings"
-sessionStorePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
+sessionStorePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}"
 
 . ./util/tlv.sh
 . ./util/cgi_helpers.sh

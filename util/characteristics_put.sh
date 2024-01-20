@@ -27,7 +27,7 @@ authData="$5"
 remote="$6"
 response="$7"
 
-session_store="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT"
+session_store="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}"
 
 service_with_characteristic() {
     dash ./util/service_with_characteristic.sh "$aid" "$iid" || {

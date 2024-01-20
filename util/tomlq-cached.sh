@@ -17,7 +17,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
         dash ./util/cache_get.sh "$tomlfile"
     done | jq $params "$query"
 elif [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
-    sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT/cache"
+    sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}/cache"
     for tomlfile in $*; do
         logger_debug "Using disk cached JSON for $tomlfile"
         cat $sessionCachePath/$tomlfile

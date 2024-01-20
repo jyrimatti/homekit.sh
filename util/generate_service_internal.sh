@@ -25,7 +25,7 @@ populatevalue() {
     withvalue="$1"
     aid="$2"
     if [ "$withvalue" = '1' ]; then
-        "./bin/rust-parallel-$(uname)" -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash -c "echo '{0}' | jq -c '.characteristics[0] | (.value = (\$value // .defaultValue // .minValue // .[\"valid-values\"][0] // (if .format == \"bool\" and .type != \"14\" then false elif .format == \"string\" then \"\" else empty end))) // .' --argjson value \"\$(echo '{0}' | dash ./util/value_get.sh $aid \$(echo '{0}' | jq -r .characteristics[0].iid) || echo null)\""
+        jq -c '.characteristics[0] | (.value = (.defaultValue // .minValue // .["valid-values"][0] // (if .format == "bool" and .type != "14" then false elif .format == "float" then 0 elif .format == "int" then 0 elif .format == "uint8" then 0 elif .format == "uint16" then 0 elif .format == "uint32" then 0 elif .format == "string" then "" elif .format == "data" then "" else empty end))) // .'
     else
          jq -c '.characteristics[0]'
     fi

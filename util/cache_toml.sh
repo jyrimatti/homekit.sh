@@ -23,7 +23,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     rm "$tmpfile"
 fi
 
-sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/$REMOTE_ADDR:$REMOTE_PORT/cache"
+sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}/cache"
 target="$sessionCachePath/sqlite"
 
 if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" = "true" ]; then
