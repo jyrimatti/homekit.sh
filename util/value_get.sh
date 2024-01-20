@@ -9,6 +9,7 @@ logger_trace 'util/value_get.sh'
 
 aid="$1"
 iid="$2"
+onlyconstants="${3:-0}"
 
 if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     if [ -e "$HOMEKIT_SH_CACHE_DIR/values" ]; then
@@ -49,6 +50,12 @@ do
                 exit 154
             fi
         fi
+    fi
+
+    if [ "$onlyconstants" = '1' ]; then
+        logger_debug "Skipping $aid.$iid ($servicetype.$characteristictype) since it is not a constant"
+        echo null
+        exit 0
     fi
 
     if [ "$timeout" = ' ' ]; then

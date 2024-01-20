@@ -25,9 +25,9 @@ populatevalue() {
     withvalue="$1"
     aid="$2"
     if [ "$withvalue" = '1' ]; then
-        jq -c '.characteristics[0] | (.value = (.defaultValue // .minValue // .["valid-values"][0] // (if .format == "bool" and .type != "14" then false elif .format == "float" then 0 elif .format == "int" then 0 elif .format == "uint8" then 0 elif .format == "uint16" then 0 elif .format == "uint32" then 0 elif .format == "string" then "" elif .format == "data" then "" else empty end))) // .'
+        tr '\n' '\0' | xargs -0 -I{} dash -c "echo '{}' | jq -c '.characteristics[0] | (.value = (\$value // .defaultValue // .minValue // .[\"valid-values\"][0] // (if .format == \"bool\" and .type != \"14\" then false elif .format == \"float\" then 0 elif .format == \"int\" then 0 elif .format == \"uint8\" then 0 elif .format == \"uint16\" then 0 elif .format == \"uint32\" then 0 elif .format == \"string\" then \"\" elif .format == \"data\" then \"\" else empty end))) // .' --argjson value \"\$(echo '{}' | dash ./util/value_get.sh $aid \$(echo '{}' | jq -r .characteristics[0].iid) 1 || echo null)\""
     else
-         jq -c '.characteristics[0]'
+        jq -c '.characteristics[0]'
     fi
 }
 
