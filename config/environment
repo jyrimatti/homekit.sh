@@ -56,7 +56,7 @@ HOMEKIT_SH_PORT="${HOMEKIT_SH_PORT:-12346}"
 
 # Unique identifier for the bridge.
 # Change this if you want the bridge to be seen as a different bridge by HomeKit.
-HOMEKIT_SH_USERNAME="${HOMEKIT_SH_USERNAME:-CD:22:3D:E3:CF:4A}"
+HOMEKIT_SH_USERNAME="${HOMEKIT_SH_USERNAME:-CD:22:3D:E3:CF:4B}"
 
 # Parallelism used for rust-parallel
 HOMEKIT_SH_PARALLELISM="${HOMEKIT_SH_PARALLELISM:-$(echo "$(nproc)+$(nproc)" | bc)}"
