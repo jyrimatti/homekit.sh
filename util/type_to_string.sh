@@ -16,7 +16,15 @@ logger_trace 'util/type_to_string.sh'
 
 type="$1"
 
-if [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
+if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
+    logger_debug 'Using FS cached services/characteristics'
+    for toml in ./config/services/* ./config/characteristics/*; do
+        file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type"
+        if [ -f "$file" ]; then
+            cat "$file"
+        fi
+    done
+elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
     logger_debug 'Using SQLite cached services and characteristics'
     sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" "select typeName from services where typeCode='$type' union select typeName from characteristics where typeCode='$type' limit 1"
 else

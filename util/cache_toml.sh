@@ -36,6 +36,31 @@ if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_
     fi
 fi
 
+if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
+    find ./config/services ./config/characteristics -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
+        dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")"
+        if [ -d "$dir" ]; then
+            logger_debug "Skipping $toml, already cached in $dir"
+        else
+            logger_info "Caching $toml to directory hierarchy under $dir"
+            mkdir -p "$dir"
+            dash ./util/validate_toml.sh "$toml" \
+                | jq -r 'to_entries | .[] | .key as $name | ("'"$dir/"'" + $name) as $dir | "mkdir -p " + $dir + "; " + ((.value | to_entries | .[] | (if (.value | type) == "array" then (.value | join(",")) else (.value | tostring) end) as $val | "echo -n \"" + $val + "\" > " + $dir + "/" + .key + (if .key == "type" then "; echo -n \"" + $name + "\" > '"$dir/"'" + $val else "" end) ))' \
+                | xargs -I{} sh -c {}
+        fi
+    done
+    find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
+        dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")"
+        if [ -d "$dir" ]; then
+            logger_debug "Skipping $toml, already cached in $dir"
+        else
+            logger_info "Caching $toml to directory hierarchy under $dir"
+            mkdir -p "$dir"
+            echo -n "$(HOMEKIT_SH_CACHE_TOML_FS=false HOMEKIT_SH_CACHE_TOML_SQLITE=false dash ./util/aid.sh "$toml")" > "$dir/aid"
+        fi
+    done
+fi
+
 if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
     if [ -f "$target" ]; then
         logger_debug "Using existing SQLite cache"

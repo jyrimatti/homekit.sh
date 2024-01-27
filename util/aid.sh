@@ -12,7 +12,10 @@ logger_trace 'util/aid.sh'
 
 tomlfile="$1"
 
-if [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
+if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
+    logger_debug 'Using FS cached accessories'
+    cat "$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$tomlfile")/aid"
+elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
     logger_debug 'Using SQLite cached accessories'
     sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" "select aid from accessories where file='$tomlfile'"
 else
