@@ -32,7 +32,11 @@ populatevalue() {
 }
 
 find_characteristic() {
-    if [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
+    if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
+        logger_debug 'Using FS cached characteristics'
+        jq -r '.characteristics | keys_unsorted[] as $k | [$k, (.[$k] | objects // {value: .} | tostring)] | @sh'\
+          | xargs -n2 dash ./util/characteristic.sh
+    elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
         logger_debug 'Using SQLite cached characteristics'
         values="$(jq -c '.characteristics | map_values(. | objects // {value: .})')"
         typeNames="$(echo "$values" | jq -r 'keys_unsorted | @csv' | tr '"' "'")"
@@ -51,6 +55,6 @@ find_characteristic() {
      | populatevalue "$withvalue" "$aid"\
      | jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
 } || {
-    logger_error 'Could not generate characteristics: check config/characteristic/*.toml'
+    logger_error 'Could not generate characteristics: check config/characteristics/*.toml'
     exit 1
 }

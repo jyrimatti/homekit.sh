@@ -15,6 +15,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
         file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type/type"
         if [ -f "$file" ]; then
             cat "$file"
+            exit 0;
         fi
     done
 elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then

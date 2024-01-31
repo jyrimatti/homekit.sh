@@ -6,12 +6,6 @@
 
 set -eu
 
-if [ "$HOMEKIT_SH_LOGGING_LEVEL" = 'TRACE' ]; then
-    # Skip this for tracing, since takes too much time
-    echo '?'
-    exit 0
-fi
-
 logger_trace 'util/type_to_string.sh'
 
 type="$1"
@@ -22,6 +16,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
         file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type"
         if [ -f "$file" ]; then
             cat "$file"
+            exit 0;
         fi
     done
 elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
