@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix coreutils findutils gnugrep
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then

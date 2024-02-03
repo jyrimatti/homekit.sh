@@ -1,0 +1,9 @@
+if [ -z "${HOMEKIT_SH_ENV_SET:-}" ]; then
+  . ./prefs
+fi
+if [ -z "${logger_trace+x}" ]; then
+  . ./log/logging
+fi
+if [ -n "${PROFILING:-}" ]; then
+  . ./profiling
+fi

@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash fswatch gnused
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 logger_info "Monitoring for .toml files under $HOMEKIT_SH_ACCESSORIES_DIR..."

@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash jq ncurses
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 logger_trace 'util/poll.sh'

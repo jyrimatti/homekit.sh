@@ -1,18 +1,14 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash findutils ncurses
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 
 set -eu
 
 logger_trace 'util/accessory.sh'
 
-aid="$1"
+toml="$1"
 
-for f in $(find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml'); do
-    if [ "$(dash ./util/aid.sh "$f")" = "$aid" ]; then
-        echo "$f"
-        exit 0
-    fi
-done
+aid="$(dash ./util/aid.sh "$toml")"
+dash ./util/services_grouped_by_type.sh "$toml" \
+  | ./bin/rust-parallel-"$(uname)" --shell-path dash -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash ./util/generate_service.sh 1 "$aid" "{0}" \
+  | jq -cs "{ aid: $aid, services: map({type, iid, characteristics}) }"

@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash yq jq ncurses
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 
 set -eu
 
@@ -14,7 +12,7 @@ tomlfile="$1"
 
 if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     logger_debug 'Using FS cached accessories'
-    cat "$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$tomlfile")/aid"
+    sed '' "$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$tomlfile")/aid"
 elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
     logger_debug 'Using SQLite cached accessories'
     sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" "select aid from accessories where file='$tomlfile'"

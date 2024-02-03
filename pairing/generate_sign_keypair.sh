@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix coreutils ncurses "pkgs.callPackage ./wolfclu.nix {}"
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 logger_trace 'pairing/generate_sign_keypair.sh'

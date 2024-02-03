@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash ncurses python3Packages.tlv8 jq
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -u
 
 logger_info 'Invoked api/pair-setup'

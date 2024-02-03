@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash yq jq ncurses sqlite
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 
 set -eu
 
@@ -16,7 +14,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
         file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type"
         if [ -f "$file" ]; then
             cat "$file"
-            exit 0;
+            break
         fi
     done
 elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then

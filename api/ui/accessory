@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix jq yq yajsv findutils ncurses
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 logger_info 'Invoked: api/ui/accessory'
@@ -10,7 +8,7 @@ logger_trace 'api/ui/accessory'
 
 . ./util/cgi_helpers.sh
 
-file="$(./util/accessory.sh "$qs_aid")"
+file="$(./util/find_accessory.sh "$qs_aid")"
 
 ret="$(./util/services_grouped_by_type.sh "$file" | tr '\n' '\0' | xargs -0 -I{} ./util/generate_service.sh 0 "$qs_aid" '{}' | jq -s "{ aid: $qs_aid, file: \"$file\", services: . }")"
 

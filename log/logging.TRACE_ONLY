@@ -1,0 +1,10 @@
+
+logger_trace() {
+    logger_log TRACE $(COLOR_LIGHTGREY) "Entering: $1" >&2;
+    trap "_LOGGING_ret=\$?; _LOGGING_started=\"$(date +%s%3N)\"; _LOGGING_finished=\$(date +%s%3N); logger_log TRACE $(COLOR_LIGHTGREY) \"Finished (\$_LOGGING_ret): $1 in \$((\$_LOGGING_finished - \$_LOGGING_started))ms\" >&2" EXIT;
+}
+logger_debug() { return 0; }
+logger_info()  { return 0; }
+logger_warn()  { return 0; }
+logger_error() { return 0; }
+logger_fatal() { return 0; }

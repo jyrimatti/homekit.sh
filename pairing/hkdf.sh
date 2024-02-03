@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell --pure -i dash -I channel:nixos-23.11-small -p dash nix coreutils ncurses openssl
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 logger_trace 'pairing/hkdf.sh'

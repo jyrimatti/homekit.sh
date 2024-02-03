@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash jq yq ncurses
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 
 set -eu
 
@@ -14,5 +12,5 @@ servicejson="$1"
 typecode="$2"
 index="$3" # index of this service amongst other services of the same type
 
-calculated="$((10000 * $(printf "%d\n" 0x"$typecode") + 1000 * $index))"
+calculated="$((10000 * $(printf "%d\n" 0x"$typecode") + 1000 * index))"
 echo "$servicejson" | jq -ce ".iid // if .type == \"AccessoryInformation\" then 1 else $calculated end"

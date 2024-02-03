@@ -1,8 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p dash nodejs nix jq which
-. ./prefs
-. ./log/logging
-. ./profiling
+. ./prelude
 set -eu
 
 mkdir -p "$HOMEKIT_SH_STORE_DIR"
