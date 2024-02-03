@@ -19,9 +19,8 @@ if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     fi
 fi
 
-jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' |
-while IFS=$(echo "\t") read -r servicetype characteristictype format timeout value cmd
-do
+jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' \
+  | while IFS=$(echo "\t") read -r servicetype characteristictype format timeout value cmd; do
     if [ "$cmd" = ' ' ]; then
         if [ "$value" != ' ' ]; then
             logger_debug "No \"cmd\" set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype), returning given constant value '$value'"

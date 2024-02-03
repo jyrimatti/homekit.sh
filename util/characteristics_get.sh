@@ -35,7 +35,7 @@ service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid"
 characs=''
 characteristic() {
     if [ -z "$characs" ]; then
-        characs="$(echo "$service_with_characteristic" | jq -c '.characteristics[0]')"
+        characs="$(jq -nc '$in | .characteristics[0]' --argjson in "$service_with_characteristic")"
     fi
     echo "$characs"
 }
@@ -66,11 +66,11 @@ value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "
 responsevalue=$?
 set -e
 if [ $responsevalue = 158 ]; then
-    echo "$ret" | jq ". + { status: $operation_timed_out }"
+    jq "\$in + { status: $operation_timed_out }" --argjson in "$ret"
 elif [ $responsevalue = 152 ]; then
-    echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }"
+    jq "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 elif [ $responsevalue != 0 ]; then
-    echo "$ret" | jq ". + { status: $unable_to_communicate_with_requested_service }"
+    jq "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 else
-    echo "$ret" | jq '. + { value: $value }' --argjson value "$value"
+    jq '\$in + { value: $value }' --argjson value "$value" --argjson in "$ret"
 fi

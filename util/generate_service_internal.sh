@@ -23,7 +23,26 @@ populatevalue() {
     withvalue="$1"
     aid="$2"
     if [ "$withvalue" = '1' ]; then
-        tr '\n' '\0' | xargs -0 -I{} dash -c "echo '{}' | jq -c '.characteristics[0] | . + {\"ev\": has(\"polling\")} | (.value = (\$value // .defaultValue // .minValue // .[\"valid-values\"][0] // (if .format == \"bool\" and .type != \"14\" then false elif .format == \"float\" then 0 elif .format == \"int\" then 0 elif .format == \"uint8\" then 0 elif .format == \"uint16\" then 0 elif .format == \"uint32\" then 0 elif .format == \"string\" then \"\" elif .format == \"data\" then \"\" else empty end))) // .' --argjson value \"\$(echo '{}' | dash ./util/value_get.sh $aid \$(echo '{}' | jq -r .characteristics[0].iid) 1 || echo null)\""
+        while read -r line; do
+            iid="$(jq -nr '$in | .characteristics[0].iid' --argjson in "$line")"
+            value="$(echo "$line" | dash ./util/value_get.sh "$aid" "$iid" 1 || echo null)"
+            jq -nc '$in | .characteristics[0] | . + {"ev": has("polling")}
+                                           | (.value = ($value //
+                                                        .defaultValue //
+                                                        .minValue //
+                                                        .["valid-values"][0] //
+                                                        (  if .format == "bool" and .type != "14" then false
+                                                         elif .format == "float" then 0
+                                                         elif .format == "int" then 0
+                                                         elif .format == "uint8" then 0
+                                                         elif .format == "uint16" then 0
+                                                         elif .format == "uint32" then 0
+                                                         elif .format == "string" then ""
+                                                         elif .format == "data" then ""
+                                                         else empty end))) // .' \
+                  --argjson value "$value" \
+                  --argjson in "$line"
+        done
     else
         jq -c '.characteristics[0] | . + {"ev": has("polling")}'
     fi
@@ -32,8 +51,9 @@ populatevalue() {
 find_characteristic() {
     if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
         logger_debug 'Using FS cached characteristics'
-        jq -r '.characteristics | keys_unsorted[] as $k | [$k, (.[$k] | objects // {value: .} | tostring)] | @sh'\
-          | xargs -n2 dash ./util/characteristic.sh
+        jq -r '.characteristics | keys_unsorted[] as $k | [$k, (.[$k] | objects // {value: .} | tostring)] | @sh' | while IFS="'" read -r a b c d; do
+          dash ./util/characteristic.sh "$b" "$d"
+        done
     elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
         logger_debug 'Using SQLite cached characteristics'
         values="$(jq -c '.characteristics | map_values(. | objects // {value: .})')"

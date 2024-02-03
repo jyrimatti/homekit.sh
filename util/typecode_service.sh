@@ -1,6 +1,7 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash yq jq ncurses sqlite
 . ./prelude
+
 set -eu
 
 logger_trace 'util/typecode_service.sh'
@@ -12,7 +13,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     for toml in ./config/services/*.toml; do
         file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type/type"
         if [ -f "$file" ]; then
-            cat "$file"
+            sed '' "$file"
             break
         fi
     done
