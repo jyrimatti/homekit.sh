@@ -25,8 +25,8 @@ type="$3"
 ev="$4"
 id="$5"
 
-aid="$(echo "$id" | cut -d . -f 1)"
-iid="$(echo "$id" | cut -d . -f 2)"
+aid="${id%%.*}"
+iid="${id##*.}"
 
 service_with_characteristic="$(dash ./util/service_with_characteristic.sh "$aid" "$iid")" || {
     logger_error "Resource $aid.$iid not found!"
