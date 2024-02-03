@@ -32,7 +32,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_
     else
         tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
         echo "$tomls"\
-        | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" dash -c "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
+        | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" -s --shell-path dash "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
     fi
 fi
 
