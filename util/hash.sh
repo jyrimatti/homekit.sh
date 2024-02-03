@@ -8,6 +8,5 @@ set -eu
 
 logger_trace 'util/hash.sh'
 
-file="${1:--}"
-
-cksum -a crc "$file" | cut -d' ' -f1
+ret="$(cksum -a crc "${1:--}")"
+echo "${ret%% *}"

@@ -15,17 +15,25 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     for toml in ./config/characteristics/*.toml; do
         dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$name"
         if [ -e "$dir" ]; then
-            echo "$data" | jq "{typeName:\"$name\",
-                                type:\"$(cat "$dir/type" 2>/dev/null)\",
-                                perms:(\"$(cat "$dir/perms" 2>/dev/null)\" | split(\",\")),
-                                format:\"$(cat "$dir/format" 2>/dev/null)\",
-                                minValue:$(cat "$dir/minValue" 2>/dev/null || echo -n 'null'),
-                                maxValue:$(cat "$dir/maxValue" 2>/dev/null || echo -n 'null'),
-                                minStep:$(cat "$dir/minStep" 2>/dev/null || echo -n 'null'),
-                                \"valid-values\":(\"$(cat "$dir/valid-values" 2>/dev/null)\" | split(\",\") | map(tonumber)),
-                                unit:\"$(cat "$dir/unit" 2>/dev/null)\",
-                                maxLen:$(cat "$dir/maxLen" 2>/dev/null || echo -n 'null')} + . | with_entries(select(.value |.!=null and . != \"\" and (type != \"array\" or length>0)))"
-            exit 0
+            jsondata() {
+                # sed seems faster than cat...
+                cd "$dir"
+                test -e ./minValue     && sed 's/.*/minValue:&,/' ./minValue
+                test -e ./maxValue     && sed 's/.*/maxValue:&,/' ./maxValue
+                test -e ./minStep      && sed 's/.*/minStep:&,/' ./minStep
+                test -e ./valid-values && sed 's/.*/"valid-values":[&],/' ./valid-values
+                test -e ./unit         && sed 's/.*/unit:"&",/' ./unit
+                test -e ./maxLen       && sed 's/.*/maxLen:&,/' ./maxLen
+            }
+            jq -nc "{$(jsondata) typeName:\"$name\",
+                                 type:\$type,
+                                 perms: \$perms | split(\",\"),
+                                 format: \$format} + \$data" \
+                                --rawfile type "$dir/type" \
+                                --rawfile perms "$dir/perms" \
+                                --rawfile format "$dir/format" \
+                                --argjson data "$data"
+            break
         fi
     done
 else

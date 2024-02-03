@@ -12,7 +12,7 @@ type="$1"
 
 if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     logger_debug 'Using FS cached services/characteristics'
-    for toml in ./config/services/* ./config/characteristics/*; do
+    for toml in ./config/services/*.toml ./config/characteristics/*.toml; do
         file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type"
         if [ -f "$file" ]; then
             cat "$file"
