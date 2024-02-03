@@ -72,5 +72,5 @@ elif [ $responsevalue = 152 ]; then
 elif [ $responsevalue != 0 ]; then
     jq "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 else
-    jq '\$in + { value: $value }' --argjson value "$value" --argjson in "$ret"
+    jq '$in + { value: $value }' --argjson value "$value" --argjson in "$ret"
 fi
