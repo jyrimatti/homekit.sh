@@ -31,6 +31,7 @@ service_with_characteristic() {
     dash ./util/service_with_characteristic.sh "$aid" "$iid" || {
         logger_error "Resource $aid.$iid not found!"
         echo "{\"aid\": $aid, \"iid\": $iid, \"status\": $resource_does_not_exist}"
+        exit 1
     }
 }
 
@@ -44,8 +45,13 @@ toString() {
 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": 0}"
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
+    ret="$(service_with_characteristic)" || {
+        echo "$ret"
+        exit
+    }
+
     set +e
-    service_with_characteristic | dash ./util/value_set.sh "$aid" "$iid" "$value"
+    echo "$ret" | dash ./util/value_set.sh "$aid" "$iid" "$value"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
@@ -64,7 +70,11 @@ if [ "$value" != 'null' ]; then
 fi
 
 if [ "$ev" = 'true' ]; then
-    service_with_characteristic \
+    ret="$(service_with_characteristic)" || {
+        echo "$ret"
+        exit
+    }
+    echo "$ret" \
         | jq -r '[.type, .characteristics[0].ev, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' \
         | while IFS=$(echo "\t") read -r servicetype supportsEvents characteristictype polling cmd; do
             if [ "$supportsEvents" = 'false' ]; then

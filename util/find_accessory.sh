@@ -11,6 +11,6 @@ aid="$1"
 find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' | while read -r f; do
     if [ "$(dash ./util/aid.sh "$f")" = "$aid" ]; then
         echo "$f"
-        break
+        exit 1
     fi
-done
+done && exit 1

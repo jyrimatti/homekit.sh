@@ -15,7 +15,8 @@ if [ "${HOMEKIT_SH_CACHE_SERVICES:-false}" = "true" ] && [ -e "$HOMEKIT_SH_CACHE
     cat "$HOMEKIT_SH_CACHE_DIR/services/$aid.$iid.json"
     logger_debug "Characteristic $aid.$iid retrived from cache"
 else
-    service_with_characteristic="$(dash ./util/services_grouped_by_type.sh "$(dash ./util/find_accessory.sh "$aid")"\
+    tomlfile="$(dash ./util/find_accessory.sh "$aid")"
+    service_with_characteristic="$(dash ./util/services_grouped_by_type.sh "$tomlfile" \
                                     | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" --shell-path dash -s "dash ./util/generate_service.sh 0 $aid '{0}' | jq -c '.characteristics |= map(select(.iid == $iid)) | select(.characteristics | any)'")"
     if [ -n "${service_with_characteristic:+x}" ]; then
         logger_debug "Found characteristic $aid.$iid"
@@ -28,6 +29,5 @@ else
         exit 0
     fi
 
-    logger_error "Characteristic $iid from accessory $aid not found!"
     exit 1
 fi
