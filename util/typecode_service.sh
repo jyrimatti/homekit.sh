@@ -11,7 +11,7 @@ type="$1"
 if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     logger_debug 'Using FS cached services'
     for toml in ./config/services/*.toml; do
-        file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type/type"
+        file="$HOMEKIT_SH_CACHE_DIR/$toml/$type/type"
         if [ -f "$file" ]; then
             IFS= read -r line < "$file" || true
             echo -n "$line"

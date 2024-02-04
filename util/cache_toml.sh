@@ -35,25 +35,27 @@ if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
-        dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")"
-        if [ -d "$dir" ]; then
     find ./config/services ./config/characteristics -maxdepth 3 -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
+        dir="$HOMEKIT_SH_CACHE_DIR/$toml"
+        if [ "$dir" -nt "$toml" ]; then
             logger_debug "Skipping $toml, already cached in $dir"
         else
             logger_info "Caching $toml to directory hierarchy under $dir"
             mkdir -p "$dir"
+            touch "$dir"
             dash ./util/validate_toml.sh "$toml" \
                 | jq -r 'to_entries | .[] | .key as $name | ("'"$dir/"'" + $name) as $dir | "mkdir -p " + $dir + "; " + ((.value | to_entries | .[] | (if (.value | type) == "array" then (.value | join(",")) else (.value | tostring) end) as $val | "echo -n \"" + $val + "\" > " + $dir + "/" + .key + (if .key == "type" then "; echo -n \"" + $name + "\" > '"$dir/"'" + $val else "" end) ))' \
                 | xargs -I{} sh -c {}
         fi
     done
-        dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")"
-        if [ -d "$dir" ]; then
     find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
+        dir="$HOMEKIT_SH_CACHE_DIR/$toml"
+        if [ "$dir" -nt "$toml" ]; then
             logger_debug "Skipping $toml, already cached in $dir"
         else
             logger_info "Caching $toml to directory hierarchy under $dir"
             mkdir -p "$dir"
+            touch "$dir"
             echo -n "$(HOMEKIT_SH_CACHE_TOML_FS=false HOMEKIT_SH_CACHE_TOML_SQLITE=false dash ./util/aid.sh "$toml")" > "$dir/aid"
         fi
     done
