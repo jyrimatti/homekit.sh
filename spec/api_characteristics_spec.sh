@@ -8,7 +8,7 @@ Describe 'api/characteristics GET'
       BeforeRun "export QUERY_STRING='id=-1.0'"
       When run ./api/characteristics
       The output should end with '{"characteristics":[{"aid":-1,"iid":0,"status":-70409}]}'
-      The error should include "Resource 0.-1 not found!"
+      The error should include "Resource -1.0 not found!"
     End
   End
 
@@ -57,7 +57,7 @@ Describe 'api/characteristics PUT'
       End
       When run ./api/characteristics
       The output should end with '{"characteristics":[{"aid":-1,"iid":0,"status":-70409}]}'
-      The error should include "Resource 0.-1 not found!"
+      The error should include "Resource -1.0 not found!"
     End
   End
 
