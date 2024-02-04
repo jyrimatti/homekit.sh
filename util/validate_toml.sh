@@ -10,6 +10,7 @@ tomlfile="$1"
 
 case "$tomlfile" in
   *'accessories/'*)
+    mkdir -p "$HOMEKIT_SH_RUNTIME_DIR"
     tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_validate_toml.XXXXXX.json")"
     tomlq -c < "$tomlfile" > "$tmpfile"
 

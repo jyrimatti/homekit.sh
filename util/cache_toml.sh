@@ -21,17 +21,17 @@ if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     rm "$tmpfile"
 fi
 
-sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}/cache"
-target="$sessionCachePath/sqlite"
-
 if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" = "true" ]; then
-    if [ -f "$target" ]; then
-        logger_debug "SQLite cache already exists, thus so must cached TOML files"
-    else
-        tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
-        echo "$tomls"\
-        | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" -s --shell-path dash "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
-    fi
+    find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
+        cached="$HOMEKIT_SH_CACHE_DIR/toml2json/$toml"
+        if [ "$cached" -nt "$toml" ]; then
+            logger_debug "Skipping $toml, already cached in $cached"
+        else
+            logger_info "Caching $toml to disk in $cached"
+            mkdir -p "$(dirname "$cached")"
+            dash ./util/validate_toml.sh "$toml" > "$cached"
+        fi
+    done
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
@@ -62,7 +62,12 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
-    if [ -f "$target" ]; then
+    target="$HOMEKIT_SH_CACHE_DIR/sqlite"
+    if (find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
+        if [ "$target" -ot "$toml" ]; then
+            exit 1 # invalidated
+        fi
+    done); then
         logger_debug "Using existing SQLite cache"
     else
         logger_debug "Caching services, characteristics, and accessories to SQLite database: $target"
