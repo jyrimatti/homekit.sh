@@ -71,10 +71,11 @@ if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
         characteristicscsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
         accessoriescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
 
+        tomlCount="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | wc -l)"
         {
             echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > '$servicescsv'"
             echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(\",\")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.maxLen, .value.unit, (.value[\"valid-values\"] // [] | join(\",\"))]) | .[] | @csv' ./config/characteristics/*.toml > '$characteristicscsv'"
-            echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -maxdepth 3 -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs 99999 -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
+            echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -maxdepth 3 -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-$tomlCount} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
         } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-3}" -s --shell-path dash
 
         HOMEKIT_SH_CACHE_TOML_SQLITE="$target"

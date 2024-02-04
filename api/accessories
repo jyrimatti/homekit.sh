@@ -15,8 +15,9 @@ fi
 . ./util/cache_toml.sh
 
 # why won't Apple accept "ev"?
-accessories="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' \
-    | ./bin/rust-parallel-"$(uname)" --shell-path dash --jobs 99999 -s dash ./util/accessory.sh \
+tomls="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
+accessories="$(echo "$tomls" \
+    | ./bin/rust-parallel-"$(uname)" --shell-path dash --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" -s dash ./util/accessory.sh \
     | jq -cs '{ accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName, .ev)))) }')"
 
 if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ]; then
