@@ -7,7 +7,8 @@ export LC_ALL=C # "fix" Nix Perl locale warnings
 
 rm -fR "$HOMEKIT_SH_STORE_DIR"
 rm -fR "$HOMEKIT_SH_RUNTIME_DIR"
-rm -fR "$HOMEKIT_SH_CACHE_DIR"
+
+dash ./clear_caches.sh
 
 dash ./initdirs.sh
 

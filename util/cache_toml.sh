@@ -6,11 +6,11 @@ set -eu
 
 # Caches tomlq JSON output to environment variables, because tomlq is a really slow-to-start python app.
 
-logger_debug 'util/cache_toml.sh'
+logger_trace 'util/cache_toml.sh'
 
 if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
     tmpfile="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
-    tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
+    tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
     echo "$tomls"\
      | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" "content=\"\$(dash ./util/validate_toml.sh {0})\" && echo \"export HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh {0})='\$content' && logger_debug 'Cached {0} to HOMEKIT_SH_\$(dash ./util/cache_mkkey.sh \"{0}\")'\""\
      > "$tmpfile"
@@ -28,16 +28,16 @@ if [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ] || [ "${HOMEKIT_SH_CACHE_
     if [ -f "$target" ]; then
         logger_debug "SQLite cache already exists, thus so must cached TOML files"
     else
-        tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml')"
+        tomls="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
         echo "$tomls"\
         | ./bin/rust-parallel-"$(uname)" -r '.*' --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" -s --shell-path dash "test {0} -ot $sessionCachePath/{0} || (mkdir -p \$(dirname $sessionCachePath/{0}) && dash ./util/validate_toml.sh {0} > $sessionCachePath/{0})"
     fi
 fi
 
 if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
-    find ./config/services ./config/characteristics -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
         dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")"
         if [ -d "$dir" ]; then
+    find ./config/services ./config/characteristics -maxdepth 3 -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
             logger_debug "Skipping $toml, already cached in $dir"
         else
             logger_info "Caching $toml to directory hierarchy under $dir"
@@ -47,9 +47,9 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
                 | xargs -I{} sh -c {}
         fi
     done
-    find "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
         dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")"
         if [ -d "$dir" ]; then
+    find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' | while IFS=$(echo "\n") read -r toml; do
             logger_debug "Skipping $toml, already cached in $dir"
         else
             logger_info "Caching $toml to directory hierarchy under $dir"
@@ -69,11 +69,10 @@ if [ "${HOMEKIT_SH_CACHE_TOML_SQLITE:-false}" != "false" ]; then
         characteristicscsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
         accessoriescsv="$(mktemp "$HOMEKIT_SH_RUNTIME_DIR/homekit.sh_cache_toml.XXXXXX")"
 
-        tomlCount="$(find ./config "$HOMEKIT_SH_ACCESSORIES_DIR" -name '*.toml' | wc -l)"
         {
             echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type]) | .[] | @csv' ./config/services/*.toml > '$servicescsv'"
             echo "dash ./util/tomlq-cached.sh -r 'to_entries | map([.key, .value.type, (.value.perms // [] | join(\",\")), .value.format, .value.minValue, .value.maxValue, .value.minStep, .value.maxLen, .value.unit, (.value[\"valid-values\"] // [] | join(\",\"))]) | .[] | @csv' ./config/characteristics/*.toml > '$characteristicscsv'"
-            echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs ${PROFILING:-$tomlCount} -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
+            echo "find '$HOMEKIT_SH_ACCESSORIES_DIR' -maxdepth 3 -name '*.toml' | ./bin/rust-parallel-$(uname) --jobs 99999 -r '.*' -s --shell-path dash 'echo \$(dash ./util/aid.sh {0}),\"{0}\"' > '$accessoriescsv'"
         } | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-3}" -s --shell-path dash
 
         HOMEKIT_SH_CACHE_TOML_SQLITE="$target"
@@ -101,3 +100,5 @@ EOF
         logger_debug "Caching to SQLite done"
     fi
 fi
+
+logger_trace 'Finished util/cache_toml.sh'
