@@ -217,7 +217,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             elif end >= 7:
                 self.log_warn("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
             else:
-                self.log_debug("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
+                self.log_info("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
             
             self.wfile.write(bytes)
             self.wfile.flush()
