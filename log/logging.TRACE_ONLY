@@ -20,10 +20,10 @@ logger_trace() {
         else
             _LOGGING_finished="$(date +%s%3N)"
         fi
-        logger_log TRACE $(COLOR_LIGHTGREY) "Finished ($_LOGGING_ret): $1 in $(($_LOGGING_finished - $_LOGGING_started))ms" >&2
+        logger_log TRACE $(COLOR_LIGHTGREY) "Finished ($_LOGGING_ret): $2 in $(($_LOGGING_finished - $_LOGGING_started))ms" >&2
     }
 
-    trap "dotrap $?" EXIT;
+    trap "dotrap $? $1" EXIT;
 }
 
 logger_debug() { return 0; }
