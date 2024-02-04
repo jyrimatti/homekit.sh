@@ -1,7 +1,29 @@
 
 logger_trace() {
     logger_log TRACE $(COLOR_LIGHTGREY) "Entering: $1" >&2;
-    trap "_LOGGING_ret=\$?; _LOGGING_started=\"$(date +%s%3N)\"; _LOGGING_finished=\$(date +%s%3N); logger_log TRACE $(COLOR_LIGHTGREY) \"Finished (\$_LOGGING_ret): $1 in \$((\$_LOGGING_finished - \$_LOGGING_started))ms\" >&2" EXIT;
+
+    if [ -e /proc/uptime ]; then
+        IFS= read -r _LOGGING_started </proc/uptime
+        _LOGGING_started="${_LOGGING_started%% *}0"
+        _LOGGING_started="${_LOGGING_started%%.*}${_LOGGING_started##*.}"
+    else
+        _LOGGING_started="$(date +%s%3N)"
+    fi
+    
+    dotrap() {
+        _LOGGING_ret=$1;
+        _LOGGING_started="$_LOGGING_started";
+        if [ -e /proc/uptime ]; then
+            IFS= read -r _LOGGING_finished </proc/uptime
+            _LOGGING_finished="${_LOGGING_finished%% *}0"
+            _LOGGING_finished="${_LOGGING_finished%%.*}${_LOGGING_finished##*.}"
+        else
+            _LOGGING_finished="$(date +%s%3N)"
+        fi
+        logger_log TRACE $(COLOR_LIGHTGREY) "Finished ($_LOGGING_ret): $1 in $(($_LOGGING_finished - $_LOGGING_started))ms" >&2
+    }
+
+    trap "dotrap $?" EXIT;
 }
 logger_debug() { logger_log DEBUG "$(COLOR_GREY)"   "$1" >&2; }
 logger_info()  { logger_log INFO  "$(COLOR_GREEN)"  "$1" >&2; }
