@@ -24,4 +24,63 @@ if [ -z "${logger_trace+x}" ]; then
         *)
             echo "Invalid value for HOMEKIT_SH_LOGGING: $HOMEKIT_SH_LOGGING. Logging disabled." >&2
     esac
+
+    case $HOMEKIT_SH_LOGGING_LEVEL in
+        TRACE_ONLY)
+            logger_trace_enabled() { exit 0; }
+            logger_debug_enabled() { exit 1; }
+            logger_info_enabled()  { exit 1; }
+            logger_warn_enabled()  { exit 1; }
+            logger_error_enabled() { exit 1; }
+            logger_fatal_enabled() { exit 1; }
+            ;;
+        TRACE)
+            logger_trace_enabled() { exit 0; }
+            logger_debug_enabled() { exit 0; }
+            logger_info_enabled()  { exit 0; }
+            logger_warn_enabled()  { exit 0; }
+            logger_error_enabled() { exit 0; }
+            logger_fatal_enabled() { exit 0; }
+            ;;
+        DEBUG)
+            logger_trace_enabled() { exit 1; }
+            logger_debug_enabled() { exit 0; }
+            logger_info_enabled()  { exit 0; }
+            logger_warn_enabled()  { exit 0; }
+            logger_error_enabled() { exit 0; }
+            logger_fatal_enabled() { exit 0; }
+            ;;
+        INFO)
+            logger_trace_enabled() { exit 1; }
+            logger_debug_enabled() { exit 1; }
+            logger_info_enabled()  { exit 0; }
+            logger_warn_enabled()  { exit 0; }
+            logger_error_enabled() { exit 0; }
+            logger_fatal_enabled() { exit 0; }
+            ;;
+        WARN)
+            logger_trace_enabled() { exit 1; }
+            logger_debug_enabled() { exit 1; }
+            logger_info_enabled()  { exit 1; }
+            logger_warn_enabled()  { exit 0; }
+            logger_error_enabled() { exit 0; }
+            logger_fatal_enabled() { exit 0; }
+            ;;
+        ERROR)
+            logger_trace_enabled() { exit 1; }
+            logger_debug_enabled() { exit 1; }
+            logger_info_enabled()  { exit 1; }
+            logger_warn_enabled()  { exit 1; }
+            logger_error_enabled() { exit 0; }
+            logger_fatal_enabled() { exit 0; }
+            ;;
+        FATAL)
+            logger_trace_enabled() { exit 1; }
+            logger_debug_enabled() { exit 1; }
+            logger_info_enabled()  { exit 1; }
+            logger_warn_enabled()  { exit 1; }
+            logger_error_enabled() { exit 1; }
+            logger_fatal_enabled() { exit 0; }
+            ;;
+    esac
 fi
