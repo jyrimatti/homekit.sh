@@ -3,5 +3,5 @@
 . ./prelude
 set -eu
 
-rm -R "${HOMEKIT_SH_CACHE_DIR:?}"/*
-rm -R "${HOMEKIT_SH_RUNTIME_DIR:?}"/sessions/*/cache
+rm -fR "${HOMEKIT_SH_CACHE_DIR:?}"/*
+rm -fR "${HOMEKIT_SH_RUNTIME_DIR:?}"/sessions/*/cache
