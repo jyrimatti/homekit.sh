@@ -14,14 +14,14 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
         dir="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$name"
         if [ -e "$dir" ]; then
             jsondata() {
-                # sed seems faster than cat...
                 cd "$dir"
-                test -e ./minValue     && sed 's/.*/minValue:&,/' ./minValue
-                test -e ./maxValue     && sed 's/.*/maxValue:&,/' ./maxValue
-                test -e ./minStep      && sed 's/.*/minStep:&,/' ./minStep
-                test -e ./valid-values && sed 's/.*/"valid-values":[&],/' ./valid-values
-                test -e ./unit         && sed 's/.*/unit:"&",/' ./unit
-                test -e ./maxLen       && sed 's/.*/maxLen:&,/' ./maxLen
+                IFS=
+                test -e ./minValue     && { read -r line < ./minValue     || true; echo -n "minValue:$line,"; }
+                test -e ./maxValue     && { read -r line < ./maxValue     || true; echo -n "maxValue:$line,"; }
+                test -e ./minStep      && { read -r line < ./minStep      || true; echo -n "minStep:$line,"; }
+                test -e ./valid-values && { read -r line < ./valid-values || true; echo -n "\"valid-values\":[$line],"; }
+                test -e ./unit         && { read -r line < ./unit         || true; echo -n "unit:\"$line\","; }
+                test -e ./maxLen       && { read -r line < ./maxLen       || true; echo -n "maxLen:$line,"; }
             }
             jq -nc "{$(jsondata) typeName:\"$name\",
                                  type:\$type,

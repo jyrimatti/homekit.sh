@@ -13,7 +13,8 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     for toml in ./config/services/*.toml ./config/characteristics/*.toml; do
         file="$HOMEKIT_SH_CACHE_DIR/$(dash ./util/hash.sh "$toml")/$type"
         if [ -f "$file" ]; then
-            sed '' "$file"
+            IFS= read -r line < "$file" || true
+            echo -n "$line"
             break
         fi
     done
