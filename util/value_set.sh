@@ -26,14 +26,35 @@ do
     fi
 
     logger_debug "Using timeout $timeout for $cmd Set for $aid.$iid ($servicetype.$characteristictype)"
-    servicename="$(dash ./util/type_to_string.sh "$servicetype")"
-    characteristicname="$(dash ./util/type_to_string.sh "$characteristictype")"
 
-    start="$(date +%s)"
+    if [ -e /proc/uptime ]; then
+        IFS= read -r start_accurate </proc/uptime
+        start_accurate="${start_accurate%% *}"
+    else
+        start_accurate="$(date +%s.%2N)"
+    fi
+    start="${start_accurate%%.*}"
     set +e
-    timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Set '$servicename' '$characteristicname' '$value'"
+    timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Set '$servicetype' '$characteristictype' '$value'"
     responseValue=$?
     set -e
+    if [ -e /proc/uptime ]; then
+        IFS= read -r end_accurate </proc/uptime
+        end_accurate="${end_accurate%% *}"
+    else
+        end_accurate="$(date +%s.%2N)"
+    fi
+    end="${end_accurate%%.*}"
+
+    duration="$((end - start))"
+    if [ "$duration" -ge 3 ]; then
+        logger_warn "$cmd Set in $(echo "$end_accurate - $start_accurate" | bc)s for $aid.$iid ($servicetype.$characteristictype)"
+    elif [ logger_debug_enabled ]; then
+        logger_debug "$cmd Set in $(echo "$end_accurate - $start_accurate" | bc)s for $aid.$iid ($servicetype.$characteristictype)"
+    else
+        logger_info "$cmd Set: ${duration}s for $aid.$iid ($servicetype.$characteristictype)"
+    fi
+
     if [ "$responseValue" -eq 124 ]; then
         logger_error "Command '$cmd Set' timed out for $aid.$iid ($servicetype.$characteristictype)"
         exit 158
@@ -41,7 +62,4 @@ do
         logger_error "Command '$cmd Set' failed for $aid.$iid ($servicetype.$characteristictype)"
         exit $responseValue
     fi
-    end="$(date +%s)"
-
-    logger_info "$cmd Set: $((end - start))s for $aid.$iid ($servicename.$characteristicname)"
 done

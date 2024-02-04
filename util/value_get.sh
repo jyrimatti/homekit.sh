@@ -57,16 +57,35 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
     fi
 
     logger_debug "Using timeout $timeout for $cmd Get for $aid.$iid ($servicetype.$characteristictype)"
-    servicename="$(dash ./util/type_to_string.sh "$servicetype")"
-    characteristicname="$(dash ./util/type_to_string.sh "$characteristictype")"
 
-    start="$(date +%s)"
+    if [ -e /proc/uptime ]; then
+        IFS= read -r start_accurate </proc/uptime
+        start_accurate="${start_accurate%% *}"
+    else
+        start_accurate="$(date +%s.%2N)"
+    fi
+    start="${start_accurate%%.*}"
     set +e
-    ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get '$servicename' '$characteristicname'")"
+    ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get '$servicetype' '$characteristictype'")"
     responseValue=$?
     set -e
-    end="$(date +%s)"
+    if [ -e /proc/uptime ]; then
+        IFS= read -r end_accurate </proc/uptime
+        end_accurate="${end_accurate%% *}"
+    else
+        end_accurate="$(date +%s.%2N)"
+    fi
+    end="${end_accurate%%.*}"
+
     duration="$((end - start))"
+    if [ "$duration" -ge 3 ]; then
+        logger_warn "$cmd Get in $(echo "$end_accurate - $start_accurate" | bc)s returned: $ret for $aid.$iid ($servicetype.$characteristictype)"
+    elif [ logger_debug_enabled ]; then
+        logger_debug "$cmd Get in $(echo "$end_accurate - $start_accurate" | bc)s returned: $ret for $aid.$iid ($servicetype.$characteristictype)"
+    else
+        logger_info "$cmd Get in ${duration}s returned: $ret for $aid.$iid ($servicetype.$characteristictype)"
+    fi
+
     if [ "$responseValue" -eq 124 ]; then
         logger_error "Command '$cmd Get' timed out in ${duration}s for $aid.$iid ($servicetype.$characteristictype)"
         exit 158
@@ -82,8 +101,8 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
         '"'*'"') ;;
         *)
             if [ "$format" = 'string' ]; then
-                logger_debug 'Value is a string -> wrap it in quotes if not already'
-                ret="$(echo "$ret" | sed 's/^[^"].*[^"]$/"\0"/')"
+                logger_debug 'Value is a string without quotes -> wrap it in quotes'
+                ret="\"$ret\""
             fi
             ;;
     esac
@@ -93,6 +112,5 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
         echo "$ret" > "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
     fi
 
-    logger_info "$cmd Get in ${duration}s returned: $ret for $aid.$iid"
     echo "$ret"
 done
