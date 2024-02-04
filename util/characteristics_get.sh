@@ -69,6 +69,8 @@ if [ $responsevalue = 158 ]; then
     jq -n "\$in + { status: $operation_timed_out }" --argjson in "$ret"
 elif [ $responsevalue = 152 ]; then
     jq -n "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
+elif [ $responsevalue = 153 ]; then
+    jq -n "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 elif [ $responsevalue != 0 ]; then
     jq -n "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 else

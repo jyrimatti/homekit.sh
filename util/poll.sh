@@ -44,6 +44,8 @@ if test -f "$subscription_path"; then
             logger_error "Got timeout while reading value for $(toString)"
         elif [ $responsevalue = 152 ]; then
             logger_error "Got empty response while reading value for $(toString)"
+        elif [ $responsevalue = 153 ]; then
+            logger_error "Got invalid response while reading value for $(toString)"
         elif [ $responsevalue != 0 ]; then
             logger_error "Got errorcode $responsevalue while reading value for $(toString)"
         else
