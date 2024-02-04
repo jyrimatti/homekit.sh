@@ -6,22 +6,28 @@ set -eu
 logger_info 'Invoked: api/accessories'
 logger_trace 'api/accessories'
 
+tomls="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
+
 if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ] && [ -e "$HOMEKIT_SH_CACHE_DIR"/accessories.json ]; then
-    dash ./util/respond.sh 200 "$(cat "$HOMEKIT_SH_CACHE_DIR"/accessories.json)"
-    logger_debug "Accessories retrived from cache"
-    exit 0
+    while read -r toml; do
+        if [ "$HOMEKIT_SH_CACHE_DIR"/accessories.json -ot "$toml" ]; then
+            # cached exists and is older than this toml -> don't use cache
+            exit 1
+        fi
+    done && {
+        dash ./util/respond.sh 200 "$(cat "$HOMEKIT_SH_CACHE_DIR"/accessories.json)"
+        logger_debug "Accessories retrived from cache"
+        exit 0
+    }
 fi
 
 . ./util/cache_toml.sh
 
-# why won't Apple accept "ev"?
-tomls="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
 accessories="$(echo "$tomls" \
     | ./bin/rust-parallel-"$(uname)" --shell-path dash --jobs "${PROFILING:-$(echo "$tomls" | wc -l)}" -s dash ./util/accessory.sh \
     | jq -cs '{ accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName, .ev)))) }')"
 
 if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ]; then
-    test -e "$HOMEKIT_SH_CACHE_DIR" || mkdir -p "$HOMEKIT_SH_CACHE_DIR"
     echo "$accessories" > "$HOMEKIT_SH_CACHE_DIR"/accessories.json
 fi
 
