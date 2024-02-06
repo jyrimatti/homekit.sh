@@ -13,8 +13,8 @@ if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
     rm -f "$HOMEKIT_SH_CACHE_DIR/values/$aid.$iid"
 fi
 
-jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' |
-while IFS=$(echo "\t") read -r servicetype characteristictype format timeout value cmd minValue maxValue minStep maxLen maxDataLen validValues
+jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' |
+while IFS=$(echo "\t") read -r servicetype characteristictype format timeout cmd minValue maxValue minStep maxLen maxDataLen validValues
 do
     if [ "$cmd" = ' ' ]; then
         logger_error "Cannot set value, \"cmd\" not set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype)"
