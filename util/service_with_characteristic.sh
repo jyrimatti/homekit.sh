@@ -13,7 +13,7 @@ iid="$2"
 
 sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}/cache/"
 if [ "${HOMEKIT_SH_CACHE_CHARACTERISTICS:-false}" = "true" ] && [ -e "$sessionCachePath/characteristics/$aid.$iid.json" ]; then
-    cat "$HOMEKIT_SH_CACHE_DIR/characteristics/$aid.$iid.json"
+    cat "$sessionCachePath/characteristics/$aid.$iid.json"
     logger_debug "Characteristic $aid.$iid retrived from cache"
 else
     tomlfile="$(dash ./util/find_accessory.sh "$aid")"
