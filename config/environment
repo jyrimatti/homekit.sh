@@ -17,11 +17,11 @@ HOMEKIT_SH_ACCESSORIES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/homekit.sh/accesso
 
 # caching configuration. Have to do some caching, unfortunately...
 
-# cache individual characteristic definitions. Has no invalidation, so cached under each session.
-HOMEKIT_SH_CACHE_CHARACTERISTICS="${HOMEKIT_SH_CACHE_CHARACTERISTICS:-true}"
-
 # cache retrieved valus for the given duration. 0 means no caching. Has no invalidation, so cached under each session.
 #HOMEKIT_SH_CACHE_VALUES="${HOMEKIT_SH_CACHE_VALUES:-5}"
+
+# cache accessory definitions. Invalidated by file modification times, so cached globally.
+HOMEKIT_SH_CACHE_ACCESSORIES="${HOMEKIT_SH_CACHE_ACCESSORIES:-true}"
 
 # cache service/characteristic definitions and accessory ids in the file system. Invalidated by file modification times, so cached globally.
 HOMEKIT_SH_CACHE_TOML_FS="${HOMEKIT_SH_CACHE_TOML_FS:-true}"
@@ -30,13 +30,10 @@ HOMEKIT_SH_CACHE_TOML_FS="${HOMEKIT_SH_CACHE_TOML_FS:-true}"
 #HOMEKIT_SH_CACHE_TOML_SQLITE="${HOMEKIT_SH_CACHE_TOML_SQLITE:-true}"
 
 # cache all .toml files as validated json files. Invalidated by file modification times, so cached globally.
-HOMEKIT_SH_CACHE_TOML_DISK="${HOMEKIT_SH_CACHE_TOML_DISK:-true}"
+#HOMEKIT_SH_CACHE_TOML_DISK="${HOMEKIT_SH_CACHE_TOML_DISK:-true}"
 
 # cache all .toml files as validated json in the environment, for the duration of the current request.
 #HOMEKIT_SH_CACHE_TOML_ENV="${HOMEKIT_SH_CACHE_TOML_ENV:-true}"
-
-# cache the generated accessories result. Invalidated by file modification times, so cached globally.
-HOMEKIT_SH_CACHE_ACCESSORIES="${HOMEKIT_SH_CACHE_ACCESSORIES:-true}"
 
 
 

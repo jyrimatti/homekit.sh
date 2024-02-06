@@ -12,8 +12,6 @@ do
         exit 1
     fi
     
-    rm -R "$HOMEKIT_SH_CACHE_DIR"
-    
     . ./prefs
     ./util/cache_toml.sh
 

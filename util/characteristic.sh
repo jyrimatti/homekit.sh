@@ -11,7 +11,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     name="$1"
     data="$2"
     for toml in ./config/characteristics/*.toml; do
-        dir="$HOMEKIT_SH_CACHE_DIR/$toml/$name"
+        dir="$HOMEKIT_SH_CACHE_DIR/$toml/fs/$name"
         if [ -e "$dir" ]; then
             jsondata() {
                 cd "$dir"

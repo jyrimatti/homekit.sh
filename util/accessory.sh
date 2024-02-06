@@ -9,6 +9,13 @@ logger_trace 'util/accessory.sh'
 toml="$1"
 
 aid="$(dash ./util/aid.sh "$toml")"
-dash ./util/services_grouped_by_type.sh "$toml" \
-  | ./bin/rust-parallel-"$(uname)" --shell-path dash -r '.*' --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" dash ./util/generate_service.sh 1 "$aid" "{0}" \
-  | jq -cs "{ aid: $aid, services: map({type, iid, characteristics}) }"
+
+if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" = "true" ]; then
+  jq -cs "{ aid: $aid, services: map({type, iid, characteristics}) }" "$HOMEKIT_SH_CACHE_DIR/$toml/accessory.json"
+  logger_debug "Accessory $aid retrived from cache"
+else
+  dash ./util/services_grouped_by_type.sh "$toml" \
+    | tr '\n' '\0' \
+    | xargs -0 -n1 dash ./util/generate_service.sh 1 "$aid" \
+    | jq -cs "{ aid: $aid, services: map({type, iid, characteristics}) }"
+fi
