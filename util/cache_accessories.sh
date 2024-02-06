@@ -6,7 +6,7 @@ set -eu
 
 logger_trace 'util/cache_accessories.sh'
 
-if [ "${HOMEKIT_SH_CACHE_ACCESSORIES:-false}" != "false" ]; then
+if [ "${HOMEKIT_SH_CACHE_TOML_ACCESSORIES:-false}" != "false" ]; then
     find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' \
         | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-$((4*HOMEKIT_SH_PARALLELISM))}" --shell-path dash -s 'lambda() {
             . ./prelude

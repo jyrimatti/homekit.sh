@@ -21,7 +21,7 @@ HOMEKIT_SH_ACCESSORIES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/homekit.sh/accesso
 #HOMEKIT_SH_CACHE_VALUES="${HOMEKIT_SH_CACHE_VALUES:-5}"
 
 # cache accessory definitions. Invalidated by file modification times, so cached globally.
-HOMEKIT_SH_CACHE_ACCESSORIES="${HOMEKIT_SH_CACHE_ACCESSORIES:-true}"
+HOMEKIT_SH_CACHE_TOML_ACCESSORIES="${HOMEKIT_SH_CACHE_TOML_ACCESSORIES:-true}"
 
 # cache service/characteristic definitions and accessory ids in the file system. Invalidated by file modification times, so cached globally.
 HOMEKIT_SH_CACHE_TOML_FS="${HOMEKIT_SH_CACHE_TOML_FS:-true}"
@@ -55,7 +55,7 @@ HOMEKIT_SH_NIX_OVERRIDE="${HOMEKIT_SH_NIX_OVERRIDE:-true}"
 
 # default timeout for executing commands, if not overridden in service/characteristic configuration.
 # e.g. 5.0s
-HOMEKIT_SH_DEFAULT_TIMEOUT="${HOMEKIT_SH_DEFAULT_TIMEOUT:-6.0s}"
+HOMEKIT_SH_DEFAULT_TIMEOUT="${HOMEKIT_SH_DEFAULT_TIMEOUT:-7.0s}"
 
 # pincode for Homekit.
 # must be of format: nnn-nn-nnn
