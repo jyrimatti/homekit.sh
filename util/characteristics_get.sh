@@ -7,7 +7,7 @@ logger_trace 'util/characteristics_get.sh'
 
 request_denied_due_to_insufficient_privileges=-70401
 unable_to_communicate_with_requested_service=-70402
-resource_is_busy_try_again_=-70403
+resource_is_busy_try_again=-70403
 cannot_write_to_read_only_characteristic=-70404
 cannot_read_from_a_write_only_characteristic=-70405
 notification_is_not_supported_for_characteristic=-70406
@@ -66,7 +66,7 @@ value="$(echo "$service_with_characteristic" | dash ./util/value_get.sh "$aid" "
 responsevalue=$?
 set -e
 if [ $responsevalue = 158 ]; then
-    jq -n "\$in + { status: $operation_timed_out }" --argjson in "$ret"
+    jq -n "\$in + { status: $resource_is_busy_try_again }" --argjson in "$ret"
 elif [ $responsevalue = 152 ]; then
     jq -n "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 elif [ $responsevalue = 153 ]; then

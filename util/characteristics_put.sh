@@ -7,7 +7,7 @@ logger_trace 'util/characteristics_put.sh'
 
 request_denied_due_to_insufficient_privileges=-70401
 unable_to_communicate_with_requested_service=-70402
-resource_is_busy_try_again_=-70403
+resource_is_busy_try_again=-70403
 cannot_write_to_read_only_characteristic=-70404
 cannot_read_from_a_write_only_characteristic=-70405
 notification_is_not_supported_for_characteristic=-70406
@@ -59,7 +59,7 @@ if [ "$value" != 'null' ]; then
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $cannot_write_to_read_only_characteristic}"
     elif [ $responsevalue = 158 ]; then
         logger_error "Got timeout while writing value for $(toString)"
-        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $operation_timed_out}"
+        ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $resource_is_busy_try_again}"
     elif [ $responsevalue != 0 ]; then
         logger_error "Got errorcode $responsevalue while writing value for $(toString)"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $accessory_received_an_invalid_value_in_a_write_request}"
