@@ -13,26 +13,28 @@ sessionStorePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_POR
 . ./util/cgi_helpers.sh
 
 tlvjson="$(read_binary | ./util/bin2hex.sh | ./util/tlv_decode.sh)"
-logger_debug "Got tlvjson: $tlvjson"
+(logger_debug_enabled && logger_debug "Got tlvjson: $tlvjson") || true
 
-sequence="$(echo "$tlvjson" | jq -r ".[\"$TLV_STATE\"]")"
+echo -n "$tlvjson" \
+  | jq -r "[.[\"$TLV_STATE\"], .[\"$TLV_PUBLIC_KEY\"], .[\"$TLV_ENCRYPTED_DATA\"]] | @tsv" \
+  | while IFS=$(echo "\t") read -r sequence iOSDevicePublicKey encryptedData; do
 
-if [ "$sequence" = "$TLV_M1" ]; then
-    resp="$(./pairing/pair_verify_m1.sh "$HOMEKIT_SH_USERNAME" "$sessionStorePath" "$tlvjson")"
-    status="$?"00
-elif [ "$sequence" = "$TLV_M3" ]; then
-    resp="$(./pairing/pair_verify_m3.sh "$pairingStorePath" "$sessionStorePath" "$tlvjson")"
-    status="$?"00
-    if [ "$status" = "000" ]; then
-        date -u +%Y-%m-%dT%H:%M:%SZ > "$sessionStorePath/verified"
-        date    +%Y-%m-%dT%H:%M:%S >> "$sessionStorePath/verified"
+        if [ "$sequence" = "$TLV_M1" ]; then
+            resp="$(./pairing/pair_verify_m1.sh "$HOMEKIT_SH_USERNAME" "$sessionStorePath" "$iOSDevicePublicKey")"
+            status="$?"00
+        elif [ "$sequence" = "$TLV_M3" ]; then
+            resp="$(./pairing/pair_verify_m3.sh "$pairingStorePath" "$sessionStorePath" "$encryptedData")"
+            status="$?"00
+            if [ "$status" = "000" ]; then
+                date -u +%Y-%m-%dT%H:%M:%SZ > "$sessionStorePath/verified"
+                logger_info "Pair-verify done!"
+            fi
+        else
+            logger_error "Invalid state/sequence number: $sequence"
+            resp="$(jq -n "{$TLV_STATE: $sequence+1, $TLV_ERROR: $TLV_ERROR_UNKNOWN}" | ./util/tlv_encode.sh)"
+            status=400
+        fi
 
-        logger_info "Pair-verify done!"
-    fi
-else
-    logger_error "Invalid state/sequence number: $sequence"
-    resp="$(jq -n "{$TLV_STATE: $sequence+1, $TLV_ERROR: $TLV_ERROR_UNKNOWN}" | ./util/tlv_encode.sh)"
-    status=400
-fi
+        ./util/respond_tlv.sh "$status" "$resp"
 
-./util/respond_tlv.sh "$status" "$resp"
+    done
