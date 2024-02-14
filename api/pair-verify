@@ -16,7 +16,7 @@ tlvjson="$(read_binary | ./util/bin2hex.sh | ./util/tlv_decode.sh)"
 (logger_debug_enabled && logger_debug "Got tlvjson: $tlvjson") || true
 
 echo -n "$tlvjson" \
-  | jq -r "[.[\"$TLV_STATE\"], .[\"$TLV_PUBLIC_KEY\"], .[\"$TLV_ENCRYPTED_DATA\"]] | @tsv" \
+  | jq -r "[.[\"$TLV_STATE\"], .[\"$TLV_PUBLIC_KEY\"] // \"\", .[\"$TLV_ENCRYPTED_DATA\"] // \"\"] | @tsv" \
   | while IFS=$(echo "\t") read -r sequence iOSDevicePublicKey encryptedData; do
 
         if [ "$sequence" = "$TLV_M1" ]; then
