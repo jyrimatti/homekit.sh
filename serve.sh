@@ -206,11 +206,17 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 self.wfile = original_wfile
             
             # encode response to original wfile
-            resp = str(response.read(), "ascii")
+            respon = response.read()
+            resp = str(respon, "utf-8", 'ignore')
+            stripped = False
             while resp.startswith("HTTP/1.1 200 Script output follows\r\n") or resp.startswith("Server:") or resp.startswith("Date:"):
                 resp = resp[resp.find('\r\n')+2:]
+                stripped = True
             #resp = resp.replace("\n", "\r\n")
-            bytes = self.encodeToBlocks(resp.encode('ascii')).getvalue()
+            if stripped:
+                bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
+            else:
+                bytes = self.encodeToBlocks(respon).getvalue()
             
             if end >= 10:
                 self.log_error("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
@@ -229,11 +235,11 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         stdout=proc.stdout
         stderr=proc.stderr
         if (len(stderr) > 0):
-            sys.stderr.write(str(stderr, 'ascii'))
+            sys.stderr.write(str(stderr, 'utf-8'))
         if len(stdout) > 0:
-            resp = str(stdout, 'ascii')
+            resp = str(stdout, 'utf-8')
             #resp = resp.replace("\n", "\r\n")
-            bytes = self.encodeToBlocks(resp.encode('ascii')).getvalue()
+            bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
             self.log_info("Sending event with total encoded response length %i: %s", len(bytes), resp)
             self.wfile.write(bytes)
             self.wfile.flush()
