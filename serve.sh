@@ -206,17 +206,14 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 self.wfile = original_wfile
             
             # encode response to original wfile
-            respon = response.read()
-            resp = str(respon, "utf-8", 'ignore')
-            stripped = False
+            responseBytes = response.read()
+            resp = str(responseBytes, "utf-8", 'ignore')
+            drop = 0
             while resp.startswith("HTTP/1.1 200 Script output follows\r\n") or resp.startswith("Server:") or resp.startswith("Date:"):
-                resp = resp[resp.find('\r\n')+2:]
-                stripped = True
-            #resp = resp.replace("\n", "\r\n")
-            if stripped:
-                bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
-            else:
-                bytes = self.encodeToBlocks(respon).getvalue()
+                dropped = resp.find('\r\n')+2
+                drop += dropped
+                resp = resp[dropped:]
+            bytes = self.encodeToBlocks(responseBytes[drop:]).getvalue()
             
             if end >= 10:
                 self.log_error("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
