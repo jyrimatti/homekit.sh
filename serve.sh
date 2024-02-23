@@ -53,9 +53,6 @@ def cipherOut(sessionStore, count):
     f = open(sessionStore + "/AccessoryToControllerKey","rb")
     return ChaCha20_Poly1305.new(key=f.read(), nonce=packNonce(count))
 
-class CGIException(Exception):
-    pass
-
 class MyHandler(http.server.CGIHTTPRequestHandler):
     cgi_directories = ['/', '/ui']
     protocol_version = 'HTTP/1.1'
@@ -103,8 +100,6 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             self.log(WARN, YELLOW, format, *args)
 
     def log_error(self, format, *args):
-        if format.startswith("CGI script exit "):
-            raise CGIException(format)
         if self.logging_level != FATAL:
             self.log(ERROR, RED, format, *args)
     
@@ -148,7 +143,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
 
     def handle_one_request(self):
         try:
-            if os.getenv('REQUEST_TYPE', "") == "encrypted" and len(self.rfile.peek(1)[:1]) == 0:
+            if len(self.rfile.peek(1)[:1]) == 0:
                 # no data available -> send pending events and retry
                 self.handle_events()
                 time.sleep(1)
@@ -162,28 +157,17 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 raise
         self.conn_activity[self.get_session_store()] = time.time()
         
-        two = self.rfile.read(2)
-        if two is None:
-            self.close_connection = True
-            return
-        startBytes = two[:2]
+        startBytes = self.rfile.read(2)[:2]
         start = str(startBytes, 'iso-8859-1')
 
         if start in METHODS:
             self._command = METHODS[start]
             self.log_debug("Regular HTTP request: %s", self._command)
             os.environ['REQUEST_TYPE'] = "regular"
-            try:
-                ret = super().handle_one_request()
-                self.log_debug("Finished regular HTTP request, headers: %s", self.headers)
-                self.wfile.flush()
-                return ret
-            except CGIException as e:
-                self.log_error("Request to %s failed (closing connection): %s", self.path, e)
-                self.wfile.write(b"Content-Length: 0\r\n\r\n")
-                self.wfile.flush()
-                self.close_connection = True
-                return
+            ret = super().handle_one_request()
+            self.log_debug("Finished regular HTTP request, headers: %s", self.headers)
+            self.wfile.flush()
+            return ret
         
         elif len(startBytes) == 0:
             self.log_debug("Empty HTTP request?")
