@@ -45,13 +45,13 @@ toString() {
 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": 0}"
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
-    ret="$(service_with_characteristic)" || {
+    swc="$(service_with_characteristic)" || {
         echo "$ret"
         exit
     }
 
     set +e
-    echo "$ret" | dash ./util/value_set.sh "$aid" "$iid" "$value"
+    echo "$swc" | dash ./util/value_set.sh "$aid" "$iid" "$value"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
@@ -70,18 +70,16 @@ if [ "$value" != 'null' ]; then
 fi
 
 if [ "$ev" = 'true' ]; then
-    ret="$(service_with_characteristic)" || {
+    swc="$(service_with_characteristic)" || {
         echo "$ret"
         exit
     }
-    echo "$ret" \
+    echo "$swc" \
         | jq -r '[.type, .characteristics[0].ev, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' \
         | while IFS=$(echo "\t") read -r servicetype supportsEvents characteristictype polling cmd; do
             if [ "$supportsEvents" = 'false' ]; then
                 logger_warn "Events not supported for $aid.$iid ($servicetype.$characteristictype)"
                 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
-                echo "$ret"
-                continue
             elif [ "$polling" = ' ' ]; then
                 logger_warn "No 'polling' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
                 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
