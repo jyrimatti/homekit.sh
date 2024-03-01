@@ -12,7 +12,7 @@ servicejson="$1"
 typecode="$2"
 index="$3" # index of this service amongst other services of the same type
 
-prefix=$(printf '%.8s' "$typecode")
+prefix="$(printf '%.8s' "$typecode")"
 
 calculated="$((10000 * $(printf "%d\n" 0x"$prefix") + 1000 * index))"
 echo "$servicejson" | jq -ce ".iid // if .type == \"AccessoryInformation\" then 1 else $calculated end"
