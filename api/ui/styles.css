@@ -2,11 +2,14 @@ body {
     font: 1em 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 100;
 }
-h3 {
-    font-weight: 400;
+h6 {
+    margin: 0 0;
+    font-weight: lighter;
+    font-style: italic;
+    color: lightgray;
+    padding-left: 0.25rem;
 }
 table {
-    border: 1px solid black;
     width: 100%;
 }
 th {
@@ -18,44 +21,74 @@ td {
     white-space: nowrap;
     border-bottom: 1px dotted black;
 }
-td table td {
-    border-right: 1px dotted black;
+legend {
+    font-size: 0.75rem;
+    padding: 0 0.5rem;
 }
-table table {
-    border: none;
+dl {
+    margin: 0.5rem 0;
 }
-.characteristic tr {
-    display: none;
+details {
+    padding-left: 0.5rem;
 }
-.characteristic tr.value {
-    display: table-row;
+details table {
+    padding-left: 0.5rem;
+    font-size: 0.75em;
 }
-.characteristics tr:hover tr {
-    display: table-row;
+summary {
+    white-space: nowrap;
 }
-
+summary::marker,
+summary::-webkit-details-marker {
+    margin: 0;
+    font-size: 0.75em;
+}
 .accessories {
     display: flex;
     flex-wrap: wrap;
 }
 .accessory {
-    margin: 1rem;
+    margin: 0.5rem;
+    padding: 0.2rem;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    resize: both;
+    min-width: 5em;
+    min-height: 5em;
+    width: 25rem;
+    height: 25rem;
+    overflow: scroll;
+}
+.services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9em, 1fr));
+}
+.service {
+    border: 1px dotted lightblue;
+    margin: 3px;
+    border-radius: 5px;
+    overflow: scroll;
+    min-height: 3em;
+}
+.typeName {
+    color: lightgray;
+    font-style: italic;
+    font-size: 0.75em;
 }
 
-.htmx-request.htmx-indicator {
+.htmx-indicator {
     display: none;
-    width: 30px;
-    height: 30px;
-    margin-right: auto;
-    margin-left: auto;
+}
+.htmx-request .htmx-indicator {
+    display: inline-block;
 }
 
 .htmx-indicator:after {
     content: ' ';
-    display: block;
-    width: 14px;
-    height: 14px;
-    margin: 8px;
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    margin: 0;
     border-radius: 50%;
     border: 6px solid #000;
     border-color: #000 transparent #000 transparent;

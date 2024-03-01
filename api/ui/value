@@ -11,6 +11,6 @@ logger_trace 'api/ui/value'
 aid="${qs_aid}"
 iid="${qs_iid}"
 
-ret=$(./util/service_with_characteristic.sh "$aid" "$iid" | HOMEKIT_SH_TIMEOUT=30 ./util/value_get.sh "$aid" "$iid")
+ret=$(dash ./util/service_with_characteristic.sh "$aid" "$iid" | dash ./util/value_get.sh "$aid" "$iid")
 
-./util/respond.sh 200 "$ret" "text/html"
+dash ./util/respond.sh 200 "$ret" "text/plain"

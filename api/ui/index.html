@@ -9,64 +9,124 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="styles.css" />
-    <script src="htmx.min.js"></script>
+    <script src="Sortable.min.js"></script>
+    <script src="htmx.js"></script>
     <script src="handlebars.min.js"></script>
     <script src="client-side-templates.js"></script>
+    <script src="persist-fields.js"></script>
+
+    <script>
+        function get(name, e) {
+            return [...e.querySelectorAll('input[name^="' + name + '"]')];
+        }
+        let resizeObserver = new ResizeObserver(entries => {
+            entries.forEach(entry => {
+                ['width', 'height'].forEach(n => {
+                    get(n, entry.target).forEach(x => {
+                        x.value = Math.floor(entry.contentRect[n]);
+                        htmx.trigger(x, "change");
+                    });
+                });
+            });
+        });
+        function monitorSize(el) {
+            if (el.classList.contains('accessory')) {
+                ['width', 'height'].forEach(n => {
+                    get(n, el).forEach(x => {
+                        if (x.value) {
+                            el.style[n] = x.value + 'px';
+                        }
+                    });
+                });
+                resizeObserver.observe(el);
+            }
+        }
+        function initSorting(handle, el) {
+            if (!el.classList.contains('sorting')) {
+                htmx.addClass(el, 'sorting');
+                new Sortable(el, {
+                    animation: 150,
+                    dataIdAttr: 'id',
+                    handle: handle,
+                    store: {
+                        get: () => {
+                            return [...el.children].find(x => x.matches('[name^="order-"]')).value.split(',');
+                        }
+                    }
+                });
+            }
+        }
+    </script>
 </head>
-<body hx-ext="client-side-templates">
-    <h1>homekit.sh</h1>
-    <fieldset>
-        <legend>Accessories</legend>
+<body hx-ext="client-side-templates, persist-fields">
+    <fieldset persist-fields-local="accessories">
+        <legend>homekit.sh</legend>
         <div class="accessories"
              hx-get="accessories"
-             hx-trigger="load">
+             hx-trigger="load"
+             hx-target="find div"
+             hx-swap="outerHTML"
+             hx-disinherit="hx-target"
+             hx-on::load="monitorSize(event.detail.elt); initSorting('legend', this)"
+             persist-fields-local="accessories">
+            <input type="hidden" name="order-accessories" persist-fields-local="accessories" /> <!-- re-use same stored data for this field alone -->
             <div class="htmx-indicator"></div>
         </div>
     </fieldset>
 
     <script id="accessory" type="text/handlebars">
-        <h3>aid: {{aid}} ({{file}})</h3>
-
-        <h3>services</h3>
-        <table class="services">
-            <thead>
-                <tr><th>type</th><th>characteristics</th></tr>
-            </thead>
-            <tbody>
-                {{#each services}}
-                    <tr>
-                        <td>{{typeName}}</td>
-                        <td>
-                            <table class="characteristics">
-                                <thead>
-                                    <tr><th>type</th><th>value</th></tr>
-                                </thead>
-                                <tbody>
-                                    {{#each characteristics}}
-                                        <tr><td>{{typeName}}</td>
-                                            <td>
-                                                <table class="characteristic">
-                                                {{#each this}}
-                                                    <tr><td>{{@key}}</td><td>{{.}}</td></tr>
-                                                    {{else}}
-                                                    <tr><td colspan="2">{{.}}</td></tr>
-                                                {{/each}}
-                                                {{#if cmd}}
-                                                    <tr class="value"><td>value</td><td class="value" hx-get="value?aid={{../../aid}}&iid={{iid}}" hx-trigger="load"><div class="htmx-indicator"></div></td></tr>
-                                                {{/if}}
-                                                </table>
-                                            </td></tr>
-                                    {{/each}}
-                                </tbody>
+        <legend title="aid: {{aid}}">{{file}}</legend>
+        <div class="services"
+             persist-fields-local="accessory-{{aid}}"
+             hx-on::load="initSorting('.handle', this)">
+            <input type="hidden" name="order-services-{{aid}}" persist-fields-local="accessory-{{aid}}" /> <!-- re-use same stored data for this field alone -->
+        {{#each services}}
+            <div class="service" id="aid-{{../aid}}-iid-{{iid}}" {{#isNotAccessoryInformation typeName}}open{{/isNotAccessoryInformation}}>
+                <input type="hidden"
+                       name="order-services-{{../aid}}"
+                       readonly
+                       required
+                       value="aid-{{../aid}}-iid-{{iid}}"
+                       hx-boost="true"
+                       hx-trigger="drop from:(closest .service)" />
+                <h6 class="handle">{{typeName}}</h6>
+                {{#each characteristics}}
+                    {{#handleName typeName ../characteristics}}
+                        <details>
+                            <summary>
+                                <span class="htmx-indicator"></span>
+                                {{#if cmd}}
+                                    <span hx-get="value?aid={{../../aid}}&iid={{iid}}" hx-trigger="load" hx-indicator="closest summary" hx-ext="ignore:client-side-templates"></span>
+                                {{else}}
+                                    {{value}}
+                                {{/if}}
+                                <span class="typeName" title="{{typeName}}">{{typeName}}</span>
+                            </summary>
+                            <table class="characteristic">
+                                {{#each this}}
+                                    <tr><td>{{@key}}</td><td>{{.}}</td></tr>
+                                {{/each}}
                             </table>
-                        </td>
-                    </tr>
+                        </details>
+                    {{/handleName}}
                 {{/each}}
-            </tbody>
-        </table>
+            </div>
+        {{/each}}
+        </div>
     </script>
 </body>
 <script>
     Handlebars.registerPartial("accessory", Handlebars.compile(document.getElementById("accessory").innerText));
+
+    Handlebars.registerHelper("isNotAccessoryInformation", function(typeName, options) {
+        if (typeName !== 'AccessoryInformation') {
+            return options.fn(this);
+        }
+    });
+    Handlebars.registerHelper("handleName", function(typeName, characteristics, options) {
+        if (typeName !== 'Name' || !characteristics.some(x => x.typeName === 'ConfiguredName')) {
+            return options.fn(this);
+        }
+    });
 </script>
 </html>

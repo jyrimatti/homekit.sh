@@ -6,6 +6,28 @@ set -eu
 logger_info 'Invoked: api/ui/accessories'
 logger_trace 'api/ui/accessories'
 
-ret="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' | xargs -I{} ./util/aid.sh {} | xargs -I{} echo '<div class="accessory"><div hx-get="accessory?aid={}" hx-trigger="load" hx-swap="outerHTML" handlebars-template="accessory"><div class="htmx-indicator"></div></div></div>')"
+ret="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml' \
+    | xargs -I{} dash -c 'dash ./util/aid.sh {}; echo' \
+    | sort -h \
+    | xargs -I{} echo '
+        <fieldset class="accessory"
+                  id="aid-{}"
+                  hx-trigger="load"
+                  hx-get="accessory?aid={}"
+                  hx-target="find div"
+                  hx-swap="outerHTML"
+                  hx-disinherit="hx-target"
+                  handlebars-template="accessory">
+            <input type="hidden" name="width-{}" value="" persist-fields-local="accessory-{}" />
+            <input type="hidden" name="height-{}" value="" persist-fields-local="accessory-{}" />
+            <input type="hidden"
+                   name="order-accessories"
+                   readonly
+                   required
+                   value="aid-{}"
+                   hx-boost="true"
+                   hx-trigger="drop from:(closest .accessory)" />
+            <div class="htmx-indicator"></div>
+        </fieldset>')"
 
-./util/respond.sh 200 "$ret" "text/html"
+dash ./util/respond.sh 200 "$ret" "text/html"

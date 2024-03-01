@@ -8,8 +8,8 @@ logger_trace 'api/ui/accessory'
 
 . ./util/cgi_helpers.sh
 
-file="$(./util/find_accessory.sh "$qs_aid")"
+file="$(dash ./util/find_accessory.sh "$qs_aid")"
 
-ret="$(./util/services_grouped_by_type.sh "$file" | tr '\n' '\0' | xargs -0 -I{} ./util/generate_service.sh 0 "$qs_aid" '{}' | jq -s "{ aid: $qs_aid, file: \"$file\", services: . }")"
+ret="$(dash ./util/services_grouped_by_type.sh "$file" | tr '\n' '\0' | xargs -0 -I{} dash ./util/generate_service.sh 0 "$qs_aid" '{}' | jq -s "{ aid: $qs_aid, file: \"$file\", services: . }")"
 
-./util/respond.sh 200 "$ret"
+dash ./util/respond.sh 200 "$ret" "application/json"
