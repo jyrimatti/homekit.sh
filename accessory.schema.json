@@ -28,6 +28,13 @@
             "type": "string",
             "contentEncoding": "base64"
         },
+        "data": {
+            "type": "string",
+            "contentEncoding": "base64",
+            "properties": {
+                "maxDataLen": { "type": "integer" }
+            }
+        },
         "overrideInteger": {
             "type": "object",
             "additionalProperties": false,
@@ -131,6 +138,12 @@
                 "timeout": {
                     "type": "number",
                     "minimum": 0.0
+                },
+                "linked": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "characteristics": {
                     "anyOf": [
@@ -314,9 +327,13 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "On":          { "$ref": "#/$defs/booleanlike" },
-                "OutletInUse": { "$ref": "#/$defs/booleanlike" },
-                "Name":        { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] }
+                "On":           { "$ref": "#/$defs/booleanlike" },
+                "OutletInUse":  { "$ref": "#/$defs/booleanlike" },
+                "Name":         { "oneOf": [{ "$ref": "#/$defs/overrideString" }, { "type": "string", "maxLength": 64 }] },
+                "Volt":         { "oneOf": [{ "$ref": "#/$defs/overrideNumber" }] },
+                "Ampere":       { "oneOf": [{ "$ref": "#/$defs/overrideNumber" }] },
+                "Watt":         { "oneOf": [{ "$ref": "#/$defs/overrideNumber" }] },
+                "KilowattHour": { "oneOf": [{ "$ref": "#/$defs/overrideNumber" }] }
             },
             "required": [ "On", "OutletInUse" ]
         },

@@ -1,0 +1,19 @@
+[Volt]
+type = "E863F10A-079E-48FF-8F27-9C2605A29F52"
+perms = ["pr", "ev"]
+format = "float"
+
+[Ampere]
+type = "E863F126-079E-48FF-8F27-9C2605A29F52"
+perms = ["pr", "ev"]
+format = "float"
+
+[Watt]
+type = "E863F10D-079E-48FF-8F27-9C2605A29F52"
+perms = ["pr", "ev"]
+format = "float"
+
+[KilowattHour]
+type = "E863F10C-079E-48FF-8F27-9C2605A29F52"
+perms = ["pr", "ev"]
+format = "float"
