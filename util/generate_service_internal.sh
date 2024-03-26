@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash coreutils jq ncurses sqlite3
+#! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash coreutils jq ncurses
 . ./prelude
 set -eu
 
@@ -54,12 +54,6 @@ find_characteristic() {
         jq -r '.characteristics | keys_unsorted[] as $k | [$k, (.[$k] | objects // {value: .} | tostring)] | @sh' | while IFS="'" read -r a b c d; do
           dash ./util/characteristic.sh "$b" "$d"
         done
-    elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
-        logger_debug 'Using SQLite cached characteristics'
-        values="$(jq -c '.characteristics | map_values(. | objects // {value: .})')"
-        typeNames="$(echo "$values" | jq -r 'keys_unsorted | @csv' | tr '"' "'")"
-        sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" '.mode json' "SELECT typeName, typeCode type, perms, format, minValue, maxValue, minStep, maxLen, maxDataLen, unit, validvalues 'valid-values' FROM characteristics WHERE typeName IN ($typeNames)"\
-         | jq -c '(map({ (.typeName): (. | del(.typeName) | with_entries(if .value == "" then empty elif .key == "minValue" or .key == "maxValue" or .key == "minStep" then (.value |= tonumber) elif .key == "perms" then (.value |= split(",")) elif .key == "valid-values" then (.value |= (split(",") | map(tonumber)) ) else . end) ) }) | add) * $values | .[]' --argjson values "$values"
     else
         jq -cr '.characteristics | keys_unsorted[] as $k | "first(select(.[\"\($k)\"]))''[\"\($k)\"] + \((.[$k]|objects // {value:.}) + {typeName: $k})" | @sh'\
          | xargs dash ./util/characteristic.sh
