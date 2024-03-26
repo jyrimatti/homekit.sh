@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix jq yq yajsv findutils ncurses
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nix jq yq yajsv findutils ncurses sqlite
 . ./prelude
 set -eu
 

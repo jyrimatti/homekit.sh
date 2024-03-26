@@ -11,5 +11,17 @@ params="$1"
 query="$2"
 shift 2
 
-logger_debug "Using tomlq for $*"
-tomlq $params "$query" $*
+if [ "${HOMEKIT_SH_CACHE_TOML_ENV:-false}" = "true" ]; then
+    for tomlfile in $*; do
+        logger_debug "Using env cached JSON for $tomlfile"
+        dash ./util/cache_get.sh "$tomlfile"
+    done | jq $params "$query"
+elif [ "${HOMEKIT_SH_CACHE_TOML_DISK:-false}" = "true" ]; then
+    for tomlfile in $*; do
+        logger_debug "Using disk cached JSON for $tomlfile"
+        cat "$HOMEKIT_SH_CACHE_DIR/toml2json/$tomlfile"
+    done | jq $params "$query"
+else
+    logger_debug "Using tomlq for $*"
+    tomlq $params "$query" $*
+fi

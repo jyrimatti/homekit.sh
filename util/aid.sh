@@ -14,6 +14,9 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
     logger_debug 'Using FS cached accessories'
     IFS= read -r line < "$HOMEKIT_SH_CACHE_DIR/$tomlfile/aid" || true
     echo -n "$line"
+elif [ -e "${HOMEKIT_SH_CACHE_TOML_SQLITE:-}" ]; then
+    logger_debug 'Using SQLite cached accessories'
+    sqlite3 -readonly "$HOMEKIT_SH_CACHE_TOML_SQLITE" "select aid from accessories where file='$tomlfile'"
 else
     dash ./util/tomlq-cached.sh -re '.aid // empty' "$tomlfile" || { echo "$tomlfile" | dash ./util/hash.sh; }
 fi

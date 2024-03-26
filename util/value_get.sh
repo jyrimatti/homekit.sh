@@ -9,6 +9,15 @@ aid="$1"
 iid="$2"
 onlyconstants="${3:-0}"
 
+sessionCachePath="$HOMEKIT_SH_RUNTIME_DIR/sessions/${REMOTE_ADDR:-}:${REMOTE_PORT:-}/cache/"
+if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ] && [ -e "$HOMEKIT_SH_CACHE_DIR/values" ]; then
+    for i in $(find "$sessionCachePath/values" -name "$aid.$iid" -mmin -$HOMEKIT_SH_CACHE_VALUES); do
+        cat "$sessionCachePath/values/$aid.$iid"
+        logger_debug "Value for $aid.$iid retrived from cache"
+        exit 0
+    done
+fi
+
 jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' \
   | while IFS=$(echo "\t") read -r servicetype characteristictype format timeout value cmd minValue maxValue minStep maxLen maxDataLen validValues; do
         if [ "$cmd" = ' ' ]; then
@@ -99,6 +108,12 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
                 fi
                 ;;
         esac
+
+        if [ "${HOMEKIT_SH_CACHE_VALUES:-0}" != "0" ]; then
+            mkdir -p "$sessionCachePath"/values
+            logger_debug "Caching value of $aid.$iid to $sessionCachePath/values/$aid.$iid"
+            echo "$ret" > "$sessionCachePath/values/$aid.$iid"
+        fi
 
         echo "$ret"
 done
