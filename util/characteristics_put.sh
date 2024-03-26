@@ -46,7 +46,7 @@ ret="{\"aid\": $aid, \"iid\": $iid, \"status\": 0}"
 if [ "$value" != 'null' ]; then
     logger_debug 'Value was provided -> trying to write it'
     swc="$(service_with_characteristic)" || {
-        echo "$ret"
+        echo "$swc"
         exit
     }
 
@@ -71,7 +71,7 @@ fi
 
 if [ "$ev" = 'true' ]; then
     swc="$(service_with_characteristic)" || {
-        echo "$ret"
+        echo "$swc"
         exit
     }
     echo "$swc" \
