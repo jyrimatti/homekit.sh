@@ -30,7 +30,7 @@ fi
 
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"
 if [ "$has_errors" != "" ]; then
-    logger_debug 'There were errors'
+    logger_error "There were errors: $characteristics"
     content="$(echo "$characteristics" | jq -sc '{ characteristics: map(.status = (if .value then 0 else .status end)) }')"
     dash ./util/respond.sh 207 "$content"
 elif [ "$REQUEST_METHOD" = 'GET' ]; then
