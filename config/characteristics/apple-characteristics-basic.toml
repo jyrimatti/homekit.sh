@@ -966,6 +966,7 @@ valid-values = [0]
 
 [ConfiguredName]
 type = "E3"
-perms = ["pr", "pw", "ev"]
+#perms = ["pr", "pw", "ev"]
+perms = ["pr", "pw"] # no events, since Homekit would do useless characteristic-puts for them
 format = "string"
 maxLen = 64
