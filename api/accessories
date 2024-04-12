@@ -12,6 +12,6 @@ tomls="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
 
 accessories="$(echo "$tomls" \
     | xargs -n1 dash ./util/accessory.sh \
-    | jq -cs '{ accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName, .ev)))) }')"
+    | jq -cs '{ accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName)))) }')"
 
 dash ./util/respond.sh 200 "$accessories"
