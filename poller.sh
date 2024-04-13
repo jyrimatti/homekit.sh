@@ -12,8 +12,8 @@ do
     logger_debug "Polling subscriptions"
     find "$HOMEKIT_SH_RUNTIME_DIR/sessions" -mindepth 3 -maxdepth 3 -type f |\
         grep subscriptions |\
-        cut -d / -f 4,6 |\
-        tr '/' ' ' |\
+        sed 's/.*homekit.sh\///' |\
+        cut --output-delimiter ' ' -d / -f 2,4  |\
         xargs -r -L1 dash ./util/poll.sh |\
         "./bin/rust-parallel-$(uname)" --jobs "${PROFILING:-$HOMEKIT_SH_PARALLELISM}" || true
     
