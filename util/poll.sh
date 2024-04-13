@@ -49,6 +49,7 @@ if test -f "$subscription_path"; then
         elif [ $responsevalue != 0 ]; then
             logger_error "Got errorcode $responsevalue while reading value for $(toString)"
         else
+            logger_info "Successfully polled value $value for $(toString)"
             if [ "$(echo "$service_with_characteristic" | jq -c '.characteristics[0].format')" = 'string' ]; then
                 logger_debug 'Value is a string -> wrap it in quotes if not already'
                 value="$(echo "$value" | sed 's/^[^"].*[^"]$/"\0"/')"
