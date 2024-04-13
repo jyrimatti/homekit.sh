@@ -214,6 +214,10 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 drop += dropped
                 resp = resp[dropped:]
             bytes = self.encodeToBlocks(responseBytes[drop:]).getvalue()
+
+            if len(bytes) == 0:
+                self.log_error("Request to %s took %f seconds and resulted in empty response!?! Script must have failed. Homekit will ignore the connection, so let's kill it.", self.path, end)
+                raise
             
             if end >= 10:
                 self.log_error("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
