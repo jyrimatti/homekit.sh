@@ -966,6 +966,7 @@ valid-values = [0]
 
 [ConfiguredName]
 type = "E3"
-perms = ["pr", "pw", "ev"]
+#perms = ["pr", "pw", "ev"]
+perms = ["pr", "pw"] # useless event support, and Homekit seems to allow removing this...
 format = "string"
 maxLen = 64
