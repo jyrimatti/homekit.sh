@@ -25,7 +25,7 @@ fi
 if [ "$REQUEST_METHOD" = 'PUT' ]; then
     logger_debug 'Request is a PUT'
     characteristics="$(jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' \
-                         | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-$((3*HOMEKIT_SH_PARALLELISM))}" --shell-path dash dash ./util/characteristics_put.sh)"
+                         | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-99}" --shell-path dash dash ./util/characteristics_put.sh)"
 fi
 
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"
