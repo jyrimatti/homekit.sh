@@ -51,20 +51,20 @@ if [ "$value" != 'null' ]; then
     }
 
     set +e
-    ret="$(echo "$swc" | dash ./util/value_set.sh "$aid" "$iid" "$value")"
+    result="$(echo "$swc" | dash ./util/value_set.sh "$aid" "$iid" "$value")"
     responsevalue=$?
     set -e
     if [ $responsevalue = 154 ]; then
-        logger_error "Got responsecode $responsevalue while writing value for $(toString). Response: $ret"
+        logger_error "Got responsecode $responsevalue while writing value for $(toString). Response: $result"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $cannot_write_to_read_only_characteristic}"
     elif [ $responsevalue = 158 ]; then
-        logger_error "Got timeout while writing value for $(toString). Response: $ret"
+        logger_error "Got timeout while writing value for $(toString). Response: $result"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $resource_is_busy_try_again}"
     elif [ $responsevalue != 0 ]; then
-        logger_error "Got errorcode $responsevalue while writing value for $(toString). Response: $ret"
+        logger_error "Got errorcode $responsevalue while writing value for $(toString). Response: $result"
         ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $accessory_received_an_invalid_value_in_a_write_request}"
     elif [ "$response" = 'true' ]; then
-        logger_debug "Requested for 'value' for $aid.$iid. Response: $ret"
+        logger_debug "Requested for 'value' for $aid.$iid. Response: $result"
         ret="{\"aid\": $aid, \"iid\": $iid, \"value\": $value}"
     fi
 fi
