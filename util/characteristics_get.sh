@@ -73,6 +73,8 @@ elif [ $responsevalue = 153 ]; then
     jq -n "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
 elif [ $responsevalue != 0 ]; then
     jq -n "\$in + { status: $unable_to_communicate_with_requested_service }" --argjson in "$ret"
+elif [ "$value" = "" ]; then
+    jq -n "\$in + { status: $resource_does_not_exist }" --argjson in "$ret"
 else
     jq -n '$in + { value: $value }' --argjson value "$value" --argjson in "$ret"
 fi
