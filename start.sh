@@ -21,5 +21,11 @@ rm -fR "$HOMEKIT_SH_RUNTIME_DIR/sessions/*"
 if [ "$startprocesses" = 'startprocesses' ]; then
     logger_info "Starting Homekit.sh with ENV:"
     logger_info "$(env)"
-    ./serve.sh "$HOMEKIT_SH_PORT"
+
+    dash ./util/bridges.sh \
+        | while read -r port bridge username; do {
+            HOMEKIT_SH_BRIDGE="$bridge" HOMEKIT_SH_USERNAME="${username:-$HOMEKIT_SH_USERNAME}" ./serve.sh "${port:-$HOMEKIT_SH_PORT}" &
+          } done
+    
+    wait
 fi

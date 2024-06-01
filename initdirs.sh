@@ -13,10 +13,20 @@ if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
     ln -fs "$(which dash)" "$HOMEKIT_SH_STORE_DIR/nix-override/nix-shell"
 fi
 
-mkdir -p "$HOMEKIT_SH_STORE_DIR/pairings"
-mkdir -p "$HOMEKIT_SH_STORE_DIR/sent_events"
 mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"
 
-if [ ! -f "$HOMEKIT_SH_STORE_DIR/dns-txt" ]; then
-    echo "c#=1 id=$HOMEKIT_SH_USERNAME md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0" > "$HOMEKIT_SH_STORE_DIR/dns-txt"
-fi
+dash ./util/bridges.sh \
+    | while read -r port bridge username; do {
+        if [ "$bridge" != "" ]; then
+            bridge="/$bridge"
+        fi
+        mkdir -p "${HOMEKIT_SH_STORE_DIR}${bridge}/pairings"
+        mkdir -p "${HOMEKIT_SH_STORE_DIR}${bridge}/sent_events"
+
+        ln -s "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTPK" "${HOMEKIT_SH_STORE_DIR}/AccessoryLTPK"
+        ln -s "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTSK" "${HOMEKIT_SH_STORE_DIR}/AccessoryLTSK"
+
+        if [ ! -f "${HOMEKIT_SH_STORE_DIR}${bridge}/dns-txt" ]; then
+            echo "c#=1 id=${username:-$HOMEKIT_SH_USERNAME} md=homekit.sh s#=1 sf=1 ci=2 pv=1.1 ff=0" > "$HOMEKIT_SH_STORE_DIR${bridge}/dns-txt"
+        fi
+      } done

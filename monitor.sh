@@ -15,8 +15,14 @@ do
     . ./prefs
     ./util/cache_toml.sh
 
-    current="$(sed 's/c#=\([^ ]*\) .*/\1/' "$HOMEKIT_SH_STORE_DIR/dns-txt")"
-    newval="$((current+1))"
-    logger_info "Updated configuration number $current -> $newval"
-    sed -i "s/c#=[0-9]*/c#=$newval/" "$HOMEKIT_SH_STORE_DIR/dns-txt"
+    dash ./util/bridges.sh \
+        | while read -r port bridge; do {
+            if [ "$bridge" != "" ]; then
+                bridge="/$bridge"
+            fi
+            current="$(sed 's/c#=\([^ ]*\) .*/\1/' "${HOMEKIT_SH_STORE_DIR}${bridge}/dns-txt")"
+            newval="$((current+1))"
+            logger_info "Updated configuration number $current -> $newval for bridge: ${bridge:-homekit.sh}"
+            sed -i "s/c#=[0-9]*/c#=$newval/" "$HOMEKIT_SH_STORE_DIR${bridge}/dns-txt"
+          } done
 done

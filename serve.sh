@@ -319,7 +319,7 @@ with ForkingHTTPServer(('', args.port), MyHandler) as httpd:
     host, port = httpd.socket.getsockname()[:2]
     url_host = f'[{host}]' if ':' in host else host
     print(
-        f"Serving HTTP on {host} port {port} "
+        f"Serving HTTP on {host} port {port} bridge: {os.environ.get('HOMEKIT_SH_BRIDGE', 'homekit.sh')} "
         f"(http://{url_host}:{port}/) ..."
     )
     httpd.serve_forever()

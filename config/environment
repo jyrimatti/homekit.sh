@@ -2,7 +2,12 @@
 # directories
 
 # persistent store dir
-HOMEKIT_SH_STORE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/homekit.sh"
+if [ "$HOMEKIT_SH_BRIDGE" = "" ]; then
+    _bridge=""
+else
+    _bridge="/$HOMEKIT_SH_BRIDGE"
+fi
+HOMEKIT_SH_STORE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}${_bridge}/homekit.sh"
 
 # persistent cache dir
 HOMEKIT_SH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/homekit.sh"
