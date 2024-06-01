@@ -23,9 +23,10 @@ if [ "$startprocesses" = 'startprocesses' ]; then
     logger_info "$(env)"
 
     dash ./util/bridges.sh \
-        | while read -r port bridge username; do {
-            HOMEKIT_SH_BRIDGE="$bridge" HOMEKIT_SH_USERNAME="${username:-$HOMEKIT_SH_USERNAME}" ./serve.sh "${port:-$HOMEKIT_SH_PORT}" &
-          } done
-    
-    wait
+        | {
+            while read -r port bridge username; do {
+                HOMEKIT_SH_BRIDGE="$bridge" HOMEKIT_SH_USERNAME="${username:-$HOMEKIT_SH_USERNAME}" ./serve.sh "${port:-$HOMEKIT_SH_PORT}" &
+            } done
+            wait $(jobs -p)
+          }
 fi
