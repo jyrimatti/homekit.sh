@@ -24,8 +24,12 @@ dash ./util/bridges.sh \
         mkdir -p "${HOMEKIT_SH_STORE_DIR}${bridge}/sent_events"
 
         if [ "$port" != "" ]; then
-            ln -s "${HOMEKIT_SH_STORE_DIR}/AccessoryLTPK" "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTPK"
-            ln -s "${HOMEKIT_SH_STORE_DIR}/AccessoryLTSK" "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTSK"
+            if [ ! -f "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTPK" ]; then
+                ln -s "${HOMEKIT_SH_STORE_DIR}/AccessoryLTPK" "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTPK"
+            fi
+            if [ ! -f "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTSK" ]; then
+                ln -s "${HOMEKIT_SH_STORE_DIR}/AccessoryLTSK" "${HOMEKIT_SH_STORE_DIR}${bridge}/AccessoryLTSK"
+            fi
         fi
 
         if [ ! -f "${HOMEKIT_SH_STORE_DIR}${bridge}/dns-txt" ]; then
