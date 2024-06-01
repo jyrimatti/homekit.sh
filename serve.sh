@@ -81,9 +81,10 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
 
     def log(self, level, color, format, *args):
         message = format % args
-        sys.stderr.write(color + "%s %05s [%s] - %s\n" %
+        sys.stderr.write(color + "%s %05s %s [%s] - %s\n" %
             (self.log_date_time_string(),
             level,
+            os.environ.get('HOMEKIT_SH_BRIDGE', 'homekit.sh'),
             self.address_string(),
             message.translate(self._control_char_table)) + RESET)
 

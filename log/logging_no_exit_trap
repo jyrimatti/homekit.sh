@@ -17,7 +17,7 @@ if [ -z "${logger_trace+x}" ]; then
             COLOR_CYAN()      { tput setaf 6; }
             COLOR_GREY()      { tput setaf 7; }
             COLOR_LIGHTGREY() { tput setaf 8; }
-            logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S.%3N)" "$1" "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
+            logger_log()      { printf '%s %-5s %s%s\n' "$2$(date +%Y-%m-%d' '%H:%M:%S.%3N)" "$1" "${HOMEKIT_SH_BRIDGE:-homekit.sh} [${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $3" "$(COLOR_RESET)" >&2; }
 
             . "./log/logging.$HOMEKIT_SH_LOGGING_LEVEL"
             ;;
