@@ -16,7 +16,7 @@ do
     ./util/cache_toml.sh
 
     dash ./util/bridges.sh \
-        | while read -r port bridge; do {
+        | while read -r port bridge username; do {
             if [ "$bridge" != "" ]; then
                 bridge="/$bridge"
             fi
