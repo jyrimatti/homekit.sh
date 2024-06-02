@@ -4,4 +4,4 @@ logger_debug() { return 0; }
 logger_info()  { return 0; }
 logger_warn()  { return 0; }
 logger_error() { return 0; }
-logger_fatal() { logger -i -t homekit.sh -p user.crit "${HOMEKIT_SH_BRIDGE:-homekit.sh} [${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
+logger_fatal() { logger -i -t homekit.sh -p user.crit "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] ${HOMEKIT_SH_BRIDGE:-homekit.sh} $(basename "$0") - $1"; }

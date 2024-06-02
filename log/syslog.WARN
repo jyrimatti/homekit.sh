@@ -2,6 +2,6 @@
 logger_trace() { return 0; }
 logger_debug() { return 0; }
 logger_info()  { return 0; }
-logger_warn()  { logger -i -t homekit.sh -p user.warning "${HOMEKIT_SH_BRIDGE:-homekit.sh} [${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
-logger_error() { logger -i -t homekit.sh -p user.err     "${HOMEKIT_SH_BRIDGE:-homekit.sh} [${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
-logger_fatal() { logger -i -t homekit.sh -p user.crit    "${HOMEKIT_SH_BRIDGE:-homekit.sh} [${REMOTE_ADDR:-}:${REMOTE_PORT:-}] $(basename "$0") - $1"; }
+logger_warn()  { logger -i -t homekit.sh -p user.warning "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] ${HOMEKIT_SH_BRIDGE:-homekit.sh} $(basename "$0") - $1"; }
+logger_error() { logger -i -t homekit.sh -p user.err     "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] ${HOMEKIT_SH_BRIDGE:-homekit.sh} $(basename "$0") - $1"; }
+logger_fatal() { logger -i -t homekit.sh -p user.crit    "[${REMOTE_ADDR:-}:${REMOTE_PORT:-}] ${HOMEKIT_SH_BRIDGE:-homekit.sh} $(basename "$0") - $1"; }

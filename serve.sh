@@ -81,11 +81,11 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
 
     def log(self, level, color, format, *args):
         message = format % args
-        sys.stderr.write(color + "%s %05s %s [%s] - %s\n" %
+        sys.stderr.write(color + "%s %05s [%s] %s - %s\n" %
             (self.log_date_time_string(),
             level,
-            os.environ.get('HOMEKIT_SH_BRIDGE', 'homekit.sh'),
             self.address_string(),
+            os.environ.get('HOMEKIT_SH_BRIDGE', 'homekit.sh'),
             message.translate(self._control_char_table)) + RESET)
 
     def log_debug(self, format, *args):
@@ -103,6 +103,9 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
     def log_error(self, format, *args):
         if self.logging_level != FATAL:
             self.log(ERROR, RED, format, *args)
+    
+    def log_message(self, format, *args):
+        self.log_debug(format%args)
     
     def do_PUT(self):
         self.do_POST()
