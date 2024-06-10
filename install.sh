@@ -157,6 +157,9 @@ Type=simple
 Restart=always
 RuntimeMaxSec=1d
 TasksMax=infinity
+CPUAccounting=1
+MemoryAccounting=1
+IOAccounting=1
 
 ProtectSystem=strict
 ProtectHome=read-only
