@@ -44,7 +44,6 @@ ProtectKernelTunables=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
 LimitNOFILE=4096:524288
-PrivateTmp=true
 
 StandardOutput=journal
 StandardError=journal
@@ -75,7 +74,6 @@ ProtectHome=read-only
 ProtectKernelTunables=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
-PrivateTmp=true
 
 StandardOutput=journal
 StandardError=journal
@@ -104,7 +102,6 @@ ProtectHome=read-only
 ProtectKernelTunables=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
-PrivateTmp=true
 
 StandardOutput=journal
 StandardError=journal
@@ -133,7 +130,6 @@ ProtectHome=read-only
 ProtectKernelTunables=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
-PrivateTmp=true
 
 StandardOutput=journal
 StandardError=journal
@@ -167,7 +163,6 @@ ProtectHome=read-only
 ProtectKernelTunables=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
-PrivateTmp=true
 
 StandardOutput=journal
 StandardError=journal
