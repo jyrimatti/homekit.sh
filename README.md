@@ -32,6 +32,13 @@ HOMEKIT_SH_PINCODE="123-45-678"
 
 In addition to limited number of predefined services with predefined characteristics, Apple Homekit also supports custom services and characteristics. These are defined in directories `./config/services/` and `./config/characteristics/`. You can add your own, but note that Apple Home application won't be able to manage them.
 
+Secrets
+-------
+
+If you want accessories to read their secrets from elsewhere than the accessory directory, you can give the directory as en environment variable CREDENTIALS_DIRECTORY.
+
+If you use systemd to run Homekit.sh, you can use the builtin systemd facilities to provide secrets, and systemd will provide the correct CREDENTIALS_DIRECTORY.
+
 Accessory configuration
 -----------------------
 
