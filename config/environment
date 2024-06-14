@@ -18,6 +18,11 @@ HOMEKIT_SH_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOMEKIT_SH_CACHE_DIR/tmp}/homekit.sh
 # accessories dir
 HOMEKIT_SH_ACCESSORIES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/homekit.sh/accessories"
 
+# credentials directory.
+# Defaults to "current directory" which is always the accessory directory for each accessory.
+# You can set credentials with systemd instead, in which case this env variable is already defined by systemd to point to the directory where your credentials are found.
+CREDENTIALS_DIRECTORY="${CREDENTIALS_DIRECTORY:-.}"
+
 
 
 # caching configuration. Have to do some caching, unfortunately...
