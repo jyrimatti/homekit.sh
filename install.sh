@@ -69,6 +69,7 @@ ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/broadcast.sh'
 Type=simple
 Restart=always
 
+PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
 ProtectKernelTunables=true
@@ -97,6 +98,7 @@ ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/monitor.sh'
 Type=simple
 Restart=always
 
+PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
 ProtectKernelTunables=true
@@ -125,6 +127,7 @@ ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/poller.sh'
 Type=simple
 Restart=always
 
+PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
 ProtectKernelTunables=true
