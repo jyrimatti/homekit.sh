@@ -13,7 +13,11 @@ if [ -n "$(ls -A "$session_store"/events 2>/dev/null)" ]; then
     for f in "$session_store"/events/*.json; do
         if test -f "$f"; then
             cat "$f" >> "$events"
-            mv "$f" "$HOMEKIT_SH_STORE_DIR/sent_events/$(basename "$f")_$sent"
+            if [ -n "${HOMEKIT_SH_STORE_SENT_EVENTS:-}" ]; then
+                mv "$f" "$HOMEKIT_SH_RUNTIME_DIR/sent_events/$(basename "$f")_$sent"
+            else
+                rm "$f"
+            fi
         fi
     done
 
