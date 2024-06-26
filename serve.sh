@@ -136,14 +136,22 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         # initialize logging level for this connection
         self.logging_level = os.environ['HOMEKIT_SH_LOGGING_LEVEL']
 
+        # clean old sessions
+        for key, value in self.conn_activity:
+            if time.time() - value > 1800: # 30 min
+                self.remove_session(key)
+
         try:
             return super().handle()
         finally:
-            # clean up connection state
-            self.log_info("Removing session %s after %i seconds, %i idle seconds", self.get_session_store(), time.time() - start, time.time() - self.conn_activity[self.get_session_store()])
-            del self.in_counts[self.get_session_store()]
-            del self.out_counts[self.get_session_store()]
-            shutil.rmtree(self.get_session_store(), ignore_errors=True)
+            self.remove_session(self.get_session_store())
+
+    def remove_session(self, session):
+        # clean up connection state
+        self.log_info("Removing session %s after %i idle seconds", session, time.time() - self.conn_activity[session])
+        del self.in_counts[session]
+        del self.out_counts[session]
+        shutil.rmtree(session, ignore_errors=True)
 
     def handle_one_request(self):
         try:
