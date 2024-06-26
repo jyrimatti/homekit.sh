@@ -151,6 +151,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         self.log_info("Removing session %s after %i idle seconds", session, time.time() - self.conn_activity[session])
         del self.in_counts[session]
         del self.out_counts[session]
+        del self.conn_activity[session]
         shutil.rmtree(session, ignore_errors=True)
 
     def handle_one_request(self):
