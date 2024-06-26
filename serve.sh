@@ -137,8 +137,8 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         self.logging_level = os.environ['HOMEKIT_SH_LOGGING_LEVEL']
 
         # clean old sessions
-        for key, value in self.conn_activity.iteritems():
-            if time.time() - value > 1800: # 30 min
+        for key in self.conn_activity:
+            if time.time() - self.conn_activity[key] > 1800: # 30 min
                 self.remove_session(key)
 
         try:
