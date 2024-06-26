@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nodejs nix jq which
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash nodejs nix yq jq ncurses which
 . ./prelude
 set -eu
 
@@ -14,6 +14,7 @@ if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
 fi
 
 mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"
+mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sent_events"
 
 dash ./util/bridges.sh \
     | while read -r port bridge username; do {
