@@ -17,7 +17,7 @@ if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" != "false" ]; then
         else
             logger_info "Caching $toml bridge to $cached"
             mkdir -p "$(dirname "$cached")"
-            dash ./util/tomlq-cached.sh "" ".bridge // empty" "$toml" > "$cached"
+            dash ./util/tomlq-cached.sh -r ".bridge // empty" "$toml" > "$cached"
         fi
     }; lambda'
 fi
