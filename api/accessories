@@ -12,20 +12,14 @@ tomls="$(find "$HOMEKIT_SH_ACCESSORIES_DIR" -maxdepth 3 -name '*.toml')"
 
 accessories="$(echo "$tomls" \
     | while read -r toml; do {
-        {
-            if [ "${HOMEKIT_SH_CACHE_TOML_FS:-false}" = "true" ]; then
-                logger_debug 'Using FS cached characteristics'
-                jq -r '[.aid // 0, .bridge // ""] | @tsv' "$HOMEKIT_SH_CACHE_DIR/$toml/accessory.json"
-            else
-                dash ./util/tomlq-cached.sh -r '[.aid // 0, .bridge // ""] | @tsv' "$toml"
-            fi
-        } | {
-            read -r aid bridge
-            # include the generic bridge itself as well as accessories associated with the current bridge
-            if [ "$aid" = "1" ] || [ "$bridge" = "${HOMEKIT_SH_BRIDGE:-}" ]; then
-                dash ./util/accessory.sh "$toml"
-            fi
-            }
+        dash ./util/tomlq-cached.sh -r '[.aid // 0, .bridge // ""] | @tsv' "$toml" \
+            | {
+                read -r aid bridge
+                # include the generic bridge itself as well as accessories associated with the current bridge
+                if [ "$aid" = "1" ] || [ "$bridge" = "${HOMEKIT_SH_BRIDGE:-}" ]; then
+                    dash ./util/accessory.sh "$toml"
+                fi
+              }
       } done \
     | jq -cs "{ accessories: map(.services |= map(del(.cmd, .polling, .typeName) | .characteristics |= map(del(.cmd, .polling, .typeName)))) }")"
 
