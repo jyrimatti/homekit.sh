@@ -13,7 +13,7 @@ do
     fi
     
     . ./prefs
-    ./util/cache_toml.sh
+    . ./util/cache_toml.sh
 
     dash ./util/bridges.sh \
         | while read -r port bridge username; do {
