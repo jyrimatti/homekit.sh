@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash fswatch gnused yq
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash fswatch gnused yq jq ncurses
 . ./prelude
 set -eu
 
@@ -15,7 +15,7 @@ do
     . ./prefs
     . ./util/cache_toml.sh
 
-    dash ./util/bridges.sh \
+    dash ./util/bridges.sh 1 \
         | while read -r port bridge username; do {
             if [ "$bridge" != "" ]; then
                 bridge="/$bridge"
