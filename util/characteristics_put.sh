@@ -80,13 +80,12 @@ if [ "$ev" = 'true' ]; then
             if [ "$supportsEvents" = 'false' ]; then
                 logger_warn "Events not supported for $aid.$iid ($servicetype.$characteristictype)"
                 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
-            elif [ "$polling" = ' ' ]; then
-                logger_warn "No 'polling' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
-                test -e "$session_store/events" || mkdir -p "$session_store/events"
-            elif [ "$cmd" = ' ' ]; then
-                logger_warn "No 'cmd' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
-                test -e "$session_store/events" || mkdir -p "$session_store/events"
             else
+                if [ "$polling" = ' ' ]; then
+                    logger_warn "No 'polling' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
+                elif [ "$cmd" = ' ' ]; then
+                    logger_warn "No 'cmd' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
+                fi
                 logger_info "Subscribing to events for $aid.$iid ($servicetype.$characteristictype)"
 
                 test -e "$session_store/subscriptions" || mkdir -p "$session_store/subscriptions"
