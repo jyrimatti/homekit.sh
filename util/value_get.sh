@@ -9,7 +9,7 @@ aid="$1"
 iid="$2"
 onlyconstants="${3:-0}"
 
-jq -r '[.type, .typeName, .iid, .characteristics[0].type, .characteristics[0].typeName, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' \
+jq -r '[.type, .typeName, .iid, .characteristics[0].type, .characteristics[0].typeName, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", if .characteristics[0].value == false then false else .characteristics[0].value // " " end, .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' \
   | while IFS=$(echo "\t") read -r servicetype serviceTypeName serviceiid characteristictype characteristicTypeName format timeout value cmd minValue maxValue minStep maxLen maxDataLen validValues; do
         servicedata="{\"aid\": $aid, \"iid\": \"$serviceiid\", \"type\": \"$servicetype\", \"typeName\": \"$serviceTypeName\"}"
         characteristicdata="{\"type\": \"$characteristictype\", \"typeName\": \"$characteristicTypeName\", \"iid\": $iid}"
