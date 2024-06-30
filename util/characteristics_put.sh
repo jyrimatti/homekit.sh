@@ -82,10 +82,10 @@ if [ "$ev" = 'true' ]; then
                 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
             elif [ "$polling" = ' ' ]; then
                 logger_warn "No 'polling' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
-                ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+                test -e "$session_store/events" || mkdir -p "$session_store/events"
             elif [ "$cmd" = ' ' ]; then
                 logger_warn "No 'cmd' defined for $aid.$iid ($servicetype.$characteristictype). Will not be able to automatically produce events for $(toString)"
-                ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+                test -e "$session_store/events" || mkdir -p "$session_store/events"
             else
                 logger_info "Subscribing to events for $aid.$iid ($servicetype.$characteristictype)"
 
