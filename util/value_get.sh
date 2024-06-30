@@ -9,11 +9,15 @@ aid="$1"
 iid="$2"
 onlyconstants="${3:-0}"
 
-jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' \
-  | while IFS=$(echo "\t") read -r servicetype characteristictype format timeout value cmd minValue maxValue minStep maxLen maxDataLen validValues; do
+jq -r '[.type, .typeName, .iid, .characteristics[0].type, .characteristics[0].typeName, .characteristics[0].format, .characteristics[0].timeout // .timeout // " ", .characteristics[0].value // " ", .characteristics[0].cmd // .cmd // " ", .characteristics[0].minValue // " ", .characteristics[0].maxValue // " ", .characteristics[0].minStep // " ", .characteristics[0].maxLen // " ", .characteristics[0].maxDataLen // " ", (.characteristics[0]["valid-values"] // [] | join(","))] | @tsv' \
+  | while IFS=$(echo "\t") read -r servicetype serviceTypeName serviceiid characteristictype characteristicTypeName format timeout value cmd minValue maxValue minStep maxLen maxDataLen validValues; do
+        servicedata="{\"aid\": $aid, \"iid\": \"$serviceiid\", \"type\": \"$servicetype\", \"typeName\": \"$serviceTypeName\"}"
+        characteristicdata="{\"type\": \"$characteristictype\", \"typeName\": \"$characteristicTypeName\", \"iid\": $iid}"
+        for="for $servicedata and $characteristicdata"
+
         if [ "$cmd" = ' ' ]; then
             if [ "$value" != ' ' ]; then
-                logger_debug "No \"cmd\" set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype), returning given constant value '$value'"
+                logger_debug "No \"cmd\" set in characteristic/service properties $for, returning given constant value '$value'"
                 if [ "$format" = 'string' ]; then
                     echo "\"$value\""
                 else
@@ -22,12 +26,11 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
                 exit 0
             else
                 if [ "$servicetype" = '3E' ] && [ "$characteristictype" = '14' ]; then
-                    logger_debug "Returning null for $aid.$iid ($servicetype.$characteristictype) since Apple requires value field to be not present."
+                    logger_debug "Returning null $for since Apple requires value field to be not present."
                     echo 'null'
                     exit 0
                 else
-                    logger_error "No \"cmd\" or \"value\" set in characteristic/service properties for $aid.$iid ($servicetype.$characteristictype) -> leaving 'value' out"
-                    echo 'null'
+                    logger_error "No \"cmd\" or \"value\" set in characteristic/service properties $for -> leaving 'value' out"
                     exit 154
                 fi
             fi
@@ -56,7 +59,7 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
         fi
         start="${start_accurate%%.*}"
         set +e
-        ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get '$servicetype' '$characteristictype'")"
+        ret="$(timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get '$servicedata' '$characteristicdata'")"
         responseValue=$?
         set -e
         if [ -e /proc/uptime ]; then
@@ -69,24 +72,24 @@ jq -r '[.type, .characteristics[0].type, .characteristics[0].format, .characteri
 
         duration="$((end - start))"
         if [ "$duration" -ge 3 ]; then
-            logger_warn "$cmd Get in $(echo "$end_accurate - $start_accurate" | bc)s returned: $ret for $aid.$iid ($servicetype.$characteristictype)"
+            logger_warn "$cmd Get in $(echo "$end_accurate - $start_accurate" | bc)s returned: $ret $for"
         elif [ logger_debug_enabled ]; then
-            logger_debug "$cmd Get in $(echo "$end_accurate - $start_accurate" | bc)s returned: $ret for $aid.$iid ($servicetype.$characteristictype)"
+            logger_debug "$cmd Get in $(echo "$end_accurate - $start_accurate" | bc)s returned: $ret $for"
         else
-            logger_info "$cmd Get in ${duration}s returned: $ret for $aid.$iid ($servicetype.$characteristictype)"
+            logger_info "$cmd Get in ${duration}s returned: $ret $for"
         fi
 
         if [ "$responseValue" -eq 124 ]; then
-            logger_error "Command '$cmd Get' timed out in ${duration}s for $aid.$iid ($servicetype.$characteristictype)"
+            logger_error "Command '$cmd Get' timed out in ${duration}s $for"
             exit 158
         elif [ "$responseValue" -ne 0 ]; then
-            logger_error "Command '$cmd Get' failed for $aid.$iid ($servicetype.$characteristictype)"
+            logger_error "Command '$cmd Get' failed $for"
             exit $responseValue
         elif [ "$ret" = '' ]; then
-            logger_error "Command '$cmd Get' returned empty response for $aid.$iid ($servicetype.$characteristictype)"
+            logger_error "Command '$cmd Get' returned empty response $for"
             exit 152
         elif ! dash ./util/validate_value.sh "$ret" "$format" "$minValue" "$maxValue" "$minStep" "$maxLen" "$maxDataLen" "$validValues"; then
-            logger_error "Command '$cmd Get' returned invalid response '$ret' for $aid.$iid ($servicetype.$characteristictype)"
+            logger_error "Command '$cmd Get' returned invalid response '$ret' $for"
             exit 153
         fi
 

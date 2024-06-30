@@ -16,7 +16,7 @@ service_iid="$(dash ./util/iid_service.sh "$service" "$typecode" "$index")"
 
 characteristic_with_id_and_service() {
     # as Characteristic InstanceID, use its typecode converted to decimal and added to the Service InstanceID
-    jq -c "include \"util\"; \$service + {type: \"$typecode\", characteristics: [. + {iid: (.iid // $service_iid + (.type | .[:8] | to_i(16)))}]}" --argjson service "$service"
+    jq -c "include \"util\"; \$service + {type: \"$typecode\", typeName: \"$serviceTypeName\", iid: $service_iid, characteristics: [. + {iid: (.iid // $service_iid + (.type | .[:8] | to_i(16)))}]}" --argjson service "$service"
 }
 
 populatevalue() {
@@ -65,7 +65,7 @@ find_characteristic() {
      | find_characteristic\
      | characteristic_with_id_and_service\
      | populatevalue "$withvalue" "$aid"\
-     | jq -cs "\$service + {typeName: \"$serviceTypeName\", type: \"$typecode\", iid: $service_iid, characteristics: .}" --argjson service "$service"
+     | jq -cs "\$service + {type: \"$typecode\", typeName: \"$serviceTypeName\", iid: $service_iid, characteristics: .}" --argjson service "$service"
 } || {
     logger_error 'Could not generate characteristics: check config/characteristics/*.toml'
     exit 1
