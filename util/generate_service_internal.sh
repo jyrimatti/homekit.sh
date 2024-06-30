@@ -26,8 +26,7 @@ populatevalue() {
         while read -r line; do
             iid="$(jq -nr '$in | .characteristics[0].iid' --argjson in "$line")"
             value="$(echo "$line" | dash ./util/value_get.sh "$aid" "$iid" 1 || echo null)"
-            jq -nc '$in | .characteristics[0] | . + {"ev": has("polling")}
-                                           | (.value = ($value //
+            jq -nc '$in | .characteristics[0] | (.value = ($value //
                                                         .defaultValue //
                                                         .minValue //
                                                         .["valid-values"][0] //
