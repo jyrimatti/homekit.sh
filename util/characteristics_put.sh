@@ -73,7 +73,7 @@ if [ "$ev" = 'true' ]; then
     # quick cached check, since Homekit bombs ev=true so much
     if [ "${HOMEKIT_SH_CACHE_EV_FS:-false}" != "false" ]; then
         ev_cached="$session_store/$aid.$iid.ev"
-        if [ "$(cat "$ev_cached")" = "false" ]; then
+        if [ -f "$ev_cached" ] && [ "$(cat "$ev_cached")" = "false" ]; then
             logger_warn "Events not supported for $aid.$iid"
             ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
             echo "$ret"
@@ -93,7 +93,7 @@ if [ "$ev" = 'true' ]; then
                 logger_info "Caching 'ev' for the session to $ev_cached"
                 echo -n "$supportsEvents" > "$ev_cached"
             fi
-            
+
             if [ "$supportsEvents" = 'false' ]; then
                 logger_warn "Events not supported for $aid.$iid ($servicetype.$characteristictype)"
                 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
