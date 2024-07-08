@@ -245,18 +245,20 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             return ret
     
     def handle_events(self):
-        proc=subprocess.run(['./util/events_send.sh'], capture_output=True)
-        stdout=proc.stdout
-        stderr=proc.stderr
-        if (len(stderr) > 0):
-            sys.stderr.write(str(stderr, 'utf-8'))
-        if len(stdout) > 0:
-            resp = str(stdout, 'utf-8')
-            #resp = resp.replace("\n", "\r\n")
-            bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
-            self.log_info("Sending event with total encoded response length %i: %s", len(bytes), resp)
-            self.wfile.write(bytes)
-            self.wfile.flush()
+        for dirpath, dirnames, files in os.walk(self.get_session_store() + "/events"):
+            if files:
+                proc=subprocess.run(['./util/events_send.sh'], capture_output=True)
+                stdout=proc.stdout
+                stderr=proc.stderr
+                if (len(stderr) > 0):
+                    sys.stderr.write(str(stderr, 'utf-8'))
+                if len(stdout) > 0:
+                    resp = str(stdout, 'utf-8')
+                    #resp = resp.replace("\n", "\r\n")
+                    bytes = self.encodeToBlocks(resp.encode('utf-8')).getvalue()
+                    self.log_info("Sending event with total encoded response length %i: %s", len(bytes), resp)
+                    self.wfile.write(bytes)
+                    self.wfile.flush()
 
     def decodeFromBlocks(self, datalength, data):
         ret = b''
