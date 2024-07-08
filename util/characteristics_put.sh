@@ -70,6 +70,17 @@ if [ "$value" != 'null' ]; then
 fi
 
 if [ "$ev" = 'true' ]; then
+    # quick cached check, since Homekit bombs ev=true so much
+    if [ "${HOMEKIT_SH_CACHE_EV_FS:-false}" != "false" ]; then
+        ev_cached="$session_store/$aid.$iid.ev"
+        if [ "$(cat "$ev_cached")" = "false" ]; then
+            logger_warn "Events not supported for $aid.$iid"
+            ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"
+            echo "$ret"
+            exit
+        fi
+    fi
+
     swc="$(service_with_characteristic)" || {
         echo "$swc"
         exit
@@ -77,6 +88,12 @@ if [ "$ev" = 'true' ]; then
     echo "$swc" \
         | jq -r '[.type, .characteristics[0].ev, .characteristics[0].type, .polling // .characteristics[0].polling // " ", .characteristics[0].cmd // .cmd // " "] | @tsv' \
         | while IFS=$(echo "\t") read -r servicetype supportsEvents characteristictype polling cmd; do
+            if [ "${HOMEKIT_SH_CACHE_EV_FS:-false}" != "false" ]; then
+                ev_cached="$session_store/$aid.$iid.ev"
+                logger_info "Caching 'ev' for the session to $ev_cached"
+                echo -n "$supportsEvents" > "$ev_cached"
+            fi
+            
             if [ "$supportsEvents" = 'false' ]; then
                 logger_warn "Events not supported for $aid.$iid ($servicetype.$characteristictype)"
                 ret="{\"aid\": $aid, \"iid\": $iid, \"status\": $notification_is_not_supported_for_characteristic}"

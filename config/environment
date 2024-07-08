@@ -33,6 +33,9 @@ HOMEKIT_SH_CACHE_TOML_ACCESSORIES="${HOMEKIT_SH_CACHE_TOML_ACCESSORIES:-true}"
 # cache service/characteristic definitions and accessory ids in the file system. Invalidated by file modification times, so cached globally.
 HOMEKIT_SH_CACHE_TOML_FS="${HOMEKIT_SH_CACHE_TOML_FS:-true}"
 
+# cache if characteristic supports events, in the file system. Has no invalidation, so cached under each session.
+HOMEKIT_SH_CACHE_EV_FS="${HOMEKIT_SH_CACHE_EV_FS:-true}"
+
 
 # logging config
 
