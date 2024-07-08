@@ -23,7 +23,7 @@ do
 
     trap 'kill $DNSSD_PID' EXIT
 
-    ret="$(fswatch -1 -m poll_monitor "$HOMEKIT_SH_STORE_DIR${bridge}/dns-txt")"
+    ret="$(fswatch -1 "$HOMEKIT_SH_STORE_DIR${bridge}/dns-txt")"
     logger_info "dns-txt was modified for bridge: ${bridge:-homekit.sh}"
     kill $DNSSD_PID
     if [ "$ret" = "" ]; then
