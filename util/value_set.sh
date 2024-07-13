@@ -40,7 +40,7 @@ do
     fi
     start="${start_accurate%%.*}"
     set +e
-    timeout -v --kill-after=3 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Set '$servicedata' '$characteristicdata' '$value'"
+    timeout -v --kill-after=0.5 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Set '$servicedata' '$characteristicdata' '$value'"
     responseValue=$?
     set -e
     if [ -e /proc/uptime ]; then

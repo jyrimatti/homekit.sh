@@ -8,6 +8,8 @@ logger_trace 'api/characteristics'
 
 . ./util/cache_toml.sh
 
+resource_is_busy_try_again=-70403
+
 if [ "$REQUEST_METHOD" = "GET" ]; then
     logger_debug 'Request is a GET'
     . ./util/cgi_helpers.sh
@@ -18,14 +20,37 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     ev="${qs_ev:-0}"
 
     ids="$(echo "${qs_id}" | tr ',' '\n')"
+    set +e
     characteristics="$(echo "$ids" \
-                        | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-$(echo "$ids" | wc -l)}" --shell-path dash dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
+        | timeout -v --kill-after=0.5 "$HOMEKIT_SH_CHARACTERISTICS_TIMEOUT" ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-$(echo "$ids" | wc -l)}" --shell-path dash dash ./util/characteristics_get.sh "$meta" "$perms" "$type" "$ev")"
+    responseValue=$?
+    set -e
+    if [ "$responseValue" -eq 124 ]; then
+        logger_error "/characteristics GET timed out! Returning error for all characteristics."
+        characteristics="$(echo "$ids" | {
+            while read -r id; do
+                aid="${id%%.*}"
+                iid="${id##*.}"
+                echo "{ \"aid\": $aid, \"iid\": $iid, \"status\": $resource_is_busy_try_again }"
+            done
+        })"
+    fi
 fi
 
 if [ "$REQUEST_METHOD" = 'PUT' ]; then
     logger_debug 'Request is a PUT'
-    characteristics="$(jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' \
-                         | ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-99}" --shell-path dash dash ./util/characteristics_put.sh)"
+    set +e
+    body="$(cat)"
+    characteristics="$(echo "$body"\
+        | jq -rc '.characteristics | .[] | [.aid, .iid, .value, .ev, .authData, .remote // false, .r // false] | @sh' \
+        | timeout -v --kill-after=0.5 "$HOMEKIT_SH_CHARACTERISTICS_TIMEOUT" ./bin/rust-parallel-"$(uname)" --jobs "${PROFILING:-99}" --shell-path dash dash ./util/characteristics_put.sh)"
+    responseValue=$?
+    set -e
+    if [ "$responseValue" -eq 124 ]; then 
+        logger_error "/characteristics PUT timed out! Returning error for all characteristics."
+        characteristics="$(echo "$body" | jq -rc ".characteristics | .[] | {aid, iid, status: $resource_is_busy_try_again }")"
+    fi
+
 fi
 
 has_errors="$(echo "$characteristics" | jq -r 'select(.status // 0 != 0) | .status')"

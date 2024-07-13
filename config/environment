@@ -53,6 +53,10 @@ HOMEKIT_SH_LOGGING_LEVEL="${HOMEKIT_SH_LOGGING_LEVEL:-INFO}"
 # override nix-shell with dash to speed up script startup
 HOMEKIT_SH_NIX_OVERRIDE="${HOMEKIT_SH_NIX_OVERRIDE:-true}"
 
+# timeout for the whole characteristics request. Apple seems to give up after 7 seconds, so use a smaller here.
+# e.g. 6.0s
+HOMEKIT_SH_CHARACTERISTICS_TIMEOUT="${HOMEKIT_SH_CHARACTERISTICS_TIMEOUT:-6.0s}"
+
 # default timeout for executing commands, if not overridden in service/characteristic configuration.
 # e.g. 5.0s
 HOMEKIT_SH_DEFAULT_TIMEOUT="${HOMEKIT_SH_DEFAULT_TIMEOUT:-5.0s}"
