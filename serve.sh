@@ -121,7 +121,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         return self.client_address[0] + ":" + str(self.client_address[1])
 
     def get_session_store(self):
-        return os.environ['HOMEKIT_SH_RUNTIME_DIR'] + '/sessions/' + self.address_string()
+        return os.environ.get('HOMEKIT_SH_RUNTIME_DIR', '/tmp/homekit.sh') + '/sessions/' + self.address_string()
     
     def handle(self):
         # initialize connection state
@@ -134,7 +134,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         self.conn_activity[self.get_session_store()] = start
 
         # initialize logging level for this connection
-        self.logging_level = os.environ['HOMEKIT_SH_LOGGING_LEVEL']
+        self.logging_level = os.environ.get('HOMEKIT_SH_LOGGING_LEVEL', 'TRACE')
 
         # clean old sessions
         for key in self.conn_activity:
@@ -159,7 +159,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             if len(self.rfile.peek(1)[:1]) == 0:
                 # no data available -> send pending events and retry
                 self.handle_events()
-                time.sleep(1)
+                time.sleep(0.1)
                 return
         except SocketError as e:
             if e.errno == errno.ECONNRESET:
