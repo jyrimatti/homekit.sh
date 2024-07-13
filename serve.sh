@@ -190,6 +190,8 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             return ret
         
         else:
+            start = time.time()
+            
             assert len(startBytes) == 2
             text = self.decodeFromBlocks(startBytes, self.rfile)
             self.log_debug("Encrypted request (with start bytes: %b) in plain text: %b", startBytes, text)
@@ -208,9 +210,8 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 self.rfile.seek(0)
 
                 # handle request
-                start = time.time()
                 ret = super().handle_one_request()
-                end = time.time() - start
+                responseHandlingStart = time.time()
 
                 response = open(self.wfile.name, "rb")
             finally:
@@ -228,20 +229,27 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
                 resp = resp[dropped:]
             bytes = self.encodeToBlocks(responseBytes[drop:]).getvalue()
 
+            flushStart = time.time()
+            cgiDur = responseHandlingStart - start
+            handlingDur = flushStart - responseHandlingStart
+
             if len(bytes) == 0:
-                self.log_error("Request to %s took %f seconds and resulted in empty response!?! Script must have failed. Homekit will ignore the connection, so let's kill it.", self.path, end)
+                self.log_error("Request to %s took %f + %f seconds (cgi + resp-handling) and resulted in empty response!?! Script must have failed. Homekit will ignore the connection, so let's kill it.", self.path, cgiDur, handlingDur)
                 raise
-            
-            if end >= 10:
-                self.log_error("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
-            elif end >= 7:
-                self.log_warn("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
-            else:
-                self.log_info("Request to %s took %f seconds. Total encoded response length: %i, response: %s", self.path, end, len(bytes), resp)
             
             self.wfile.write(bytes)
             self.wfile.flush()
 
+            flushDur = time.time() - flushStart
+            totalDur = cgiDur + handlingDur + flushDur
+
+            if totalDur >= 10:
+                self.log_error("Request to %s took %f + %f + %f seconds (cgi + resp-handling + flush). Total encoded response length: %i, response: %s", self.path, cgiDur, handlingDur, flushDur, len(bytes), resp)
+            elif totalDur >= 7:
+                self.log_warn("Request to %s took %f + %f + %f seconds (cgi + resp-handling + flush). Total encoded response length: %i, response: %s", self.path, cgiDur, handlingDur, flushDur, len(bytes), resp)
+            else:
+                self.log_info("Request to %s took %f + %f + %f seconds (cgi + resp-handling + flush). Total encoded response length: %i, response: %s", self.path, cgiDur, handlingDur, flushDur, len(bytes), resp)
+            
             return ret
     
     def handle_events(self):
