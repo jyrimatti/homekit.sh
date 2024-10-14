@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash jq bc coreutils
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash jq bc coreutils rust-script
 . ./prelude
 set -eu
 
@@ -25,7 +25,7 @@ sessionKey="$(echo -n "$srpSharedSecret" | dash ./pairing/hkdf.sh "Pair-Setup-En
     exit 1
 }
 
-plaintext="$(echo -n "$messageData" | ./pairing/decrypt_and_verify.sh "PS-Msg05" "$sessionKey" "$authTagData")" || {
+plaintext="$(echo -n "$messageData" | rust-script ./pairing/decrypt_and_verify.sh "PS-Msg05" "$sessionKey" "$authTagData")" || {
     logger_error "Error while decrypting and verifying M5 subTlv"
     # If verification/decryption fails, the accessory must respond with the following TLV items:
     jq -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
@@ -82,7 +82,7 @@ AccessorySignature="$(echo -n "$AccessoryInfo" | ./pairing/sign.sh "$storePath/A
 subTLV="$(jq -n "{\"$TLV_IDENTIFIER\": \"$(echo -n "$AccessoryPairingID" | ./util/bin2hex.sh)\", \"$TLV_PUBLIC_KEY\": \"$AccessoryLTPK\", \"$TLV_SIGNATURE\": \"$AccessorySignature\"}" | ./util/tlv_encode.sh)"
 
 # Encrypt the sub-TLV, encryptedData, and generate the 16 byte authtag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
-encrypted="$(echo -n "$subTLV" | ./pairing/encrypt_and_digest.sh "PS-Msg06" "$sessionKey")" || {
+encrypted="$(echo -n "$subTLV" | rust-script ./pairing/encrypt_and_digest.sh "PS-Msg06" "$sessionKey")" || {
     logger_error "Encrypting M5 response failed"
     exit 1
 }

@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep LD_LIBRARY_PATH -i dash -I channel:nixos-23.11-small -p dash nix jq ncurses which "pkgs.callPackage ./wolfclu.nix {}"
+#! nix-shell --pure --keep LD_LIBRARY_PATH -i dash -I channel:nixos-23.11-small -p nix dash yq jq ncurses which "pkgs.callPackage ./wolfclu.nix {}"
 . ./prelude
 set -eu
 
@@ -12,4 +12,4 @@ dash ./clear_caches.sh
 
 dash ./initdirs.sh
 
-./pairing/generate_sign_keypair.sh "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"
+dash ./pairing/generate_sign_keypair.sh "$HOMEKIT_SH_STORE_DIR/AccessoryLTPK" "$HOMEKIT_SH_STORE_DIR/AccessoryLTSK"

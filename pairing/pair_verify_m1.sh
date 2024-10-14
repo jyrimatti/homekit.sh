@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash jq xxd
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash jq xxd rust-script
 . ./prelude
 set -eu
 
@@ -45,7 +45,7 @@ SessionKey=$(echo -n "$sharedSecret" | dash ./pairing/hkdf.sh "Pair-Verify-Encry
 }
 
 # Encrypt the sub-TLV, encryptedData, and generate the 16-byte auth tag, authTag. This uses the ChaCha20-Poly1305 AEAD algorithm
-encrypted=$(echo -n "$subTLV" | ./pairing/encrypt_and_digest.sh "PV-Msg02" "$SessionKey") || {
+encrypted=$(echo -n "$subTLV" | rust-script ./pairing/encrypt_and_digest.sh "PV-Msg02" "$SessionKey") || {
     logger_error 'Encrypting M2 response failed'
     exit 1
 }

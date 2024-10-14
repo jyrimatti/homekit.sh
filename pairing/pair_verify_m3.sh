@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash jq xxd bc
+#! nix-shell -i dash -I channel:nixos-23.11-small -p dash jq xxd bc rust-script
 . ./prelude
 set -eu
 
@@ -29,7 +29,7 @@ SessionKey=$(echo -n "$sharedSecret" | dash ./pairing/hkdf.sh "Pair-Verify-Encry
 
 # Verify the iOSdevice's authTag, which is appended to the encryptedData and contained within the kTLVType_EncryptedData TLV item, against encryptedData.
 # Decrypt the sub-TLV in encryptedData.
-subTLVhex="$(echo -n "$messageData" | ./pairing/decrypt_and_verify.sh "PV-Msg03" "$SessionKey" "$authTagData" || {
+subTLVhex="$(echo -n "$messageData" | rust-script ./pairing/decrypt_and_verify.sh "PV-Msg03" "$SessionKey" "$authTagData" || {
         logger_error 'Error while decrypting and verifying M3 subTlv'
         echo -n "{\"$TLV_STATE\": $TLV_M4, \"$TLV_ERROR\": $TLV_ERROR_AUTHENTICATION}" | ./util/tlv_encode.sh
         exit 2
