@@ -4,8 +4,6 @@
 . ./prelude
 set -eu
 
-NIXPKGS_ALLOW_UNFREE=1 nix-shell -p ookla-speedtest --run 'echo '''
-
 startprocesses="${1:-startprocesses}"
 
 export LC_ALL=C # "fix" Nix Perl locale warnings
