@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure --keep LD_LIBRARY_PATH -i dash -I channel:nixos-23.11-small -p nix dash yq jq ncurses which "pkgs.callPackage ./wolfclu.nix {}"
+#! nix-shell --pure --keep LD_LIBRARY_PATH -i dash -I channel:nixos-24.11-small -p nix dash yq jq ncurses which "pkgs.callPackage ./wolfclu.nix {}"
 . ./prelude
 set -eu
 

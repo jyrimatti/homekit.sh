@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p nix dash findutils ncurses
+#! nix-shell -i dash -I channel:nixos-24.11-small -p nix dash findutils ncurses
 . ./prelude
 
 set -eu

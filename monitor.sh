@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -i dash -I channel:nixos-23.11-small -p dash fswatch gnused yq jq ncurses
+#! nix-shell -i dash -I channel:nixos-24.11-small -p dash fswatch gnused yq jq ncurses
 . ./prelude
 set -eu
 

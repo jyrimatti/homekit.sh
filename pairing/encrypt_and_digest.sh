@@ -7,7 +7,7 @@
 //! anyhow = "1.0"
 //! ```
 /*
-#!nix-shell -I channel:nixos-23.11-small -i rust-script -p rustc rust-script cargo libiconv
+#!nix-shell -I channel:nixos-24.11-small -i rust-script -p rustc rust-script cargo libiconv
 */
 use std::env;
 use std::io;
