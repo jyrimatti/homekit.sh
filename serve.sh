@@ -248,7 +248,7 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
             elif totalDur >= 7:
                 self.log_warn("Request to %s took %f + %f + %f seconds (cgi + resp-handling + flush). Total encoded response length: %i, response: %s", self.path, cgiDur, handlingDur, flushDur, len(bytes), resp)
             else:
-                self.log_info("Request to %s took %f + %f + %f seconds (cgi + resp-handling + flush). Total encoded response length: %i, response: %s", self.path, cgiDur, handlingDur, flushDur, len(bytes), resp)
+                self.log_info("Request to %s took %f + %f + %f seconds (cgi + resp-handling + flush). Total encoded response length: %i", self.path, cgiDur, handlingDur, flushDur, len(bytes))
             
             return ret
     
