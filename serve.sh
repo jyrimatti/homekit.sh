@@ -79,9 +79,9 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
         year, month, day, hh, mm, ss, x, y, z = time.localtime(time.time())
         return "%04d-%02d-%02d %02d:%02d:%02d" % (year, month, day, hh, mm, ss)
 
-    def log(self, level, color, format, *args):
+    def log(self, prefix, level, color, format, *args):
         message = format % args
-        sys.stderr.write(color + "%s %05s [%s] %s - %s\n" %
+        sys.stderr.write(prefix + color + "%s %05s [%s] %s - %s\n" %
             (self.log_date_time_string(),
             level,
             self.address_string(),
@@ -90,19 +90,19 @@ class MyHandler(http.server.CGIHTTPRequestHandler):
 
     def log_debug(self, format, *args):
         if self.logging_level != FATAL and self.logging_level != ERROR and self.logging_level != WARN and self.logging_level != INFO:
-            self.log(DEBUG, GRAY, format, *args)
+            self.log("<7>", DEBUG, GRAY, format, *args)
 
     def log_info(self, format, *args):
         if self.logging_level != FATAL and self.logging_level != ERROR and self.logging_level != WARN:
-            self.log(INFO, GREEN, format, *args)
+            self.log("<6>", INFO, GREEN, format, *args)
     
     def log_warn(self, format, *args):
         if self.logging_level != FATAL and self.logging_level != ERROR:
-            self.log(WARN, YELLOW, format, *args)
+            self.log("<4>", WARN, YELLOW, format, *args)
 
     def log_error(self, format, *args):
         if self.logging_level != FATAL:
-            self.log(ERROR, RED, format, *args)
+            self.log("<3>", ERROR, RED, format, *args)
     
     def log_message(self, format, *args):
         self.log_debug(format%args)
