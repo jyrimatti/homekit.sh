@@ -154,8 +154,7 @@ After=homekit.sh.service
 [Service]
 ExecStart=/bin/sh -c '. /etc/profile.d/nix.sh; $scriptdir/start.sh'
 Type=simple
-Restart=always
-RuntimeMaxSec=1d
+Restart=on-failure
 TasksMax=infinity
 CPUAccounting=1
 MemoryAccounting=1
