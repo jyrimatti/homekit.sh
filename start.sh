@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -I channel:nixos-24.11-small -p coreutils findutils gnused bc xxd jq dash nix which fswatch yajsv avahi yq htmlq netcat websocat flock getoptions ncurses curl rustc rust-script cargo libiconv bkt python3Packages.pycryptodome python3Packages.pynacl python3Packages.tlv8 python3Packages.srp python3Packages.aioharmony python3Packages.setuptools "pkgs.callPackage ~/homekit.sh/wolfclu.nix {}"
+#! nix-shell -I channel:nixos-24.11-small -p coreutils findutils gnused bc xxd jq dash nix which fswatch yajsv avahi yq htmlq netcat websocat flock bkt getoptions ncurses curl rustc rust-script cargo libiconv bkt python3Packages.pycryptodome python3Packages.pynacl python3Packages.tlv8 python3Packages.srp python3Packages.aioharmony python3Packages.setuptools "pkgs.callPackage ~/homekit.sh/wolfclu.nix {}"
 #! nix-shell -i dash
 . ./prelude
 set -eu

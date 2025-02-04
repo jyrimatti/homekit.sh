@@ -13,7 +13,10 @@ HOMEKIT_SH_STORE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}${_bridge}/homekit.sh
 HOMEKIT_SH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/homekit.sh"
 
 # temporary runtime state dir
-HOMEKIT_SH_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOMEKIT_SH_CACHE_DIR/tmp}/homekit.sh"
+HOMEKIT_SH_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/homekit.sh"
+
+# temporary cache dir for bkt, if a plugin decides to use that
+BKT_CACHE_DIR="${HOMEKIT_SH_RUNTIME_DIR}/bkt"
 
 # accessories dir
 HOMEKIT_SH_ACCESSORIES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/homekit.sh/accessories"

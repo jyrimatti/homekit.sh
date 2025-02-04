@@ -59,7 +59,7 @@ jq -r '[.type, .typeName, .iid, .characteristics[0].type, .characteristics[0].ty
         fi
         start="${start_accurate%%.*}"
         set +e
-        ret="$(timeout -v --kill-after=0.5 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; $cmd Get '$servicedata' '$characteristicdata'")"
+        ret="$(timeout -v --kill-after=0.5 "$timeout" dash -c "cd '$HOMEKIT_SH_ACCESSORIES_DIR'; BKT_SCOPE='$aid' $cmd Get '$servicedata' '$characteristicdata'")"
         responseValue=$?
         set -e
         if [ -e /proc/uptime ]; then
