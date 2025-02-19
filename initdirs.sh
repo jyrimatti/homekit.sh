@@ -13,6 +13,7 @@ if [ -n "${HOMEKIT_SH_NIX_OVERRIDE:-}" ]; then
     ln -fs "$(which dash)" "$HOMEKIT_SH_STORE_DIR/nix-override/nix-shell"
 fi
 
+mkdir -p "$BKT_CACHE_DIR"
 mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sessions"
 mkdir -p "$HOMEKIT_SH_RUNTIME_DIR/sent_events"
 
