@@ -177,6 +177,14 @@ Environment='HOMEKIT_SH_LOGGING=syslog'
 WantedBy=homekit.sh.service
 EOF
 
+echo "Creating tmpfiles cleanup config..."
+cat > "$HOME/.config/user-tmpfiles.d/homekit.sh.conf" << EOF
+R %t/homekit.sh - - - 6h
+EOF
+
+echo "Enabling user tmpfiles-clean timer..."
+systemctl --user enable systemd-tmpfiles-clean.timer
+
 echo "Reloading systemd config..."
 systemctl --user daemon-reload
 
